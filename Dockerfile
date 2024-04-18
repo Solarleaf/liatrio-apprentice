@@ -37,4 +37,4 @@ COPY . .
 EXPOSE 80
 
 # Run the application.
-CMD node app.js
+CMD node index.js
