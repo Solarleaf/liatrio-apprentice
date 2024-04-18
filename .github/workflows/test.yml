@@ -1,5 +1,4 @@
 name: Apprenticeship App Test
-description: Simple HTTP API endpoint
 on:
   push:
     branches: [ main ]
