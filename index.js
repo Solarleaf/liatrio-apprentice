@@ -11,7 +11,7 @@ app.get("/", (req, res) => {
         message: "My name is Leif Hasle",
         timestamp: new Date()
     };
-    res.json(responseObject);
+    res.status(200).json(responseObject);
 });
 
 app.listen(port, hostname, () => {
