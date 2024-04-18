@@ -8,6 +8,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - run: node index.js
     - name: run tests
       uses: liatrio/github-actions/apprentice-action@master
+    - run: node index.js
