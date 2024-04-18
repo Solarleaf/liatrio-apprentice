@@ -8,7 +8,7 @@ app.get("/", (req, res) => {
         message: "My name is Leif Hasle",
         timestamp: new Date()
     };
-    res.status(200).json(responseObject);
+    res.json(responseObject);
 });
 
 app.listen(port, () => {
