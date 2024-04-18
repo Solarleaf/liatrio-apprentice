@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const port = process.env.PORT || 80;
+const host = '127.17.0.1';
 
 app.get("/", (req, res) => {
     const responseObject = {
@@ -10,7 +11,7 @@ app.get("/", (req, res) => {
     res.json(responseObject);
 });
 
-app.listen(port, () => {
+app.listen(port, host, () => {
     console.log(`Example app listening on port ${port}!`);
     // console.log(`Server running at http://${hostname}:${port}/`);
 });
