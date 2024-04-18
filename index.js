@@ -12,7 +12,6 @@ app.get("/", (req, res) => {
         timestamp: new Date()
     };
     res.status(200).json(responseObject);
-    // res.json(responseObject);
 });
 /*
 app.listen(port, hostname, () => {
