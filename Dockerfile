@@ -7,7 +7,7 @@
 # Want to help us make this template better? Share your feedback here: https://forms.gle/ybq9Krt8jtBL3iCk7
 
 # Testing Node Version
-# ARG NODE_VERSION=20.12.2
+#ARG NODE_VERSION=20.12.2
 ARG NODE_VERSION=16.20.2
 
 FROM node:${NODE_VERSION}-alpine

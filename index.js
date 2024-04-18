@@ -12,9 +12,15 @@ app.get("/", (req, res) => {
         timestamp: new Date()
     };
     res.status(200).json(responseObject);
+    // res.json(responseObject);
 });
-
+/*
 app.listen(port, hostname, () => {
+    console.log(`Example app listening on port ${port}!`);
+    // console.log(`Server running at http://${hostname}:${port}/`);
+});
+*/
+app.listen(port, () => {
     console.log(`Example app listening on port ${port}!`);
     // console.log(`Server running at http://${hostname}:${port}/`);
 });
