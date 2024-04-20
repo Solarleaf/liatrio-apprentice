@@ -1,4 +1,4 @@
-name: Running By Itself
+name: Running Docker
 on:
   push:
     branches: [ main ]
