@@ -10,7 +10,7 @@ const hostname = '127.17.0.1';
 app.get("/", (req, res) => {
     const responseObject = {
         message: "My name is Leif Hasle",
-        timestamp: new Date()
+        timestamp: new Date().toISOString()
     };
     res.status(200).json(responseObject);
 });
