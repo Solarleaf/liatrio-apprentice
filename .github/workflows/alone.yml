@@ -21,3 +21,5 @@ jobs:
     - run: npm ci
     - run: npm run build --if-present
 #   - run: npm test
+    - name: run tests
+      uses: liatrio/github-actions/apprentice-action@master
