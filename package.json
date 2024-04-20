@@ -4,8 +4,6 @@
   "description": "Return Name and Timestamp",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "node index.js"
   },
   "author": "LH",
   "license": "ISC",
