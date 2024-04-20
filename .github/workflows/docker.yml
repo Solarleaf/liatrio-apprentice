@@ -16,3 +16,4 @@ jobs:
       run: docker compose up --build
     - name: run tests
       uses: liatrio/github-actions/apprentice-action@master
+
