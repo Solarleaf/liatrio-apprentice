@@ -1,4 +1,4 @@
-name: Running Docker
+name: Apprentice Test - Running Docker
 on:
   push:
     branches: [ main ]
@@ -11,6 +11,7 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+  #  - name: Docker Login Work in Progress
       
     - name: Build Docker Image
       run: docker compose up --build -d
