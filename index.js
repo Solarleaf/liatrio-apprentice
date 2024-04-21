@@ -6,11 +6,13 @@ const app = express();
 
 const port = 80;
 const hostname = '127.17.0.1';
+const mess_n = "My name is Leif Hasle"
 
 app.get("/", (req, res) => {
     const responseObject = {
-        message: "MynameisLeifHasle",
-        timestamp: new Date().getTime()
+        message: mess_n,
+        timestamp: new Date().getTime(),
+        mini: JSON.stringify(JSON.parse(mess_n)),
         // timestamp: System.currentTimeMillis() / 1000,
     };
     res.status(200).json(responseObject);
