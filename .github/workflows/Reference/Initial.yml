@@ -1,4 +1,4 @@
-name: Apprenticeship App Test
+name: -Test This was Trying to run it by itself Apprenticeship App Test
 on:
   push:
     branches: [ main ]
