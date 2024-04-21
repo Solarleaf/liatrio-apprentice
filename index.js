@@ -10,7 +10,7 @@ const hostname = '127.17.0.1';
 app.get("/", (req, res) => {
     const responseObject = {
         message: "My name is Leif Hasle",
-        timestamp: new Date().toUTCString()
+        timestamp: new Date().getTime() / 1000
         // timestamp: System.currentTimeMillis() / 1000,
     };
     res.status(200).json(responseObject);
