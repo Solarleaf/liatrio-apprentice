@@ -9,7 +9,7 @@ const hostname = '127.17.0.1';
 
 app.get("/", (req, res) => {
     const responseObject = {
-        message: "My name is Leif Hasle",
+        message: "MynameisLeifHasle",
         timestamp: new Date().getTime()
         // timestamp: System.currentTimeMillis() / 1000,
     };
