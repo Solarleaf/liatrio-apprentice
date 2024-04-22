@@ -6,7 +6,7 @@ const app = express();
 
 const port = 80;
 const hostname = '127.17.0.1';
-const mess_n = "My name is Leif Hasle";
+const mess_n = "My name is L. H.";
 
 app.get("/", (req, res) => {
     const responseObject = {
