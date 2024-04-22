@@ -23,7 +23,7 @@ jobs:
     - name: Publish Image
       run: |
         docker build -t l-a .
-        docker tag l-ah lunarlife/l-a:version1.0
+        docker tag l-h lunarlife/l-a:version1.0
         docker push lunarlife/l-a:version1.0
 
     - name: run tests
