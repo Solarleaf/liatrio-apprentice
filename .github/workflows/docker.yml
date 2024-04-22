@@ -12,8 +12,20 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
   #  - name: Docker Login Work in Progress
+    - name: Log in to Docker Hub
+      uses: docker/login-action@master
+      with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOKLAP }}
+
     - name: Build Docker Image
       run: docker compose up --build -d
+    - name: Publish Image
+      run: |
+        docker build -t l-ah .
+        docker tag l-ah lunarlife/l-ah:version1.0
+        docker push lunarlife/l0ah:version1.0
+
     - name: run tests
       #uses: liatrio/github-actions/apprentice-action@b6b3837bb48d74422173407098b4ad9f9e40ace7
       # uses: Solarleaf/github-actions/apprentice-action@master
