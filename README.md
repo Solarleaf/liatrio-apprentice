@@ -12,4 +12,4 @@ Tools Used:
 - AWS or Google Cloud (To be Determined)
 
 
-[![Apprenticeship App Test](https://github.com/Solarleaf/liatrio-apprentice/actions/workflows/test.yml/badge.svg)](https://github.com/Solarleaf/liatrio-apprentice/actions/workflows/test.yml)
+[![Apprentice Test - Running Docker](https://github.com/Solarleaf/liatrio-apprentice/actions/workflows/docker.yml/badge.svg)](https://github.com/Solarleaf/liatrio-apprentice/actions/workflows/docker.yml)
