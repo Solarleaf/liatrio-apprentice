@@ -12,7 +12,8 @@ app.get("/", (req, res) => {
     const responseObject = {
         message: mess_n,
         timestamp: new Date().getTime(),
-        data: mess_n.replace(/\s+/g, ''),
+        data: "true",
+        // data: mess_n.replace(/\s+/g, ''),
         // timestamp: System.currentTimeMillis() / 1000,
     };
     res.status(200).json(responseObject);
