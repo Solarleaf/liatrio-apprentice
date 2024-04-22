@@ -12,7 +12,7 @@ app.get("/", (req, res) => {
     const responseObject = {
         message: mess_n,
         timestamp: new Date().getTime(),
-        data: mess_n.replace(/\s+/g, ''),
+        mini: mess_n.replace(/\s+/g, ''),
         // timestamp: System.currentTimeMillis() / 1000,
     };
     res.status(200).json(responseObject);
@@ -26,4 +26,5 @@ app.listen(port, hostname, () => {
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}!`);
     // console.log(`Server running at http://${hostname}:${port}/`);
+    //
 });
