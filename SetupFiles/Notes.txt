@@ -1,7 +1,7 @@
 For Linux:
 sudo apt-get update
 
-sudo apt-get upgrade
+sudo apt-get upgrade -y
 
 sudo apt-get install git
 
@@ -18,6 +18,8 @@ rm index.html
 wget http://127.17.0.1:80
 
 cat index.html ; echo
+
+rm index.html
 
 sudo docker stop $(sudo docker ps -q)
 
