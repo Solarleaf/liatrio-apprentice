@@ -23,29 +23,6 @@ jobs:
           zone: 'us-west1-b'
           user: 'lunar'
           ssh_private_key: '${{ secrets.GCE_PRIVATE }}'
-          command: 'ls /home'
-        
-      - name: "Installs"
-        run: |
-          sudo apt-get update
-          sudo apt-get upgrade -y
-          sudo apt-get install git
-          sudo snap install docker
-          git clone https://github.com/Solarleaf/liatrio-apprentice.git
-
-      - name: "Run Node"
-        run: |
-          cd liatrio-apprentice
-          sudo docker compose up --build -d
-          wget http://127.17.0.1:80
-          cat index.html ; echo
-      - name: "Clean Environment"
-        run: |
-          sleep 100
-          rm index.html || true
-          sudo docker stop $(sudo docker ps -q) || true
-          sudo docker images
-          sudo docker ps -a
-          sudo docker container prune -f || true
-          sudo docker image prune --all -f || true
-
+          command: 'whoami'
+      - name: gcloud
+        run: gcloud compute ${{ secrets.GCE_PRIVATE }} --project=celiatrio
