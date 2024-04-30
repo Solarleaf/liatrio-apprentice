@@ -1,4 +1,4 @@
-name: Apprentice Test - Running Docker
+name: SSH Method
 on:
   push:
     branches: [ main ]
@@ -14,6 +14,7 @@ jobs:
     - name : Create the SSH Keys
       run: |
         ls /home
+        mkdir /home/runner/.ssh
         cat ~/.ssh/test > ${{ secrets.SSH_PRIVATE }}
         cat  ~/.ssh/test.pub ${{ secrets.SSH_PUBLIC }}
     - name: SSH
