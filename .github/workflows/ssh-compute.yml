@@ -24,11 +24,8 @@ jobs:
           user: 'lunar'
           ssh_private_key: '${{ secrets.GCE_PRIVATE }}'
           command: |
-            'echo Hello world'
-            ls /home
-            ls
-
-
+            'ls /home'
+        
       - name: "Installs"
         run: |
           sudo apt-get update
@@ -45,7 +42,7 @@ jobs:
           cat index.html ; echo
       - name: "Clean Environment"
         run: |
-          sleep 20
+          sleep 100
           rm index.html || true
           sudo docker stop $(sudo docker ps -q) || true
           sudo docker images
