@@ -23,8 +23,7 @@ jobs:
           zone: 'us-west1-b'
           user: 'lunar'
           ssh_private_key: '${{ secrets.GCE_PRIVATE }}'
-          command: |
-            'ls /home'
+          command: 'ls /home'
         
       - name: "Installs"
         run: |
