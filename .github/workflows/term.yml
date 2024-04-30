@@ -20,7 +20,9 @@ jobs:
           version: '>= 363.0.0'
       - name: 'Use gcloud CLI'
         run: 'gcloud info'
-
+      - name: "Info"
+        run: |
+          ls /home
       
       - name: "Installs"
         run: |
