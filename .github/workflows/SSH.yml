@@ -18,11 +18,11 @@ jobs:
         ls /home
     - name : Trying to create
       run: |
-        mkdir /home/runner/.ssh
+        sudo mkdir /home/runner/.ssh
     - name: Keys
       run: |
-        cat ~/.ssh/test > ${{ secrets.SSH_PRIVATE }}
-        cat  ~/.ssh/test.pub ${{ secrets.SSH_PUBLIC }}
+        sudo cat ~/.ssh/test > ${{ secrets.SSH_PRIVATE }}
+        sudo cat  ~/.ssh/test.pub ${{ secrets.SSH_PUBLIC }}
     - name: SSH
       run: |
         ssh http://35.212.149.21/ -y
