@@ -27,13 +27,14 @@ jobs:
           sudo apt-get install git
           sudo snap install docker
           git clone https://github.com/Solarleaf/liatrio-apprentice.git
-          -name: "Run Node"
-          run: |
+      - name: "Run Node"
+        run: |
           cd liatrio-apprentice
           sudo docker compose up --build -d
           wget http://127.17.0.1:80
           cat index.html ; echo
-          -name: "Clean Environment"
+      - name: "Clean Environment"
+        run: |
           sleep 100
           rm index.html
           sudo docker stop $(sudo docker ps -q) || true
