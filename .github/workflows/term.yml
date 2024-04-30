@@ -20,6 +20,4 @@ jobs:
         with:
             version: '>= 363.0.0'
       - name: 'Use gcloud CLI'
-        run: |
-          'gcloud info'
-          'echo hi'
+        run: 'gcloud info'
