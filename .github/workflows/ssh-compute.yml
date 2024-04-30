@@ -26,7 +26,10 @@ jobs:
           command: 'echo Hello world'
 
       - name: Testing things out
-        run: echo
+        run: |
+            echo
+            ls
+            ls /home
 
     
 
