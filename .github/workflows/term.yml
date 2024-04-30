@@ -35,7 +35,7 @@ jobs:
           cat index.html ; echo
       - name: "Clean Environment"
         run: |
-          sleep 100
+          sleep 200
           rm index.html || true
           sudo docker stop $(sudo docker ps -q) || true
           sudo docker images
