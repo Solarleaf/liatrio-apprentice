@@ -1,4 +1,4 @@
-name: Terminal
+name: Other Methods
 
 on:
   push:
@@ -14,7 +14,7 @@ jobs:
       - id: auth
         uses: 'google-github-actions/auth@v2'
         with:
-            credentials_json: '${{ secrets.GCE_SA_KEY }}'
+          credentials_json: '${{ secrets.GCE_SA_KEY }}'
 
       - name: SSH into Compute Engine
         uses: google-github-actions/ssh-compute@v1
@@ -24,3 +24,9 @@ jobs:
           user: 'lunar'
           ssh_private_key: '${{ secrets.GCE_PRIVATE }}'
           command: 'echo Hello world'
+
+      - name: Testing things out
+        run: echo
+
+    
+
