@@ -13,6 +13,7 @@ jobs:
       uses: actions/checkout@v2
     - name : Create the SSH Keys
       run: |
+        ls /home
         cat ~/.ssh/test > ${{ secrets.SSH_PRIVATE }}
         cat  ~/.ssh/test.pub ${{ secrets.SSH_PUBLIC }}
     - name: SSH
