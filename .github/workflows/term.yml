@@ -4,7 +4,6 @@ on:
   push:
     branches: [ "main" ]
 
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -18,21 +17,24 @@ jobs:
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v2'
         with:
-            version: '>= 363.0.0'
+          version: '>= 363.0.0'
       - name: 'Use gcloud CLI'
         run: 'gcloud info'
-      - name: "test"
+      - name: "Installs"
         run: |
           sudo apt-get update
           sudo apt-get upgrade -y
           sudo apt-get install git
           sudo snap install docker
           git clone https://github.com/Solarleaf/liatrio-apprentice.git
+          -name: "Run Node"
+          run: |
           cd liatrio-apprentice
           sudo docker compose up --build -d
           wget http://127.17.0.1:80
           cat index.html ; echo
-          sleep 10
+          -name: "Clean Environment"
+          sleep 100
           rm index.html
           sudo docker stop $(sudo docker ps -q) || true
           sudo docker images
@@ -40,6 +42,5 @@ jobs:
           sudo docker container prune -f || true
           sudo docker image prune --all -f || true
 
-        
 
-    
+
