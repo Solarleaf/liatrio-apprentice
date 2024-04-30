@@ -20,6 +20,8 @@ jobs:
           version: '>= 363.0.0'
       - name: 'Use gcloud CLI'
         run: 'gcloud info'
+
+      
       - name: "Installs"
         run: |
           sudo apt-get update
@@ -27,6 +29,7 @@ jobs:
           sudo apt-get install git
           sudo snap install docker
           git clone https://github.com/Solarleaf/liatrio-apprentice.git
+
       - name: "Run Node"
         run: |
           cd liatrio-apprentice
@@ -35,7 +38,7 @@ jobs:
           cat index.html ; echo
       - name: "Clean Environment"
         run: |
-          sleep 200
+          sleep 20
           rm index.html || true
           sudo docker stop $(sudo docker ps -q) || true
           sudo docker images
