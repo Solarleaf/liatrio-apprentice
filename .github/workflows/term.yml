@@ -22,4 +22,4 @@ jobs:
       - name: 'Use gcloud CLI'
         run: |
           'gcloud info'
-          echo hi
+          'echo hi'
