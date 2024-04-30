@@ -15,9 +15,12 @@ jobs:
       run: |
         ls
         pwd
-
         ls /home
+    - name : Trying to create
+      run: |
         mkdir /home/runner/.ssh
+    - name: Keys
+      run: |
         cat ~/.ssh/test > ${{ secrets.SSH_PRIVATE }}
         cat  ~/.ssh/test.pub ${{ secrets.SSH_PUBLIC }}
     - name: SSH
