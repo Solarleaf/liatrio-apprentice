@@ -22,6 +22,7 @@ jobs:
         run: 'gcloud info'
       - name: "Info"
         run: |
+          gcloud auth list
           gcloud config set project liatrio-421422
           ls
       
