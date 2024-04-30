@@ -3,9 +3,10 @@ sudo apt-get update
 
 sudo apt-get upgrade -y
 
-sudo apt-get install git
 
-sudo snap install docker
+sudo apt-get install git -y
+
+sudo snap install docker -y
 
 git clone https://github.com/Solarleaf/liatrio-apprentice.git
 
