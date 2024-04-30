@@ -34,11 +34,11 @@ jobs:
           cat index.html ; echo
           sleep 10
           rm index.html
-          sudo docker stop $(sudo docker ps -q)
+          sudo docker stop $(sudo docker ps -q) || true
           sudo docker images
           sudo docker ps -a
-          sudo docker container prune -f
-          sudo docker image prune --all -f
+          sudo docker container prune -f || true
+          sudo docker image prune --all -f || true
 
         
 
