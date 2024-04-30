@@ -22,7 +22,8 @@ jobs:
         run: 'gcloud info'
       - name: "Info"
         run: |
-          ls /home
+          gcloud config set project liatrio-421422
+          ls
       
       - name: "Installs"
         run: |
