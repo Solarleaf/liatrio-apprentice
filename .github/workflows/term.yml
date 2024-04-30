@@ -36,12 +36,9 @@ jobs:
       - name: "Clean Environment"
         run: |
           sleep 100
-          rm index.html
+          rm index.html || true
           sudo docker stop $(sudo docker ps -q) || true
           sudo docker images
           sudo docker ps -a
           sudo docker container prune -f || true
           sudo docker image prune --all -f || true
-
-
-
