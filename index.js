@@ -18,10 +18,11 @@ app.get("/", (req, res) => {
 // Start Server and binding
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}!`);
+    console.log(`Server running at http://${hostname}:${port}/`);
 });
 
 
-// console.log(`Server running at http://${hostname}:${port}/`);
+
 /*
 app.listen(port, hostname, () => {
     console.log(`Example app listening on port ${port}!`);
