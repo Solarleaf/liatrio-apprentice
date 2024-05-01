@@ -3,7 +3,7 @@ const express = require("express");
 const http = require("http");
 const app = express();
 // Variables
-const port = 80;
+const port = process.env.PORT || 80;
 const hostname = '127.17.0.1';
 const mess_n = "My name is Leif H.";
 // Routing
