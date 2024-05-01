@@ -6,28 +6,17 @@
 
 # Want to help us make this template better? Share your feedback here: https://forms.gle/ybq9Krt8jtBL3iCk7
 
-ARG NODE_VERSION=16.20.2
-FROM node:${NODE_VERSION}-alpine
-LABEL version=0.1
-
 # Testing Node Version
 #ARG NODE_VERSION=20.12.2
-#ARG NODE_VERSION=16.20.2
+ARG NODE_VERSION=16.20.2
 
-# FROM node:${NODE_VERSION}-alpine
+FROM node:${NODE_VERSION}-alpine
 
 # Use production node environment by default.
-# ENV NODE_ENV production
+ENV NODE_ENV production
 
-RUN apk update
-RUN apk upgrade
-RUN apk add git
-RUN apk add docker
 
-WORKDIR /usr/src
-
-RUN git clone --depth=1 https://github.com/Solarleaf/liatrio-apprentice.git
-WORKDIR /usr/src/liatrio-apprentice
+WORKDIR /usr/src/app
 
 # Download dependencies as a separate step to take advantage of Docker's caching.
 # Leverage a cache mount to /root/.npm to speed up subsequent builds.
@@ -42,7 +31,7 @@ RUN --mount=type=bind,source=package.json,target=package.json \
 USER node
 
 # Copy the rest of the source files into the image.
-# COPY . .
+COPY . .
 
 # Expose the port that the application listens on.
 EXPOSE 80
