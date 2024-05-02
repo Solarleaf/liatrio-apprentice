@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
-#ARG NODE_VERSION=20.12.2
 ARG NODE_VERSION=16.20.2
+# This version of Linux has Node already installed
 FROM node:${NODE_VERSION}-alpine
 # Use production node environment by default.
 ENV NODE_ENV production
@@ -18,3 +18,6 @@ COPY . .
 EXPOSE 80
 # Run the application.
 CMD node index.js
+
+
+#ARG NODE_VERSION=20.12.2
