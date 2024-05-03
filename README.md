@@ -9,7 +9,7 @@ Tools Used:
 - Express.js
 - Docker
 - GitHub
-- AWS or Google Cloud (To be Determined)
+- Google Cloud
 
 
 [![Apprentice Test - Running Docker](https://github.com/Solarleaf/liatrio-apprentice/actions/workflows/liatriotests.yml/badge.svg)](https://github.com/Solarleaf/liatrio-apprentice/actions/workflows/liatriotests.yml)
