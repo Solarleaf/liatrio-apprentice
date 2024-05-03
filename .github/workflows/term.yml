@@ -35,9 +35,12 @@ jobs:
           git clone https://github.com/Solarleaf/liatrio-apprentice.git
 
       - name: "Run Node"
+      # sudo docker compose up --build -d
         run: |
           cd liatrio-apprentice
-          sudo docker compose up --build -d
+          docker compose build --no-cache
+          docker compose up -d
+
           wget http://127.17.0.1:80
           cat index.html ; echo
       - name: "Clean Environment"
