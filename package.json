@@ -1,13 +1,12 @@
 {
-  "name": "prelim",
+  "name": "liatrio-apprentice",
   "version": "1.0.0",
   "description": "Return Name and Timestamp",
   "main": "index.js",
   "scripts": {},
-  "author": "LH",
+  "author": "L",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.19.2",
-    "prelim": "file:"
+    "liatrio-apprentice": "file:"
   }
 }
