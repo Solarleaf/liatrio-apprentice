@@ -1,38 +1,38 @@
-name: Apprentice Test - Running Docker
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-      
-    - name: Log in to Docker Hub
-      uses: docker/login-action@master
-      with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOKLAP }}
+# name: Apprentice Test - Running Docker
+# on:
+#   push:
+#     branches: [ main ]
+#   pull_request:
+#     branches: [ main ]
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
 
-    - name: Build Docker Image
-      run: |
-        docker compose build --no-cache
-        docker compose up -d
-        
-    - name: run modified tests
-      uses: Solarleaf/github-actions/apprentice-action@25d7fedfaf93cb9ebf77f9d613a8d3fd8cf27e25
-    - name : run Liatrio 6 test
-      uses: liatrio/github-actions/apprentice-action@0b41561cca6822cc8d880fe0e49e7807a41fdf91
-    - name : run Liatrio 6 test
-      uses: liatrio/github-actions/apprentice-action@v1.0.0
+#     steps:
+#     - name: Checkout code
+#       uses: actions/checkout@v2
 
-    # Publish after tests are complete
-    - name: Publish Image
-      run: |
-        docker build -t l-a .
-        docker tag l-a lunarlife/l-a:version1.0
-        docker push lunarlife/l-a:version1.0
+#     - name: Log in to Docker Hub
+#       uses: docker/login-action@master
+#       with:
+#           username: ${{ secrets.DOCKER_USERNAME }}
+#           password: ${{ secrets.DOKLAP }}
+
+#     - name: Build Docker Image
+#       run: |
+#         docker compose build --no-cache
+#         docker compose up -d
+
+#     - name: run modified tests
+#       uses: Solarleaf/github-actions/apprentice-action@25d7fedfaf93cb9ebf77f9d613a8d3fd8cf27e25
+#     - name : run Liatrio 6 test
+#       uses: liatrio/github-actions/apprentice-action@0b41561cca6822cc8d880fe0e49e7807a41fdf91
+#     - name : run Liatrio 6 test
+#       uses: liatrio/github-actions/apprentice-action@v1.0.0
+
+#     # Publish after tests are complete
+#     - name: Publish Image
+#       run: |
+#         docker build -t l-a .
+#         docker tag l-a lunarlife/l-a:version1.0
+#         docker push lunarlife/l-a:version1.0

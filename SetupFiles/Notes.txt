@@ -1,18 +1,6 @@
+
+
 For Linux:
-sudo apt-get update
-
-sudo apt-get upgrade -y
-
-
-sudo apt-get install git -y
-
-sudo snap install docker -y
-
-git clone https://github.com/Solarleaf/liatrio-apprentice.git
-
-cd liatrio-apprentice
-
-sudo docker compose up --build -d
 
 rm index.html
 
@@ -21,16 +9,3 @@ wget http://127.17.0.1:80
 cat index.html ; echo
 
 rm index.html
-
-
-
-
-sudo docker stop $(sudo docker ps -q)
-
-sudo docker images
-
-sudo docker ps -a
-
-sudo docker container prune -f
-
-sudo docker image prune --all -f
