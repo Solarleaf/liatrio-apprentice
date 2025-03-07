@@ -1,5 +1,5 @@
 {
-  "name": "liatrio-apprentice",
+  "name": "la",
   "version": "1.0.0",
   "description": "Return Name and Timestamp",
   "main": "index.js",
@@ -7,6 +7,6 @@
   "author": "L",
   "license": "ISC",
   "dependencies": {
-    "liatrio-apprentice": "file:"
+    "express": "^4.21.2"
   }
 }
