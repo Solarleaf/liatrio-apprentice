@@ -1,0 +1,13 @@
+{
+  "name": "prelim",
+  "version": "1.0.0",
+  "description": "Return Name and Timestamp",
+  "main": "index.js",
+  "scripts": {},
+  "author": "LH",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.19.2",
+    "prelim": "file:"
+  }
+}

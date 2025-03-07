@@ -1,0 +1,52 @@
+name: SSH Method
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name : Create the SSH Keys
+      run: |
+        pwd
+        ls /etc/ssh/
+    - name : Trying to create
+      run: |
+        sudo mkdir /home/runner/.ssh
+    - name: Keys
+      run: |
+        sudo cat /etc/ssh/test > ${{ secrets.SSH_PRIVATE }}
+        sudo cat /etc/ssh/test.pub ${{ secrets.SSH_PUBLIC }}
+    - name: SSH
+      run: |
+        ssh http://35.212.149.21/ -y
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@master
+      with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOKLAP }}
+
+    - name: Build Docker Image
+      run: docker compose up --build -d
+    - name: Publish Image
+      run: |
+        docker build -t l-a .
+        docker tag l-a lunarlife/l-a:version1.0
+        docker push lunarlife/l-a:version1.0
+
+    - name: run tests
+      #uses: liatrio/github-actions/apprentice-action@b6b3837bb48d74422173407098b4ad9f9e40ace7
+      # uses: Solarleaf/github-actions/apprentice-action@master
+      uses: Solarleaf/github-actions/apprentice-action@25d7fedfaf93cb9ebf77f9d613a8d3fd8cf27e25
+      #
+    - name : run Liatrio 6 test
+      uses: liatrio/github-actions/apprentice-action@0b41561cca6822cc8d880fe0e49e7807a41fdf91
+    - name : run Liatrio 6 test
+      uses: liatrio/github-actions/apprentice-action@v1.0.0
+      
