@@ -1,4 +1,4 @@
-# This version of Linux has Node already installed
+# apprentice-action / action/yaml is using node-version '16' so using 16.20.2
 ARG NODE_VERSION=16.20.2
 FROM node:${NODE_VERSION}-alpine
 
@@ -26,17 +26,6 @@ RUN npm ci --omit=dev
 
 # Rest of code
 COPY . .
-
-
-# Old version
-# #Cloning git file to folder
-# RUN git clone --depth=1 https://github.com/Solarleaf/liatrio-apprentice.git
-# WORKDIR /usr/src/liatrio-apprentice
-# # Dependency install
-# RUN --mount=type=bind,source=package.json,target=package.json \
-#     --mount=type=bind,source=package-lock.json,target=package-lock.json \
-#     --mount=type=cache,target=/root/.npm \
-#     npm ci --omit=dev
 
 # Expose the port that the application listens on.
 EXPOSE ${PORT}
