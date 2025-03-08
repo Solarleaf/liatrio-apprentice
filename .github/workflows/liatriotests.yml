@@ -1,8 +1,13 @@
 # name: Apprentice Test - Running Docker
 
 on:
-  push:
-    branches: [alt]
+  workflow_dispatch:
+jobs:
+  noop:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Do nothing
+        run: echo "This workflow won't run unless triggered manually"
 # on:
 #   push:
 #     branches: [ main ]
