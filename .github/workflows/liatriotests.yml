@@ -1,4 +1,8 @@
 # name: Apprentice Test - Running Docker
+
+on:
+  push:
+    branches: [alt]
 # on:
 #   push:
 #     branches: [ main ]

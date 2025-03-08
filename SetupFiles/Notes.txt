@@ -9,3 +9,15 @@ wget http://127.17.0.1:80
 cat index.html ; echo
 
 rm index.html
+
+
+
+
+
+One-time Pod	                Pod	            No need for self-healing
+One-time script or job	        Job	            Runs once and exits
+Scheduled tasks	                Cron            Job	Runs periodically
+Running one Pod per node	    DaemonSet	    Ensures every node gets a Pod
+Databases or Stateful apps	    StatefulSet	    Keeps persistent storage & order
+Node-level system services	    Static Pods	    Managed by Kubelet, not Kubernetes API
+Stateless (web apps, APIs, etc) Deployement     Manages replicas, rolling updates, and self-healing
