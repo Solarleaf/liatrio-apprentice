@@ -11,4 +11,4 @@ Tools Used:
 - Docker
 - GitHub
 
-[![Uploads to Docker](https://github.com/Solarleaf/liatrio-apprentice/actions/workflows/liatriotests.yml/badge.svg)](https://github.com/Solarleaf/liatrio-apprentice/actions/workflows/liatriotests.yml)
+Uploads to Docker: [![.github/workflows/liatriotests.yml](https://github.com/Solarleaf/liatrio-apprentice/actions/workflows/liatriotests.yml/badge.svg)](https://github.com/Solarleaf/liatrio-apprentice/actions/workflows/liatriotests.yml)
