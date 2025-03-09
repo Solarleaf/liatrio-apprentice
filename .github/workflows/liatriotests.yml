@@ -2,9 +2,9 @@
 
 on:
   push:
-    branches: [GitHubActions]
+    branches: [main]
   pull_request:
-    branches: [GitHubActions]
+    branches: [main]
 jobs:
   build:
     runs-on: ubuntu-24.04
