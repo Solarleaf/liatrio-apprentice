@@ -11,6 +11,4 @@ Tools Used:
 - Docker
 - GitHub
 
-These should fail right now:
-[![Apprentice Test - Running Docker](https://github.com/Solarleaf/liatrio-apprentice/actions/workflows/liatriotests.yml/badge.svg)](https://github.com/Solarleaf/liatrio-apprentice/actions/workflows/liatriotests.yml)
-[![Terminal](https://github.com/Solarleaf/liatrio-apprentice/actions/workflows/term.yml/badge.svg)](https://github.com/Solarleaf/liatrio-apprentice/actions/workflows/term.yml)
+[![Uploads to Docker](https://github.com/Solarleaf/liatrio-apprentice/actions/workflows/liatriotests.yml/badge.svg)](https://github.com/Solarleaf/liatrio-apprentice/actions/workflows/liatriotests.yml)
