@@ -1,0 +1,142 @@
+gcloud beta container --project "liatrio-421422" clusters create "cluster-1" --zone "us-central1-a" --tier "standard" --no-enable-basic-auth --cluster-version "1.31.5-gke.1233000" --release-channel "regular" --machine-type "e2-small" --image-type "COS_CONTAINERD" --disk-type "pd-balanced" --disk-size "40" --metadata disable-legacy-endpoints=true --scopes "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" --num-nodes "1" --logging=SYSTEM,WORKLOAD --enable-ip-alias --network "projects/liatrio-421422/global/networks/default" --subnetwork "projects/liatrio-421422/regions/us-central1/subnetworks/default" --no-enable-intra-node-visibility --default-max-pods-per-node "110" --enable-ip-access --security-posture=standard --workload-vulnerability-scanning=disabled --no-enable-google-cloud-access --addons HorizontalPodAutoscaling,HttpLoadBalancing,GcePersistentDiskCsiDriver --enable-autoupgrade --enable-autorepair --max-surge-upgrade 1 --max-unavailable-upgrade 0 --binauthz-evaluation-mode=DISABLED --no-enable-managed-prometheus --enable-shielded-nodes --shielded-integrity-monitoring --no-shielded-secure-boot --node-locations "us-central1-a"
+
+
+POST https://container.googleapis.com/v1beta1/projects/liatrio-421422/zones/us-central1-a/clusters
+{
+  "cluster": {
+    "name": "cluster-1",
+    "masterAuth": {
+      "clientCertificateConfig": {}
+    },
+    "network": "projects/liatrio-421422/global/networks/default",
+    "addonsConfig": {
+      "httpLoadBalancing": {},
+      "horizontalPodAutoscaling": {},
+      "kubernetesDashboard": {
+        "disabled": true
+      },
+      "dnsCacheConfig": {},
+      "gcePersistentDiskCsiDriverConfig": {
+        "enabled": true
+      },
+      "gcsFuseCsiDriverConfig": {},
+      "rayOperatorConfig": {}
+    },
+    "subnetwork": "projects/liatrio-421422/regions/us-central1/subnetworks/default",
+    "nodePools": [
+      {
+        "name": "default-pool",
+        "config": {
+          "machineType": "e2-small",
+          "diskSizeGb": 40,
+          "oauthScopes": [
+            "https://www.googleapis.com/auth/devstorage.read_only",
+            "https://www.googleapis.com/auth/logging.write",
+            "https://www.googleapis.com/auth/monitoring",
+            "https://www.googleapis.com/auth/servicecontrol",
+            "https://www.googleapis.com/auth/service.management.readonly",
+            "https://www.googleapis.com/auth/trace.append"
+          ],
+          "metadata": {
+            "disable-legacy-endpoints": "true"
+          },
+          "imageType": "COS_CONTAINERD",
+          "diskType": "pd-balanced",
+          "shieldedInstanceConfig": {
+            "enableIntegrityMonitoring": true
+          },
+          "advancedMachineFeatures": {
+            "enableNestedVirtualization": false
+          },
+          "resourceManagerTags": {}
+        },
+        "initialNodeCount": 1,
+        "autoscaling": {},
+        "management": {
+          "autoUpgrade": true,
+          "autoRepair": true
+        },
+        "networkConfig": {},
+        "upgradeSettings": {
+          "maxSurge": 1,
+          "strategy": "SURGE"
+        },
+        "queuedProvisioning": {}
+      }
+    ],
+    "locations": [
+      "us-central1-a"
+    ],
+    "networkPolicy": {},
+    "ipAllocationPolicy": {
+      "useIpAliases": true,
+      "stackType": "IPV4"
+    },
+    "binaryAuthorization": {
+      "evaluationMode": "DISABLED"
+    },
+    "autoscaling": {},
+    "networkConfig": {
+      "datapathProvider": "LEGACY_DATAPATH",
+      "defaultEnablePrivateNodes": false
+    },
+    "defaultMaxPodsConstraint": {
+      "maxPodsPerNode": "110"
+    },
+    "authenticatorGroupsConfig": {},
+    "databaseEncryption": {
+      "state": "DECRYPTED"
+    },
+    "shieldedNodes": {
+      "enabled": true
+    },
+    "releaseChannel": {
+      "channel": "REGULAR"
+    },
+    "notificationConfig": {
+      "pubsub": {}
+    },
+    "initialClusterVersion": "1.31.5-gke.1233000",
+    "location": "us-central1-a",
+    "loggingConfig": {
+      "componentConfig": {
+        "enableComponents": [
+          "SYSTEM_COMPONENTS",
+          "WORKLOADS"
+        ]
+      }
+    },
+    "monitoringConfig": {
+      "componentConfig": {},
+      "managedPrometheusConfig": {
+        "autoMonitoringConfig": {
+          "scope": "NONE"
+        }
+      }
+    },
+    "nodePoolAutoConfig": {
+      "resourceManagerTags": {}
+    },
+    "securityPostureConfig": {
+      "mode": "BASIC",
+      "vulnerabilityMode": "VULNERABILITY_DISABLED"
+    },
+    "controlPlaneEndpointsConfig": {
+      "dnsEndpointConfig": {
+        "allowExternalTraffic": false
+      },
+      "ipEndpointsConfig": {
+        "enabled": true,
+        "enablePublicEndpoint": true,
+        "globalAccess": false,
+        "authorizedNetworksConfig": {}
+      }
+    },
+    "enterpriseConfig": {
+      "desiredTier": "STANDARD"
+    },
+    "secretManagerConfig": {
+      "enabled": false
+    }
+  }
+}

@@ -5,8 +5,8 @@ const http = require("http");
 const app = express();
 // Port and IP
 const port = process.env.PORT || 80;
-const hostname = '127.17.0.1';
-// const hostname = '0.0.0.0';
+// const hostname = '127.17.0.1';
+const hostname = '0.0.0.0';
 const mess_n = "My name is fun!";
 // Routing that responds to a HTTP GET request
 app.get("/", (req, res) => {
