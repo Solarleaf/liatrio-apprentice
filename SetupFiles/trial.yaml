@@ -16,17 +16,17 @@ spec:
         - name: my-app
           image: docker.io/apptemp/liatrio:latest
           ports:
-            - containerPort: 3000
+            - containerPort: 80
           livenessProbe:
             httpGet:
               path: /
-              port: 3000
+              port: 80
             initialDelaySeconds: 3
             periodSeconds: 10
           readinessProbe:
             httpGet:
               path: /
-              port: 3000
+              port: 80
             initialDelaySeconds: 5
             periodSeconds: 10
 ---
@@ -39,6 +39,6 @@ spec:
     app: my-app
   ports:
     - protocol: TCP
-      port: 3000
-      targetPort: 3000
+      port: 80
+      targetPort: 80
   type: LoadBalancer
