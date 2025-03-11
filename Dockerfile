@@ -9,7 +9,7 @@ LABEL maintainer="L"
 
 # Environmental Varaibles
 ENV NODE=production
-ENV PORT=80
+ENV PORT=3000
 
 # Checking for updates & adding git and docker
 RUN apk update && apk upgrade && apk add git && apk add docker
