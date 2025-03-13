@@ -4,7 +4,7 @@ FROM node:${NODE_VERSION}-alpine
 
 # Labels
 LABEL version=0.1
-LABEL description="Testing things out"
+LABEL description="Liatrio API"
 LABEL maintainer="L"
 
 # Environmental Varaibles
