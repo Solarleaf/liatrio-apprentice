@@ -18,6 +18,7 @@ jobs:
 
       - name: Run Docker
         run: docker run -d -p 80:80 liatrio
+
       # liatrio/github-actions/apprentice-action@v1.0.0
       - name: run Liatrio 6 tests
         uses: liatrio/github-actions/apprentice-action@0b41561cca6822cc8d880fe0e49e7807a41fdf91
