@@ -9,7 +9,7 @@ on:
     branches: [main]
 env:
   IMAGE_NAME: liatrio-api
-  DOCKER_NAME: liatrio/api
+  DOCKER_NAME: apptemp/liatrio
 jobs:
   build:
     # Runner using version
