@@ -7,6 +7,10 @@ on:
       - GitHubActions
   pull_request:
     branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+
 env:
   IMAGE_NAME: liatrio-api
   DOCKER_REPO: apptemp/liatrio
