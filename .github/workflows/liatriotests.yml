@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-24.04
     # Checks out the Repo code
     steps:
-      # checkout@v2 using Sha 3-13-25
+      # checkout@v2 us ing Sha 3-13-25
       - name: Checkout code
         uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5
 
