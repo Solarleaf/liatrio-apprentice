@@ -7,11 +7,15 @@ on:
     branches: [main]
 jobs:
   build:
+    # Runner using version
     runs-on: ubuntu-24.04
     # Checks out the Repo code
     steps:
+      # Action using version and Ref Sha
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          ref: ee0669bd1cc54295c223e0bb666b733df41de1c5
 
       - name: Build Docker Image
         run: docker build -t liatrio .
