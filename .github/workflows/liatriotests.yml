@@ -16,7 +16,8 @@ env:
   IMAGE_NAME: liatrio-api
   DOCKER_REPO: apptemp/liatrio
 jobs:
-  build:
+  liatriotests:
+    # build:
     # Runner using version
     runs-on: ubuntu-24.04
     # Checks out the Repo code
