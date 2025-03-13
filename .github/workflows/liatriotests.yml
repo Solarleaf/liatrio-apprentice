@@ -15,6 +15,7 @@ concurrency:
 env:
   IMAGE_NAME: liatrio-api
   DOCKER_REPO: apptemp/liatrio
+  PORT: 80
 jobs:
   liatriotests:
     # build:
@@ -25,6 +26,7 @@ jobs:
       # This was used for Best Practices: Version Control. STatus checks to pass before merging
       # - name: failing it
       #   run: exit 1
+
       # checkout@v2 using Sha 3-13-25
       - name: Checkout code
         uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5
@@ -33,7 +35,7 @@ jobs:
         run: docker build -t $IMAGE_NAME .
 
       - name: Run Docker
-        run: docker run -d -p 80:80 $IMAGE_NAME
+        run: docker run -d -p $PORT:$PORT $IMAGE_NAME
 
       # liatrio/github-actions/apprentice-action@v1.0.0 3-13-25
       - name: run Liatrio 6 tests
