@@ -21,8 +21,9 @@ jobs:
     runs-on: ubuntu-24.04
     # Checks out the Repo code
     steps:
-      - name: failing it
-        run: exit 1
+      # This was used for Best Practices: Version Control. STatus checks to pass before merging
+      # - name: failing it
+      #   run: exit 1
       # checkout@v2 using Sha 3-13-25
       - name: Checkout code
         uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5
