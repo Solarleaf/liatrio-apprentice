@@ -79,7 +79,6 @@ jobs:
     env:
       GKE_CLUSTER: cluster-1
       GKE_REGION: us-central1-a
-      CLUSTER_CONFIG_FILE: k8s/cluster-spec.yaml
     # Runner using version
     runs-on: ubuntu-24.04
     # Checks out the Repo code
@@ -107,45 +106,22 @@ jobs:
           echo "export USE_GKE_GCLOUD_AUTH_PLUGIN=True" >> ~/.bashrc
           source ~/.bashrc
 
-      - name: Check Clusters
+      - name: Clusters List
         run: gcloud container clusters list
+
       - name: Check if Cluster Exists
         id: check-cluster
         run: |
           CLUSTER_EXISTS=$(gcloud container clusters list --region $GKE_REGION --filter="name=${GKE_CLUSTER}" --format="value(name)")
           if [[ -z "$CLUSTER_EXISTS" ]]; then
             echo "❌ ERROR: Kubernetes cluster '${GKE_CLUSTER}' not found in region '${GKE_REGION}'"
-            echo "CREATE_CLUSTER=true" >> $GITHUB_ENV
+            exit 1
           else
             echo "✅ Cluster '${GKE_CLUSTER}' exists. Proceeding with deployment."
-            echo "CREATE_CLUSTER=false" >> $GITHUB_ENV
           fi
 
       - name: Get Kubernetes Credentials
         run: gcloud container clusters get-credentials $GKE_CLUSTER --region $GKE_REGION
-
-      - name: Create GKE Cluster (if needed)
-        if: env.CREATE_CLUSTER == 'true'
-        run: |
-          echo "🚀 Creating GKE Cluster '${GKE_CLUSTER}' using command from '${CLUSTER_COMMAND_FILE}'..."
-          chmod +x $CLUSTER_COMMAND_FILE  # Ensure file is executable
-          bash $CLUSTER_COMMAND_FILE      # Execute the command from the file
-          echo "✅ Cluster created successfully!"
-
-      - name: Wait for Cluster Readiness
-        run: |
-          echo "⏳ Waiting for cluster to be ready..."
-
-          if [[ "$CLUSTER_STATUS" == "RUNNING" ]]; then
-            echo "✅ Cluster '${GKE_CLUSTER}' is already RUNNING. Skipping wait."
-            exit 0
-          fi
-
-          while [[ $(gcloud container clusters describe ${GKE_CLUSTER} --zone ${GKE_ZONE} --format="value(status)") != "RUNNING" ]]; do
-            echo "Waiting for cluster '${GKE_CLUSTER}' to become RUNNING..."
-            sleep 30
-          done
-          echo "✅ Cluster is now RUNNING."
 
       - name: Deploy Container
         run: kubectl apply -f k8s/deployment.yaml
