@@ -92,3 +92,6 @@ jobs:
       - uses: "google-github-actions/auth@6fc4af4b145ae7821d527454aa9bd537d1f2dc5f"
         with:
           credentials_json: "${{ secrets.GOGLE_CREDS }}"
+      - name: Check If gcloud works
+        run: |
+          run: gcloud auth list
