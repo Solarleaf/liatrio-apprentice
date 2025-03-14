@@ -1,25 +1,35 @@
+# deployment.yaml Main File
+
+# Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: my-app
+  name: liatrio-deployment-api
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
-      app: my-app
+      app: liatrio-app-api
   template:
     metadata:
       labels:
-        app: my-app
+        app: liatrio-app-api
     spec:
       containers:
-        - name: my-app
+        - name: liatrio-container-api
           image: docker.io/apptemp/liatrio:latest
           ports:
             - containerPort: 80
           env:
             - name: PORT
               value: "80"
+          startupProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 10
           livenessProbe:
             httpGet:
               path: /
@@ -36,10 +46,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: my-app-service
+  name: liatrio-service-api
 spec:
   selector:
-    app: my-app
+    app: liatrio-app-api
   ports:
     - protocol: TCP
       port: 80
