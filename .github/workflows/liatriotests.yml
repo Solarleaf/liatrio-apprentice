@@ -76,6 +76,9 @@ jobs:
   GCloud:
     # build:
     needs: liatriotests
+    env:
+      GKE_CLUSTER: cluster-1
+      GKE_REGION: us-central1-a
     # Runner using version
     runs-on: ubuntu-24.04
     # Checks out the Repo code
@@ -96,6 +99,20 @@ jobs:
 
       - name: Check Clusters
         run: gcloud container clusters list
+      - name: Check if Cluster Exists
+        id: check-cluster
+        run: |
+          CLUSTER_EXISTS=$(gcloud container clusters list --region $GKE_REGION --filter="name=${GKE_CLUSTER}" --format="value(name)")
+          if [[ -z "$CLUSTER_EXISTS" ]]; then
+            echo "❌ ERROR: Kubernetes cluster '${GKE_CLUSTER}' not found in region '${GKE_REGION}'"
+            exit 1  # Fail the job if cluster does not exist
+          else
+            echo "✅ Cluster '${GKE_CLUSTER}' exists. Proceeding with deployment."
+          fi
+
+      - name: Get Kubernetes Credentials
+        run: gcloud container clusters get-credentials $GKE_CLUSTER --region $GKE_REGION
+
       - name: Deploy Container
         run: kubectl apply -f k8s/deployment.yaml
 
