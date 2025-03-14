@@ -1,15 +1,13 @@
+# Build Stage
+
 # apprentice-action / action/yaml is using node-version '16' so using 16.20.2
 ARG NODE_VERSION=16.20.2
-FROM node:${NODE_VERSION}-alpine
+FROM node:${NODE_VERSION}-alpine AS builder
 
 # Labels
 LABEL version=0.1
 LABEL description="Liatrio API"
 LABEL maintainer="L"
-
-# Environmental Varaibles
-ENV NODE=production
-ENV PORT=80
 
 # Checking for updates & adding git and docker
 RUN apk update && apk upgrade && apk add git && apk add docker
@@ -27,6 +25,15 @@ RUN npm ci --omit=dev
 # Rest of code
 COPY . .
 
+# Run stage
+FROM node:16.20.2-alpine
+
+# Environmental Varaibles
+ENV NODE=production
+ENV PORT=80
+
+WORKDIR /usr/src
+COPY --from=builder /usr/src .
 # Expose the port that the application listens on.
 EXPOSE ${PORT}
 
