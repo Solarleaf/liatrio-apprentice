@@ -1,4 +1,4 @@
-name: liatriotests
+name: Apprentice GitHub Actions
 
 on:
   push:
@@ -17,7 +17,7 @@ env:
   DOCKER_REPO: apptemp/liatrio
   PORT: 80
 jobs:
-  build_tests:
+  liatriotests: # Name Required for passing the pull request checks
     # build:
     # Runner using version
     runs-on: ubuntu-24.04
@@ -74,7 +74,7 @@ jobs:
 
   GCloud:
     # build:
-    needs: build_tests
+    needs: liatriotests
     # Runner using version
     runs-on: ubuntu-24.04
     # Checks out the Repo code
