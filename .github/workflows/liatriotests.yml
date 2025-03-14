@@ -97,6 +97,9 @@ jobs:
       - name: Set up Google Cloud SDK
         uses: google-github-actions/setup-gcloud@6189d56e4096ee891640bb02ac264be376592d6a
 
+      - name: Check if kubectl is installed
+        run: kubectl version --client
+
       - name: Check Clusters
         run: gcloud container clusters list
       - name: Check if Cluster Exists
@@ -116,6 +119,6 @@ jobs:
       - name: Deploy Container
         run: kubectl apply -f k8s/deployment.yaml
 
-      # - name: Kubernetes Actions  a
+      # - name: Kubernetes Actions
       # gcloud services enable cloudresourcemanager.googleapis.com
       # gcloud services enable container.googleapis.com
