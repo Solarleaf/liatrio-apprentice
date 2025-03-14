@@ -78,6 +78,8 @@ jobs:
     # Runner using version
     runs-on: ubuntu-24.04
     # Checks out the Repo code
+    permissions:
+      contents: read
     steps:
       # This was used for Best Practices: Version Control. STatus checks to pass before merging
       # - name: failing it
