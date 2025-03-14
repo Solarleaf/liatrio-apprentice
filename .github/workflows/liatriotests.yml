@@ -116,6 +116,6 @@ jobs:
       - name: Deploy Container
         run: kubectl apply -f k8s/deployment.yaml
 
-      # - name: Kubernetes Actions
+      # - name: Kubernetes Actions  a
       # gcloud services enable cloudresourcemanager.googleapis.com
       # gcloud services enable container.googleapis.com
