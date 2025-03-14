@@ -93,7 +93,9 @@ jobs:
         with:
           credentials_json: "${{ secrets.GOGLE_CREDS }}"
       - name: Check If gcloud works
+        run: gcloud config set project "${{ secrets.PROJECT_ID }}"
+      - name: Other Checks
         run: |
+          gcloud projects list
           gcloud auth list
           gcloud config list
-          gcloud projects list
