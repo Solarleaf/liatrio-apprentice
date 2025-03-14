@@ -96,11 +96,9 @@ jobs:
       # uses: google-github-actions/setup-gcloud@v2 3-13-25
       - name: Set up Google Cloud SDK
         uses: google-github-actions/setup-gcloud@6189d56e4096ee891640bb02ac264be376592d6a
-      - name: "Use gcloud CLI"
-        run: "gcloud info"
 
-      # - name: Check If gcloud works
-      #   run: gcloud config set project "${{ secrets.PROJECT_ID }}"
+      - name: Set project
+        run: gcloud config set project "${{ secrets.PROJECT_ID }}"
       # - name: Kubernetes Actions
       # gcloud services enable cloudresourcemanager.googleapis.com
       # gcloud services enable container.googleapis.com
