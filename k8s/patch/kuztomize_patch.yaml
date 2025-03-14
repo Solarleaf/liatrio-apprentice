@@ -1,0 +1,13 @@
+# kustomize_patch.yaml patch file
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../
+
+patchesStrategicMerge:
+  - patch_deployment.yaml
+
+images:
+  - name: liatrio-app-api
+    newTag: prod-stable

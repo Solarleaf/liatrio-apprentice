@@ -1,0 +1,8 @@
+# patch_deployment.yaml Patch File
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: liatrio-deployment-api
+spec:
+  replicas: 2

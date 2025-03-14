@@ -1,3 +1,4 @@
+# deployment.yaml Main File
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -40,7 +41,6 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 10
 ---
-# Note: This should be its own file. Keeipng in same file for less screen swapping.
 apiVersion: v1
 kind: Service
 metadata:

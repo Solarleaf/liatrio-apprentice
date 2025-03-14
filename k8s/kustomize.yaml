@@ -1,0 +1,8 @@
+# kustomize.yaml Main Kustomize
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - deployment.yaml
+  # - service.yaml
+#  ../ to go back, etc
+#  kubectl apply -k kustomize.yaml
