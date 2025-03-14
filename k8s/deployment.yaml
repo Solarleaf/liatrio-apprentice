@@ -20,6 +20,13 @@ spec:
           env:
             - name: PORT
               value: "80"
+          startupProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 10
           livenessProbe:
             httpGet:
               path: /
@@ -33,6 +40,7 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 10
 ---
+# Note: This should be its own file. Keeipng in same file for less screen swapping.
 apiVersion: v1
 kind: Service
 metadata:
