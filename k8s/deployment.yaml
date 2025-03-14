@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: my-app
+  name: liatrio-deployment-api
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: my-app
+      app: liatrio-app-api
   template:
     metadata:
       labels:
-        app: my-app
+        app: liatrio-app-api
     spec:
       containers:
-        - name: my-app
+        - name: liatrio-container-api
           image: docker.io/apptemp/liatrio:latest
           ports:
             - containerPort: 80
@@ -36,10 +36,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: my-app-service
+  name: liatrio-service-api
 spec:
   selector:
-    app: my-app
+    app: liatrio-app-api
   ports:
     - protocol: TCP
       port: 80
