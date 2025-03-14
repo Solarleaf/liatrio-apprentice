@@ -100,9 +100,11 @@ jobs:
       - name: Check if kubectl is installed
         run: kubectl version --client
 
-      - name: gke-glcoud-auth
-        run: gke-gcloud-auth-plugin --version
-        # run: gcloud components install gke-gcloud-auth-plugin
+      - name: Install gke-gcloud-auth-plugin
+        run: |
+          gcloud components install gke-gcloud-auth-plugin
+          echo "export USE_GKE_GCLOUD_AUTH_PLUGIN=True" >> ~/.bashrc
+          source ~/.bashrc
 
       - name: Check Clusters
         run: gcloud container clusters list
