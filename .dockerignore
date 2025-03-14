@@ -4,6 +4,9 @@
 # For more help, visit the .dockerignore file reference guide at
 # https://docs.docker.com/go/build-context-dockerignore/
 
+# Ignore generated credentials from google-github-actions/auth
+gha-creds-*.json
+
 **/.classpath
 **/.dockerignore
 **/.env
