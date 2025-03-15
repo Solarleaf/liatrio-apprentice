@@ -1,16 +1,20 @@
 # Build Stage
 
-# apprentice-action / action/yaml is using node-version '16' so using 16.20.2
-ARG NODE_VERSION=16.20.2
-FROM node:${NODE_VERSION}-alpine AS builder
+# apprentice-action / action/yaml is using node-version '16' However, 16 is not listed as a supported tag
+# ARG NODE_VERSION=16.20.2
+
+# Going with a 20.19.0-alpine.3.20. Earliest listed is 18. No 19.
+ARG NODE_VERSION=e028becede0527249b105c22a3881412641b6d45
+FROM node:${NODE_VERSION} AS builder
 
 # Labels
-LABEL version=0.1
-LABEL description="Liatrio API"
-LABEL maintainer="L"
+LABEL version=0.1 \
+    description="Liatrio API" \
+    maintainer="L"
 
 # Checking for updates & adding git and docker
-RUN apk update && apk upgrade && apk add git && apk add docker
+# Cache busting shouldn't be needed given GitHub Actions. && rm -rf /var/cache/apk/* could be added
+RUN apk update && apk upgrade --available && apk add git && apk add docker  
 #work Directory
 WORKDIR /usr/src
 
@@ -22,23 +26,22 @@ COPY package*.json ./
 # RUN npm install --production
 RUN npm ci --omit=dev
 
-# Rest of code
+# Rest of code. Needs to be below dependencies
 COPY . .
 
 # Run stage
 FROM node:16.20.2-alpine
 
-# Environmental Varaibles
-ENV NODE=production
-# PORT Is just documentation
-ENV PORT=80
+# Improves performance, reduces memory, disables some debugging
+ENV NODE_ENV=production
 
 WORKDIR /usr/src
 COPY --from=builder /usr/src .
 # Expose the port that the application listens on.
-EXPOSE ${PORT}
+EXPOSE 80
 
-# Run the application as a non-root user.
+# Run the application as a non-root user could be done
+# Kubernetes can overide user settings in securityContext
 # USER node
 
 # Run the application.
