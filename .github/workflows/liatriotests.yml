@@ -3,9 +3,9 @@ name: Apprentice GitHub Actions
 on:
   push:
     branches:
-      - main
-      - GitHub
-      - Kubernetes
+      - "GitHub"
+      - "Kubernetes"
+      - "Docker"
   pull_request:
     branches: [main]
 
