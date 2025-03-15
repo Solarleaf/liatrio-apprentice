@@ -4,8 +4,7 @@
 # ARG NODE_VERSION=16.20.2
 
 # Going with a 20.19.0-alpine.3.20. Earliest listed is 18. No 19.
-ARG NODE_VERSION=3.20@sha:e028becede0527249b105c22a3881412641b6d45
-FROM node:${NODE_VERSION} AS builder
+FROM node:3.20@sha:e028becede0527249b105c22a3881412641b6d45 AS builder
 
 # Labels
 LABEL version=0.1 \
