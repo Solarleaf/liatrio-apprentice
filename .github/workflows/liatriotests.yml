@@ -120,8 +120,8 @@ jobs:
             echo "CREATE_CLUSTER=false" >> $GITHUB_OUTPUT
           else
             echo "Cluster '${GKE_CLUSTER}' exists. Proceeding with deployment."
-            echo "CREATE_CLUSTER=false" >> $GITHUB_ENV
-            echo "CREATE_CLUSTER=false" >> $GITHUB_OUTPUT
+            echo "CREATE_CLUSTER=true" >> $GITHUB_ENV
+            echo "CREATE_CLUSTER=true" >> $GITHUB_OUTPUT
           fi
 
       - name: Get Kubernetes Credentials
