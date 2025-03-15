@@ -124,9 +124,6 @@ jobs:
             echo "CREATE_CLUSTER=true" >> $GITHUB_OUTPUT
           fi
 
-      - name: Get Kubernetes Credentials
-        run: gcloud container clusters get-credentials $GKE_CLUSTER --region $GKE_REGION
-
       - name: Deploy Cluster
         if: steps.check-cluster.outputs.CREATE_CLUSTER == 'false'
         run: |
@@ -143,6 +140,9 @@ jobs:
             sleep 30
           done
           echo "✅ Cluster is now RUNNING."
+
+      - name: Get Kubernetes Credentials
+        run: gcloud container clusters get-credentials $GKE_CLUSTER --region $GKE_REGION
 
       - name: Deploy Container
         run: kubectl apply -f k8s/deployment.yaml
