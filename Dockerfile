@@ -30,6 +30,7 @@ FROM node:16.20.2-alpine
 
 # Environmental Varaibles
 ENV NODE=production
+# PORT Is just documentation
 ENV PORT=80
 
 WORKDIR /usr/src
@@ -43,6 +44,6 @@ USER node
 # Run the application.
 CMD ["node", "index.js"]
 
-# Health Check.
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD curl -fs http://localhost:$PORT || exit 1
+# Health Checks can be used but generally not needed 
+# HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD curl -fs http://localhost:$PORT || exit 1
 
