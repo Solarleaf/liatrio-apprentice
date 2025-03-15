@@ -44,6 +44,6 @@ USER node
 # Run the application.
 CMD ["node", "index.js"]
 
-# Health Checks can be used but generally not needed 
+# Health Checks explicitly disabled in Kubernetes 1.8
 # HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD curl -fs http://localhost:$PORT || exit 1
 
