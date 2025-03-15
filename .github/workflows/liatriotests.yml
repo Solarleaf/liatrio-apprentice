@@ -73,7 +73,7 @@ jobs:
   #     types:
   #       - completed
 
-  GCloud:
+  GCloud_init:
     # build:
     needs: liatriotests
     env:
@@ -109,19 +109,40 @@ jobs:
       - name: Clusters List
         run: gcloud container clusters list
 
+        # Output used in case this were to be a multi stage
       - name: Check if Cluster Exists
         id: check-cluster
         run: |
           CLUSTER_EXISTS=$(gcloud container clusters list --region $GKE_REGION --filter="name=${GKE_CLUSTER}" --format="value(name)")
           if [[ -z "$CLUSTER_EXISTS" ]]; then
-            echo "❌ ERROR: Kubernetes cluster '${GKE_CLUSTER}' not found in region '${GKE_REGION}'"
-            exit 1
+            echo "ERROR: Kubernetes cluster '${GKE_CLUSTER}' not found in region '${GKE_REGION}'"
+            echo "CREATE_CLUSTER=false" >> $GITHUB_ENV
+            echo "CREATE_CLUSTER=false" >> $GITHUB_OUTPUT
           else
-            echo "✅ Cluster '${GKE_CLUSTER}' exists. Proceeding with deployment."
+            echo "Cluster '${GKE_CLUSTER}' exists. Proceeding with deployment."
+            echo "CREATE_CLUSTER=false" >> $GITHUB_ENV
+            echo "CREATE_CLUSTER=false" >> $GITHUB_OUTPUT
           fi
 
       - name: Get Kubernetes Credentials
         run: gcloud container clusters get-credentials $GKE_CLUSTER --region $GKE_REGION
+
+      - name: Wait for Cluster Readiness
+        run: |
+          echo "⏳ Waiting for cluster to be ready..."
+          while [[ $(gcloud container clusters describe ${GKE_CLUSTER} --region ${GKE_REGION} --format="value(status)") != "RUNNING" ]]; do
+            echo "Still waiting for cluster '${GKE_CLUSTER}'..."
+            sleep 30
+          done
+          echo "✅ Cluster is now RUNNING."
+
+      - name: Deploy Cluster
+        if: steps.check-cluster.outputs.CREATE_CLUSTER == 'false'
+        run: |
+          echo "Creating GKE Cluster from k8s/cluster.txt..."
+          chmod +x k8s/cluster.txt  # Ensure it's executable
+          bash k8s/cluster.txt      # Run the cluster creation command
+          echo "Cluster created successfully!"
 
       - name: Deploy Container
         run: kubectl apply -f k8s/deployment.yaml
