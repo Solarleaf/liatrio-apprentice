@@ -30,6 +30,7 @@ FROM node:16.20.2-alpine
 
 # Environmental Varaibles
 ENV NODE=production
+# PORT Is just documentation
 ENV PORT=80
 
 WORKDIR /usr/src
@@ -43,6 +44,6 @@ EXPOSE ${PORT}
 # Run the application.
 CMD ["node", "index.js"]
 
-# Health Check.
+# Health Checks explicitly disabled in Kubernetes 1.8
 # HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD curl -fs http://localhost:$PORT || exit 1
 

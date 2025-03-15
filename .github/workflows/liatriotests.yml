@@ -22,12 +22,10 @@ jobs:
     # build:
     # Runner using version
     runs-on: ubuntu-24.04
-    # Checks out the Repo code
+    timeout-minutes: 5
+    outputs:
+      IMAGE_TAG: ${{ steps.expose-image-tag.outputs.IMAGE_TAG }}
     steps:
-      # This was used for Best Practices: Version Control. STatus checks to pass before merging
-      # - name: failing it
-      #   run: exit 1
-
       # checkout@v4 using Sha 3-13-25
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -53,7 +51,11 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Set Image Tag as Commit Sha
-        run: echo "IMAGE_TAG=${GITHUB_SHA::7}" >> $GITHUB_ENV
+        id: expose-image-tag
+        run: |
+          IMAGE_TAG=${GITHUB_SHA::7}
+          echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
+          echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_OUTPUT
       # Creaetes a latest and a time stamped version making manual rollbacks easier if needed
       - name: Tag Docker Image
         if: success()
@@ -73,14 +75,16 @@ jobs:
   #     types:
   #       - completed
 
-  GCloud:
+  GCloud_init:
     # build:
     needs: liatriotests
     env:
       GKE_CLUSTER: cluster-1
       GKE_REGION: us-central1-a
+      IMAGE_TAG: ${{ needs.liatriotests.outputs.IMAGE_TAG }}
     # Runner using version
     runs-on: ubuntu-24.04
+    timeout-minutes: 6
     # Checks out the Repo code
     permissions:
       contents: read
@@ -106,25 +110,58 @@ jobs:
           echo "export USE_GKE_GCLOUD_AUTH_PLUGIN=True" >> ~/.bashrc
           source ~/.bashrc
 
-      - name: Check Clusters
+      - name: Clusters List
         run: gcloud container clusters list
+
+        # Output used in case this were to be a multi stage
       - name: Check if Cluster Exists
         id: check-cluster
         run: |
           CLUSTER_EXISTS=$(gcloud container clusters list --region $GKE_REGION --filter="name=${GKE_CLUSTER}" --format="value(name)")
           if [[ -z "$CLUSTER_EXISTS" ]]; then
-            echo "❌ ERROR: Kubernetes cluster '${GKE_CLUSTER}' not found in region '${GKE_REGION}'"
-            exit 1  # Fail the job if cluster does not exist
+            echo "ERROR: Kubernetes cluster '${GKE_CLUSTER}' not found in region '${GKE_REGION}'"
+            echo "CREATE_CLUSTER=false" >> $GITHUB_ENV
+            echo "CREATE_CLUSTER=false" >> $GITHUB_OUTPUT
           else
-            echo "✅ Cluster '${GKE_CLUSTER}' exists. Proceeding with deployment."
+            echo "Cluster '${GKE_CLUSTER}' exists. Proceeding with deployment."
+            echo "CREATE_CLUSTER=true" >> $GITHUB_ENV
+            echo "CREATE_CLUSTER=true" >> $GITHUB_OUTPUT
           fi
+
+      - name: Deploy Cluster
+        if: steps.check-cluster.outputs.CREATE_CLUSTER == 'false'
+        run: |
+          echo "Creating GKE Cluster from k8s/cluster.txt..."
+          # gcloud components install beta --quiet # Install beta # IF needed
+          chmod +x k8s/cluster.txt  # Ensure it's executable
+          bash k8s/cluster.txt --quiet        # Run the cluster creation command
+          echo "Cluster created successfully!"
+
+      - name: Wait for Cluster Readiness
+        run: |
+          echo "Waiting for cluster to be ready..."
+          while [[ $(gcloud container clusters describe ${GKE_CLUSTER} --region ${GKE_REGION} --format="value(status)") != "RUNNING" ]]; do
+            echo "Still waiting for cluster '${GKE_CLUSTER}'..."
+            sleep 30
+          done
+          echo "Cluster is now RUNNING."
 
       - name: Get Kubernetes Credentials
         run: gcloud container clusters get-credentials $GKE_CLUSTER --region $GKE_REGION
 
       - name: Deploy Container
-        run: kubectl apply -f k8s/deployment.yaml
+        run: |
+          echo "${IMAGE_TAG}"
+          sed -i "s|\(image: docker.io/${DOCKER_REPO}:\)[^[:space:]]*|\1${IMAGE_TAG}|" k8s/deployment.yaml
+          cat k8s/deployment.yaml
+          kubectl apply -f k8s/deployment.yaml
 
-      # - name: Kubernetes Actions
+      - name: Turn them off
+        run: |
+          sleep 180
+          kubectl delete deployment liatrio-deployment-api
+          kubectl delete service liatrio-service-api
+
+      # Some of the cloud prerequirements
       # gcloud services enable cloudresourcemanager.googleapis.com
       # gcloud services enable container.googleapis.com
