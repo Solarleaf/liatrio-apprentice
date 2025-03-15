@@ -158,7 +158,7 @@ jobs:
 
       - name: Turn them off
         run: |
-          sleep 240
+          sleep 180
           kubectl delete deployment liatrio-deployment-api
           kubectl delete service liatrio-service-api
 

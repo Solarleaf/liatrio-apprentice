@@ -38,11 +38,11 @@ COPY --from=builder /usr/src .
 EXPOSE ${PORT}
 
 # Run the application as a non-root user.
-# USER node
+USER node
 
 # Run the application.
 CMD ["node", "index.js"]
 
 # Health Check.
-# HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD curl -fs http://localhost:$PORT || exit 1
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD curl -fs http://localhost:$PORT || exit 1
 
