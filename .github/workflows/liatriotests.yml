@@ -22,7 +22,7 @@ jobs:
     permissions:
       contents: read
       packages: read
-    if: github.event_name == 'push' && github.event.pull_request == null
+    if: github.event_name == 'push' && github.event.pull_request != 'refs/pull'
     # build:
     # Runner using version
     runs-on: ubuntu-24.04
