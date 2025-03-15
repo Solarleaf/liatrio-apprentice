@@ -79,7 +79,7 @@ jobs:
   #     types:
   #       - completed
 
-  GCloud_init:
+  GCloud:
     # build:
     needs: liatriotests
     env:
