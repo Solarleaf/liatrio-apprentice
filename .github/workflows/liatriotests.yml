@@ -22,6 +22,7 @@ jobs:
     # build:
     # Runner using version
     runs-on: ubuntu-24.04
+    timeout-minutes: 5
     # Checks out the Repo code
     steps:
       # This was used for Best Practices: Version Control. STatus checks to pass before merging
@@ -81,6 +82,7 @@ jobs:
       GKE_REGION: us-central1-a
     # Runner using version
     runs-on: ubuntu-24.04
+    timeout-minutes: 5
     # Checks out the Repo code
     permissions:
       contents: read
@@ -147,6 +149,12 @@ jobs:
 
       - name: Deploy Container
         run: kubectl apply -f k8s/deployment.yaml
+
+      - name: Turn them off
+        run: |
+          sleep 180
+          kubectl delete deployment liatrio-deployment-api
+          kubectl delete service liatrio-service-api
 
       # Some of the cloud prerequirements
       # gcloud services enable cloudresourcemanager.googleapis.com
