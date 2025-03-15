@@ -148,8 +148,9 @@ jobs:
         run: gcloud container clusters get-credentials $GKE_CLUSTER --region $GKE_REGION
 
       - name: Deploy Container
-        sed -i 's|image: docker.io/${DOCKER_REPO}:.*|image: docker.io/${DOCKER_REPO}:'"$IMAGE_TAG"'|' k8s/deployment.yaml
-        run: kubectl apply -f k8s/deployment.yaml
+        run: |
+          sed -i "s|\(image: docker.io/${DOCKER_REPO}:\)[^[:space:]]*|\1${IMAGE_TAG}|" k8s/deployment.yaml
+          kubectl apply -f k8s/deployment.yaml
 
       - name: Turn them off
         run: |
