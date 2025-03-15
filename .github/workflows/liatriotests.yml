@@ -84,7 +84,7 @@ jobs:
       IMAGE_TAG: ${{ needs.liatriotests.outputs.IMAGE_TAG }}
     # Runner using version
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
+    timeout-minutes: 6
     # Checks out the Repo code
     permissions:
       contents: read

@@ -39,7 +39,7 @@ COPY --from=builder /usr/src .
 EXPOSE ${PORT}
 
 # Run the application as a non-root user.
-USER node
+# USER node
 
 # Run the application.
 CMD ["node", "index.js"]
