@@ -7,7 +7,7 @@ const app = express();
 const port = process.env.PORT || 80;
 // const hostname = '127.17.0.1';
 const hostname = '0.0.0.0';
-const mess_n = "My name is fun!";
+const mess_n = "Life is fun!";
 const funFacts = [
     "Kubernetes Had a Secret Codename: Project Seven",
     "Phippy & Friends have a childrens book about Kubernetes",
