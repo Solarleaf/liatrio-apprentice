@@ -23,12 +23,9 @@ jobs:
     # Runner using version
     runs-on: ubuntu-24.04
     timeout-minutes: 5
-    # Checks out the Repo code
+    outputs:
+      IMAGE_TAG: ${{ steps.expose-image-tag.outputs.IMAGE_TAG }}
     steps:
-      # This was used for Best Practices: Version Control. STatus checks to pass before merging
-      # - name: failing it
-      #   run: exit 1
-
       # checkout@v4 using Sha 3-13-25
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -54,7 +51,11 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Set Image Tag as Commit Sha
-        run: echo "IMAGE_TAG=${GITHUB_SHA::7}" >> $GITHUB_ENV
+        id: expose-image-tag
+        run: |
+          IMAGE_TAG=${GITHUB_SHA::7}
+          echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
+          echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_OUTPUT
       # Creaetes a latest and a time stamped version making manual rollbacks easier if needed
       - name: Tag Docker Image
         if: success()
@@ -80,6 +81,7 @@ jobs:
     env:
       GKE_CLUSTER: cluster-1
       GKE_REGION: us-central1-a
+      IMAGE_TAG: ${{ needs.liatriotests.outputs.IMAGE_TAG }}
     # Runner using version
     runs-on: ubuntu-24.04
     timeout-minutes: 5
@@ -150,12 +152,10 @@ jobs:
       - name: Deploy Container
         run: |
           echo "${IMAGE_TAG}"
-          sed -i 's|\(image: docker.io/${DOCKER_REPO}:\)[^[:space:]]*|\1${IMAGE_TAG}|' k8s/deployment.yaml
+          sed -i "s|\(image: docker.io/${DOCKER_REPO}:\)[^[:space:]]*|\1${IMAGE_TAG}|" k8s/deployment.yaml
           cat k8s/deployment.yaml
-          ls
           touch testfile.txt
-          ls
-          echo "hi.txt" > testfile.txt
+          echo "highlight" > testfile.txt
           cat testfile.txt
           kubectl apply -f k8s/deployment.yaml
 
