@@ -128,7 +128,7 @@ jobs:
         if: steps.check-cluster.outputs.CREATE_CLUSTER == 'false'
         run: |
           echo "Creating GKE Cluster from k8s/cluster.txt..."
-
+          # gcloud components install beta --quiet # Install beta # IF needed
           chmod +x k8s/cluster.txt  # Ensure it's executable
           bash k8s/cluster.txt --quiet      # Run the cluster creation command
           echo "Cluster created successfully!"
