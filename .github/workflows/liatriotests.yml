@@ -19,6 +19,10 @@ env:
   PORT: 80
 jobs:
   liatriotests: # Name Required for passing the pull request checks
+    permissions:
+      contents: read
+      packages: read
+    if: github.event_name == 'push' && github.event.pull_request == null
     # build:
     # Runner using version
     runs-on: ubuntu-24.04
