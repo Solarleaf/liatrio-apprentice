@@ -130,17 +130,17 @@ jobs:
           echo "Creating GKE Cluster from k8s/cluster.txt..."
           # gcloud components install beta --quiet # Install beta # IF needed
           chmod +x k8s/cluster.txt  # Ensure it's executable
-          bash k8s/cluster.txt --quiet      # Run the cluster creation command
+          bash k8s/cluster.txt --quiet        # Run the cluster creation command
           echo "Cluster created successfully!"
 
       - name: Wait for Cluster Readiness
         run: |
-          echo "⏳ Waiting for cluster to be ready..."
+          echo "Waiting for cluster to be ready..."
           while [[ $(gcloud container clusters describe ${GKE_CLUSTER} --region ${GKE_REGION} --format="value(status)") != "RUNNING" ]]; do
             echo "Still waiting for cluster '${GKE_CLUSTER}'..."
             sleep 30
           done
-          echo "✅ Cluster is now RUNNING."
+          echo "Cluster is now RUNNING."
 
       - name: Get Kubernetes Credentials
         run: gcloud container clusters get-credentials $GKE_CLUSTER --region $GKE_REGION
@@ -148,6 +148,6 @@ jobs:
       - name: Deploy Container
         run: kubectl apply -f k8s/deployment.yaml
 
-      # - name: Kubernetes Actions.
+      # Some of the cloud prerequirements
       # gcloud services enable cloudresourcemanager.googleapis.com
       # gcloud services enable container.googleapis.com
