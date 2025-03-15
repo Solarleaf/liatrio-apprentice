@@ -127,6 +127,14 @@ jobs:
       - name: Get Kubernetes Credentials
         run: gcloud container clusters get-credentials $GKE_CLUSTER --region $GKE_REGION
 
+      - name: Deploy Cluster
+        if: steps.check-cluster.outputs.CREATE_CLUSTER == 'false'
+        run: |
+          echo "Creating GKE Cluster from k8s/cluster.txt..."
+          chmod +x k8s/cluster.txt  # Ensure it's executable
+          bash k8s/cluster.txt --quiet      # Run the cluster creation command
+          echo "Cluster created successfully!"
+
       - name: Wait for Cluster Readiness
         run: |
           echo "⏳ Waiting for cluster to be ready..."
@@ -135,14 +143,6 @@ jobs:
             sleep 30
           done
           echo "✅ Cluster is now RUNNING."
-
-      - name: Deploy Cluster
-        if: steps.check-cluster.outputs.CREATE_CLUSTER == 'false'
-        run: |
-          echo "Creating GKE Cluster from k8s/cluster.txt..."
-          chmod +x k8s/cluster.txt  # Ensure it's executable
-          bash k8s/cluster.txt --quiet      # Run the cluster creation command
-          echo "Cluster created successfully!"
 
       - name: Deploy Container
         run: kubectl apply -f k8s/deployment.yaml
