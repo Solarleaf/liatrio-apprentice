@@ -6,8 +6,8 @@ on:
       - "GitHub"
       - "Kubernetes"
       - "Docker"
-  pull_request:
-    branches: [main]
+  # pull_request:
+  # branches: [main]
 
 # Prevent Multiple Actions from happening at once on the same branch
 concurrency:
@@ -22,7 +22,7 @@ jobs:
     permissions:
       contents: read
       packages: read
-    # lif: github.event_name == 'push' && github.event.pull_request == null
+    # if: github.event_name == 'push' && github.event.pull_request == null
     # build:
     # Runner using version
     runs-on: ubuntu-24.04
@@ -150,6 +150,10 @@ jobs:
             if [[ "$STATUS" == "RUNNING" ]]; then
               echo "Cluster is now RUNNING."
               exit 0
+            fi
+            if [[ "$STATUS" == "PROVISIONING"]]; then
+              echo "Cluster is (Status: $STATUS). Adding an extra 30 seconds of wait time"
+              sleep 30
             fi
 
             echo "Attempt $i/10: Cluster '${GKE_CLUSTER}' is still not ready... (Status: $STATUS)"
