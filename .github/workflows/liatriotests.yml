@@ -9,7 +9,7 @@ on:
   pull_request:
     branches: [main]
 
-# Prevent Multiple Actions  from happening at once on the same branch
+# Prevent Multiple Actions from happening at once on the same branch
 # concurrency:
 # group: ${{ github.workflow }}-${{ github.ref }}
 # group: ci-${{ github.ref }}
@@ -19,7 +19,7 @@ env:
   DOCKER_REPO: apptemp/liatrio
   PORT: 80
 jobs:
-  liatriotests: # Name Required for passing the pull request  checks
+  liatriotests: # Name Required for passing the pull request checks
     permissions:
       contents: read
       packages: read
@@ -64,7 +64,7 @@ jobs:
           IMAGE_TAG=${GITHUB_SHA::7}
           echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
           echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_OUTPUT
-      # Creaetes a latest and a time stamped version making manual rollbacks easier if needed
+      # Creates a latest and a time stamped version making manual rollbacks easier if needed
       - name: Tag Docker Image
         if: success()
         run: |
