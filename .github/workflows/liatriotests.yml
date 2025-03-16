@@ -82,6 +82,7 @@ jobs:
   GCloud:
     # build:
     needs: liatriotests
+    if: false
     env:
       GKE_CLUSTER: cluster-1
       GKE_REGION: us-central1-a
@@ -151,7 +152,7 @@ jobs:
               echo "Cluster is now RUNNING."
               exit 0
             fi
-            if [[ "$STATUS" == "PROVISIONING"]]; then
+            if [[ "$STATUS" == "PROVISIONING" ]]; then
               echo "Cluster is (Status: $STATUS). Adding an extra 30 seconds of wait time"
               sleep 30
             fi
