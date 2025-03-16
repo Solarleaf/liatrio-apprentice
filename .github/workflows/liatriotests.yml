@@ -11,7 +11,8 @@ on:
 
 # Prevent Multiple Actions from happening at once on the same branch
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  # group: ${{ github.workflow }}-${{ github.ref }}
+  group: ci-${{ github.ref }}
 
 env:
   IMAGE_NAME: liatrio-api
