@@ -9,17 +9,17 @@ on:
   pull_request:
     branches: [main]
 
-# Prevent Multiple Actions from happening at once on the same branch
-concurrency:
-  # group: ${{ github.workflow }}-${{ github.ref }}
-  group: ci-${{ github.ref }}
+# Prevent Multiple Actions  from happening at once on the same branch
+# concurrency:
+# group: ${{ github.workflow }}-${{ github.ref }}
+# group: ci-${{ github.ref }}
 
 env:
   IMAGE_NAME: liatrio-api
   DOCKER_REPO: apptemp/liatrio
   PORT: 80
 jobs:
-  liatriotests: # Name Required for  passing the pull request checks
+  liatriotests: # Name Required for passing the pull request  checks
     permissions:
       contents: read
       packages: read
