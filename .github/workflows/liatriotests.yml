@@ -23,8 +23,8 @@ jobs:
       contents: read
       packages: read
     # if: github.event_name == 'push' && github.event.pull_request == null
-    # if: github.event_name == 'push' && github.event.pull_request == null || github.event_name == 'pull_request'
-    if: github.event_name == 'push' && github.event_name != 'pull_request' || github.event_name == 'pull_request'
+    if: github.event_name == 'push' && github.event.pull_request == null || github.event_name == 'pull_request'
+    # if: github.event_name == 'push' && github.event_name != 'pull_request' || github.event_name == 'pull_request'
 
     # build:
     # Runner using version
