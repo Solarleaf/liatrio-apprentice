@@ -6,6 +6,10 @@
 
 # Ignore generated credentials from google-github-actions/auth
 gha-creds-*.json
+.github/
+k8s/
+SetupFiles/
+Void/
 
 **/.classpath
 **/.dockerignore

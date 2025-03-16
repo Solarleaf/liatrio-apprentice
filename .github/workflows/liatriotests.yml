@@ -3,26 +3,30 @@ name: Apprentice GitHub Actions
 on:
   push:
     branches:
-      - main
-      - GitHub
-      - Kubernetes
+      - "GitHub"
+      - "Kubernetes"
+      - "Docker"
   pull_request:
     branches: [main]
 
 # Prevent Multiple Actions from happening at once on the same branch
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  # group: ${{ github.workflow }}-${{ github.ref }}
+  group: ci-${{ github.ref }}
 
 env:
   IMAGE_NAME: liatrio-api
   DOCKER_REPO: apptemp/liatrio
   PORT: 80
 jobs:
-  liatriotests: # Name Required for passing the pull request  checks
+  liatriotests: # Name Required for  passing the pull request checks
     permissions:
       contents: read
       packages: read
-    if: github.event_name == 'push' && github.event.pull_request == null
+    # if: github.event_name == 'push' && github.event.pull_request == null
+    # if: github.event_name == 'push' && github.event.pull_request == null || github.event_name == 'pull_request'
+    # if: github.event_name == 'push' && github.event_name != 'pull_request' || github.event_name == 'pull_request'
+
     # build:
     # Runner using version
     runs-on: ubuntu-24.04
@@ -82,6 +86,7 @@ jobs:
   GCloud:
     # build:
     needs: liatriotests
+    if: false
     env:
       GKE_CLUSTER: cluster-1
       GKE_REGION: us-central1-a
@@ -138,17 +143,30 @@ jobs:
           echo "Creating GKE Cluster from k8s/cluster.txt..."
           # gcloud components install beta --quiet # Install beta # IF needed
           chmod +x k8s/cluster.txt  # Ensure it's executable
-          bash k8s/cluster.txt --quiet        # Run the cluster creation command
-          echo "Cluster created successfully!"
+          bash k8s/cluster.txt --quiet &      # Run the cluster creation command
+          echo "Cluster creation started! Running in background, next step is used. This is to prevent timeout"
 
       - name: Wait for Cluster Readiness
         run: |
           echo "Waiting for cluster to be ready..."
-          while [[ $(gcloud container clusters describe ${GKE_CLUSTER} --region ${GKE_REGION} --format="value(status)") != "RUNNING" ]]; do
-            echo "Still waiting for cluster '${GKE_CLUSTER}'..."
+          for ((i=1; i<=10; i++)); do
+            STATUS=$(gcloud container clusters describe ${GKE_CLUSTER} --region ${GKE_REGION} --format="value(status)")
+
+            if [[ "$STATUS" == "RUNNING" ]]; then
+              echo "Cluster is now RUNNING."
+              exit 0
+            fi
+            if [[ "$STATUS" == "PROVISIONING" ]]; then
+              echo "Cluster is (Status: $STATUS). Adding an extra 30 seconds of wait time"
+              sleep 30
+            fi
+
+            echo "Attempt $i/10: Cluster '${GKE_CLUSTER}' is still not ready... (Status: $STATUS)"
             sleep 30
           done
-          echo "Cluster is now RUNNING."
+
+          echo "Cluster '${GKE_CLUSTER}' did not become READY after 10 attempts. Exiting."
+          exit 1
 
       - name: Get Kubernetes Credentials
         run: gcloud container clusters get-credentials $GKE_CLUSTER --region $GKE_REGION
