@@ -19,7 +19,7 @@ env:
   DOCKER_REPO: apptemp/liatrio
   PORT: 80
 jobs:
-  liatriotests: # Name Required for passing the pull request checks
+  liatriotests: # Name Required for passing the pull request  checks
     permissions:
       contents: read
       packages: read
