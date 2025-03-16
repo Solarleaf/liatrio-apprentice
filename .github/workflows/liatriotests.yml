@@ -10,8 +10,8 @@ on:
     branches: [main]
 
 # Prevent Multiple Actions from happening at once on the same branch
-# concurrency:
-# group: ${{ github.workflow }}-${{ github.ref }}
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
 # group: ci-${{ github.ref }}
 
 env:
