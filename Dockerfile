@@ -4,6 +4,8 @@
 # ARG NODE_VERSION=16.20.2
 
 # Going with a 20.19.0-alpine.3.20. Earliest listed is 18. No 19.
+# To get the docker image docker pull node:20.19.0-alpine3.20
+# To get the Sha: docker inspect --format='{{index .RepoDigests 0}}' node:20.19.0-alpine3.20
 FROM node:20.19.0-alpine3.20@sha256:9a9c00587bcb88209b164b2dba1f59c7389ac3a2cec2cfe490fc43cd947ed531 AS builder
 
 # Labels
@@ -29,7 +31,7 @@ RUN npm ci --omit=dev
 COPY . .
 
 # Run stage
-FROM node:16.20.2-alpine
+FROM node:20.19.0-alpine3.20@sha256:9a9c00587bcb88209b164b2dba1f59c7389ac3a2cec2cfe490fc43cd947ed531
 
 # Improves performance, reduces memory, disables some debugging
 ENV NODE_ENV=production
