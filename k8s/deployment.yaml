@@ -47,6 +47,13 @@ spec:
               port: 80
             initialDelaySeconds: 5
             periodSeconds: 10
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
 ---
 # Have this in same file for less screen changing
 # Namespaces in separate for better pratices, no namespace req, names easy
@@ -64,7 +71,7 @@ spec:
   type: LoadBalancer
 ---
 # Have this in same file for less screen changing
-# kubectl run -i --tty load-generator --image=busybox --restart=Never -- /bin/sh -c "while true; do wget -q -O- http://liatrio-service-api; done"
+# kubectl run -i --tty load-generator --image=busybox --restart=Never -n dev -- /bin/sh -c "while true; do wget -q -O- http://liatrio-service-api.dev.svc.cluster.local; done"
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
