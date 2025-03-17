@@ -54,7 +54,7 @@ jobs:
           CLUSTER_EXISTS=$(gcloud container clusters list --region $GKE_REGION --filter="name=${GKE_CLUSTER}" --format="value(name)")
           if [[ -z "$CLUSTER_EXISTS" ]]; then
             echo "ERROR: Kubernetes cluster '${GKE_CLUSTER}' not found in region '${GKE_REGION}'"
-            exit(1)
+            exit 1
           else
             echo "Cluster '${GKE_CLUSTER}' exists. Proceeding with user setup."
           fi
