@@ -19,13 +19,16 @@ Node-level system services	    Static Pods	    Managed by Kubelet, not Kubernete
 Stateless (web apps, APIs, etc) Deployement     Manages replicas, rolling updates, and self-healing
 
 
-kubectl delete deployment liatrio-deployment-api -n staging
-kubectl delete deployment liatrio-deployment-api -n dev
 
-kubectl delete svc liatrio-service-api -n staging
+kubectl delete deployment liatrio-deployment-api -n dev
 kubectl delete svc liatrio-service-api -n dev
 
+kubectl delete svc liatrio-service-api -n staging
+kubectl delete deployment liatrio-deployment-api -n staging
+
 gcloud container clusters get-credentials cluster-1 --region us-central1-a
+kubectl run -i --tty load-generator --image=busybox --restart=Never -n dev -- /bin/sh -c "while true; do wget -q -O- http://liatrio-service-api.dev.svc.cluster.local; done"
+
 
 kubectl rollout status deployment liatrio-deployment-api -n dev
 kubectl get pods -n dev
