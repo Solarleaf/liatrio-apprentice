@@ -1,0 +1,76 @@
+#RBAC
+# ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: user-reader-dev_staging_prod
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "services"]
+    verbs: ["get", "list"]
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list"]
+---
+# Service Accounts
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: github-actions-sa-user
+  namespace: dev
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: github-actions-sa-user
+  namespace: staging
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: github-actions-sa-user
+  namespace: prod
+---
+# Rolebinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: user-reader-dev_staging_prod-dev
+  namespace: dev
+subjects:
+  - kind: ServiceAccount
+    name: github-actions-sa-user
+    namespace: dev
+roleRef:
+  kind: ClusterRole
+  name: user-reader-dev_staging_prod
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: user-reader-dev_staging_prod-staging
+  namespace: staging
+subjects:
+  - kind: ServiceAccount
+    name: github-actions-sa-user
+    namespace: staging
+roleRef:
+  kind: ClusterRole
+  name: user-reader-dev_staging_prod
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: user-reader-dev_staging_prod-prod
+  namespace: prod
+subjects:
+  - kind: ServiceAccount
+    name: github-actions-sa-user
+    namespace: prod
+roleRef:
+  kind: ClusterRole
+  name: user-reader-dev_staging_prod
+  apiGroup: rbac.authorization.k8s.io
