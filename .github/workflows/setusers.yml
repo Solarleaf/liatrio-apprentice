@@ -1,3 +1,5 @@
+name: RBAC Users
+
 on:
   workflow_dispatch:
     inputs:
