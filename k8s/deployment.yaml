@@ -6,7 +6,7 @@ kind: Deployment
 metadata:
   name: liatrio-deployment-api
 spec:
-  replicas: 3
+  replicas: 1
   strategy:
     type: RollingUpdate
     rollingUpdate:

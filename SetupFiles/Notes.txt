@@ -26,3 +26,6 @@ kubectl delete svc liatrio-service-api -n staging
 kubectl delete svc liatrio-service-api -n dev
 
 gcloud container clusters get-credentials cluster-1 --region us-central1-a
+
+kubectl rollout status deployment liatrio-deployment-api -n dev
+kubectl get pods -n dev
