@@ -1,5 +1,10 @@
 on:
   workflow_dispatch:
+    inputs:
+      branch:
+        description: "Select branch to deploy"
+        required: true
+        default: "GitHub"
 jobs:
   Rbac:
     env:
