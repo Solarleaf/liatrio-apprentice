@@ -87,14 +87,15 @@ jobs:
   GCloud:
     # build:
     needs: liatriotests
-    if: false
+    # if: false
     env:
       GKE_CLUSTER: cluster-1
       GKE_REGION: us-central1-a
       IMAGE_TAG: ${{ needs.liatriotests.outputs.IMAGE_TAG }}
+      DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
     # Runner using version
     runs-on: ubuntu-24.04
-    timeout-minutes: 6
+    timeout-minutes: 15
     # Checks out the Repo code
     permissions:
       contents: read
@@ -172,18 +173,29 @@ jobs:
       - name: Get Kubernetes Credentials
         run: gcloud container clusters get-credentials $GKE_CLUSTER --region $GKE_REGION
 
+      - name: Print Environment
+        run: echo "Deploying to $DEPLOY_ENV"
+
+      - name: Establish Namespaces
+        run: |
+          kubectl apply -f k8s/namespaces.yaml
+
+      - name: Set Kubernetes Context
+        run: |
+          kubectl config set-context --current --namespace=$DEPLOY_ENV
+
       - name: Deploy Container
         run: |
           echo "${IMAGE_TAG}"
           sed -i "s|\(image: docker.io/${DOCKER_REPO}:\)[^[:space:]]*|\1${IMAGE_TAG}|" k8s/deployment.yaml
           cat k8s/deployment.yaml
-          kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f k8s/deployment.yaml --namespace=$DEPLOY_ENV
 
-      - name: Turn them off
-        run: |
-          sleep 180
-          kubectl delete deployment liatrio-deployment-api
-          kubectl delete service liatrio-service-api
+      # - name: Turn them off
+      #   run: |
+      #     sleep 180
+      #     kubectl delete deployment liatrio-deployment-api
+      #     kubectl delete service liatrio-service-api
 
       # Some of the cloud prerequirements
       # gcloud services enable cloudresourcemanager.googleapis.com

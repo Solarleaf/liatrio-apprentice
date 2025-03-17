@@ -6,7 +6,7 @@ kind: Deployment
 metadata:
   name: liatrio-deployment-api
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: liatrio-app-api
@@ -43,6 +43,8 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 10
 ---
+# Have this in same file for less screen changing
+# Namespaces in separate for better pratices, no namespace req, names easy
 apiVersion: v1
 kind: Service
 metadata:
