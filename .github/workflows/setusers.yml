@@ -1,18 +1,16 @@
 name: RBAC Users
 
 on:
-  workflow_dispatch:
-    inputs:
-      branch:
-        description: "Select a branch to deploy"
-        required: true
-        type: choice
-        options:
-          - "main"
-          - "GitHub"
-          - "Kubernetes"
-          - "Docker"
-        default: "main"
+  push:
+    branches:
+      - "GitHub"
+      - "Kubernetes"
+      - "Docker"
+  pull_request:
+    branches: [main]
+
+# on: workflow_dispatch
+
 jobs:
   Rbac:
     env:
