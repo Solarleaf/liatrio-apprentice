@@ -4,9 +4,15 @@ on:
   workflow_dispatch:
     inputs:
       branch:
-        description: "Select branch to deploy"
+        description: "Select a branch to deploy"
         required: true
-        default: "GitHub"
+        type: choice
+        options:
+          - "main"
+          - "GitHub"
+          - "Kubernetes"
+          - "Docker"
+        default: "main"
 jobs:
   Rbac:
     env:
@@ -76,6 +82,7 @@ jobs:
           fi
           echo ${{ secrets.GITHUB_TOKEN }} | gh auth login --with-token
           gh secret set KUBE_TOKEN --body "$TOKEN"
+          # echo "KUBE_TOKEN=$TOKEN" >> $GITHUB_ENV
 
       - name: Auth test
         run: |
