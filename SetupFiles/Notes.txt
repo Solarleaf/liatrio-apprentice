@@ -32,3 +32,9 @@ kubectl run -i --tty load-generator --image=busybox --restart=Never -n dev -- /b
 
 kubectl rollout status deployment liatrio-deployment-api -n dev
 kubectl get pods -n dev
+
+
+Service accounts
+kubectl get serviceaccounts --all-namespaces
+kubectl get serviceaccount github-actions-sa-user -n github-actions -o yaml
+

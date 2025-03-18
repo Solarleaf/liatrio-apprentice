@@ -1,13 +1,10 @@
 name: RBAC Users
 
 on:
-  push:
-    branches:
-      - "GitHub"
-      - "Kubernetes"
-      - "Docker"
-  pull_request:
-    branches: [main]
+  workflow_run:
+    workflows: ["Apprentice GitHub Actions"]
+    types:
+      - completed
 
 # on: workflow_dispatch
 
@@ -74,7 +71,6 @@ jobs:
       - name: Establish Service Account, Binding, & Role
         run: |
           kubectl apply -f k8s/rbac.yaml
-
       - name: Generate Service Account Token
         run: |
           TOKEN=$(kubectl create token github-actions-sa-user -n github-actions)
@@ -83,9 +79,10 @@ jobs:
             echo "ERROR: Token generation failed!"
             exit 1
           fi
-          echo ${{ secrets.GITHUB_TOKEN }} | gh auth login --with-token
-          gh secret set KUBE_TOKEN --body "$TOKEN"
-          # echo "KUBE_TOKEN=$TOKEN" >> $GITHUB_ENV
+          echo "Checking Deployments using ServiceAccount..."
+          kubectl --token=$TOKEN get deployment -n dev
+          kubectl --token=$TOKEN get pods -n dev
+          kubectl --token=$TOKEN describe deployment liatrio-deployment-api -n dev
 
       - name: Auth test
         run: |
