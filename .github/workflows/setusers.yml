@@ -72,7 +72,7 @@ jobs:
 
       - name: Generate Service Account Token
         run: |
-          TOKEN=$(kubectl create token github-actions-sa -n github-actions)
+          TOKEN=$(kubectl create token github-actions-sa-user -n github-actions)
           echo "::add-mask::$TOKEN"
           if [ -z "$TOKEN" ]; then
             echo "ERROR: Token generation failed!"
