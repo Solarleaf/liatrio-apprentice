@@ -17,19 +17,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: github-actions-sa-user
-  namespace: dev
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: github-actions-sa-user
-  namespace: staging
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: github-actions-sa-user
-  namespace: prod
+  namespace: github-actions
 ---
 # Rolebinding
 apiVersion: rbac.authorization.k8s.io/v1
@@ -40,7 +28,7 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: github-actions-sa-user
-    namespace: dev
+    namespace: github-actions
 roleRef:
   kind: ClusterRole
   name: user-reader-dev_staging_prod
@@ -54,7 +42,7 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: github-actions-sa-user
-    namespace: staging
+    namespace: github-actions
 roleRef:
   kind: ClusterRole
   name: user-reader-dev_staging_prod
@@ -69,7 +57,7 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: github-actions-sa-user
-    namespace: prod
+    namespace: github-actions
 roleRef:
   kind: ClusterRole
   name: user-reader-dev_staging_prod
