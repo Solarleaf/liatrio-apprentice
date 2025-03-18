@@ -80,7 +80,7 @@ jobs:
   # Per Best Practices this would be a separate file. To avoid Screen swaps keeping it in same file
   #  on:
   #   workflow_run:
-  #     workflows: ["liatriotests"]
+  #     workflows: ["Apprentice GitHub Actions"]
   #     types:
   #       - completed
 
@@ -200,6 +200,14 @@ jobs:
       # Some of the cloud prerequirements
       # gcloud services enable cloudresourcemanager.googleapis.com
       # gcloud services enable container.googleapis.com
+
+  # Per Best Practices this would be a separate file. To avoid Screen swaps keeping it in same file
+  #  on:
+  #   workflow_run:
+  #     workflows: ["GCloud"]
+  #     types:
+  #       - completed
+
   Rbac:
     needs: GCloud
     env:
