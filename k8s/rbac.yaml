@@ -1,4 +1,13 @@
 #RBAC
+
+# Service Accounts
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: github-actions-sa-user
+  namespace: github-actions
+
+---
 # ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -6,21 +15,54 @@ metadata:
   name: user-reader-dev_staging_prod
 rules:
   - apiGroups: [""]
+    resources: ["namespaces"]
+    verbs: ["get", "list"]
+
+---
+# Regular Role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: user-reader-dev
+  namespace: dev
+rules:
+  - apiGroups: [""]
     resources: ["pods", "services"]
     verbs: ["get", "list"]
   - apiGroups: ["apps"]
     resources: ["deployments"]
     verbs: ["get", "list"]
----
-# Service Accounts
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: github-actions-sa-user
-  namespace: github-actions
----
-# Rolebinding
 
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: user-reader-staging
+  namespace: staging
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "services"]
+    verbs: ["get", "list"]
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: user-reader-prod
+  namespace: prod
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "services"]
+    verbs: ["get", "list"]
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list"]
+
+---
+# Rolebinding ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
@@ -34,6 +76,7 @@ roleRef:
   kind: ClusterRole
   name: user-reader-dev_staging_prod
   apiGroup: rbac.authorization.k8s.io
+
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -62,4 +105,50 @@ subjects:
 roleRef:
   kind: ClusterRole
   name: user-reader-dev_staging_prod
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# Rolebinding Role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: user-reader-binding-dev
+  namespace: dev
+subjects:
+  - kind: ServiceAccount
+    name: github-actions-sa-user
+    namespace: github-actions
+roleRef:
+  kind: Role
+  name: user-reader-dev
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: user-reader-binding-staging
+  namespace: staging
+subjects:
+  - kind: ServiceAccount
+    name: github-actions-sa-user
+    namespace: github-actions
+roleRef:
+  kind: Role
+  name: user-reader-staging
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: user-reader-binding-prod
+  namespace: prod
+subjects:
+  - kind: ServiceAccount
+    name: github-actions-sa-user
+    namespace: github-actions
+roleRef:
+  kind: Role
+  name: user-reader-prod
   apiGroup: rbac.authorization.k8s.io

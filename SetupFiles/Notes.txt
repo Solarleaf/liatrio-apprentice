@@ -40,3 +40,12 @@ kubectl get serviceaccount github-actions-sa-user -n github-actions -o yaml
 kubectl get clusterrolebinding --field-selector=subjects.name=github-actions-sa-user
 
 used for testing
+
+kubectl auth can-i list namespaces -n dev --as=system:serviceaccount:github-actions:github-actions-sa-user
+kubectl auth can-i list pods -n staging --as=system:serviceaccount:github-actions:github-actions-sa-user
+kubectl auth can-i list pods -n prod --as=system:serviceaccount:github-actions:github-actions-sa-user
+
+kubectl delete rolebinding user-reader-dev_staging_prod-dev -n dev
+kubectl delete rolebinding user-reader-dev_staging_prod-prod -n prod
+kubectl delete rolebinding user-reader-dev_staging_prod-staging -n staging
+
