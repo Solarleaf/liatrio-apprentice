@@ -11,6 +11,11 @@ on:
 
 # on: workflow_dispatch
 
+# Prevent Multiple Actions from happening at once on the same branch.
+# This does not stop Pull Requests from running at the same time as push.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+
 jobs:
   Rbac:
     env:
