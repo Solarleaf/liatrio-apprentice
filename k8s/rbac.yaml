@@ -18,8 +18,9 @@ kind: ServiceAccount
 metadata:
   name: github-actions-sa-user
   namespace: github-actions
-# ---
+---
 # Rolebinding
+
 # apiVersion: rbac.authorization.k8s.io/v1
 # kind: RoleBinding
 # metadata:
@@ -48,17 +49,17 @@ metadata:
 #   name: user-reader-dev_staging_prod
 #   apiGroup: rbac.authorization.k8s.io
 
-# ---
-# apiVersion: rbac.authorization.k8s.io/v1
-# kind: RoleBinding
-# metadata:
-#   name: user-reader-dev_staging_prod-prod
-#   namespace: prod
-# subjects:
-#   - kind: ServiceAccount
-#     name: github-actions-sa-user
-#     namespace: github-actions
-# roleRef:
-#   kind: ClusterRole
-#   name: user-reader-dev_staging_prod
-#   apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: user-reader-dev_staging_prod-prod
+  namespace: prod
+subjects:
+  - kind: ServiceAccount
+    name: github-actions-sa-user
+    namespace: github-actions
+roleRef:
+  kind: ClusterRole
+  name: user-reader-dev_staging_prod
+  apiGroup: rbac.authorization.k8s.io
