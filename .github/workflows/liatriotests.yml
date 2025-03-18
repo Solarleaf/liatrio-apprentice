@@ -191,7 +191,7 @@ jobs:
           cat k8s/deployment.yaml
           kubectl apply -f k8s/deployment.yaml --namespace=$DEPLOY_ENV
 
-      # - name: Turn them off
+      # - name:  Turn them off
       #   run: |
       #     sleep 180
       #     kubectl delete deployment liatrio-deployment-api
