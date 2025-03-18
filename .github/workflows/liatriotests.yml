@@ -258,7 +258,7 @@ jobs:
       - name: Establish Service Account, Binding, & Role
         run: |
           kubectl apply -f k8s/rbac.yaml
-      - name: Generate Service Account Token
+      - name: Generate Service Account Token & Test
         run: |
           TOKEN=$(kubectl create token github-actions-sa-user -n github-actions)
           echo "::add-mask::$TOKEN"
@@ -267,11 +267,14 @@ jobs:
             exit 1
           fi
           echo "Checking Deployments using ServiceAccount..."
-          echo "\nDeployments:"
+          echo ""
+          echo "Deployments:"
           kubectl --token=$TOKEN get deployment -n dev
-          echo "\nPods:"
+          echo ""
+          echo "Pods:"
           kubectl --token=$TOKEN get pods -n dev
-          echo "\nDescribe Deployment:"
+          echo ""
+          echo "Describe Deployment:"
           kubectl --token=$TOKEN describe deployment liatrio-deployment-api -n dev
 
       - name: Auth test
