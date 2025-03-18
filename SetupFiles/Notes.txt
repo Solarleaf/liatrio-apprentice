@@ -37,4 +37,6 @@ kubectl get pods -n dev
 Service accounts
 kubectl get serviceaccounts --all-namespaces
 kubectl get serviceaccount github-actions-sa-user -n github-actions -o yaml
+kubectl get clusterrolebinding --field-selector=subjects.name=github-actions-sa-user
 
+used for testing
