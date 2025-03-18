@@ -1,4 +1,5 @@
 
+used for testing
 
 For Linux:
 
@@ -39,7 +40,6 @@ kubectl get serviceaccounts --all-namespaces
 kubectl get serviceaccount github-actions-sa-user -n github-actions -o yaml
 kubectl get clusterrolebinding --field-selector=subjects.name=github-actions-sa-user
 
-used for testing
 
 kubectl auth can-i list namespaces -n dev --as=system:serviceaccount:github-actions:github-actions-sa-user
 kubectl auth can-i list pods -n staging --as=system:serviceaccount:github-actions:github-actions-sa-user
