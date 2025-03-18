@@ -5,6 +5,7 @@ on:
     workflows: ["Apprentice GitHub Actions"]
     types:
       - completed
+  workflow_dispatch:
 
 # on: workflow_dispatch
 
