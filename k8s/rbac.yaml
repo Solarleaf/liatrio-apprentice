@@ -24,6 +24,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: user-reader-dev
+  namespace: dev
 rules:
   - apiGroups: [""]
     resources: ["pods", "services"]
@@ -37,6 +38,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: user-reader-staging
+  namespace: staging
 rules:
   - apiGroups: [""]
     resources: ["pods", "services"]
@@ -50,6 +52,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: user-reader-prod
+  namespace: prod
 rules:
   - apiGroups: [""]
     resources: ["pods", "services"]
