@@ -81,8 +81,11 @@ jobs:
             exit 1
           fi
           echo "Checking Deployments using ServiceAccount..."
+          echo "\nDeployments:"
           kubectl --token=$TOKEN get deployment -n dev
+          echo "\nPods:"
           kubectl --token=$TOKEN get pods -n dev
+          echo "\nDescribe Deployment:"
           kubectl --token=$TOKEN describe deployment liatrio-deployment-api -n dev
 
       - name: Auth test
