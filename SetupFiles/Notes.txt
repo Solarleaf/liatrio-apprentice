@@ -20,7 +20,7 @@ Node-level system services	    Static Pods	    Managed by Kubelet, not Kubernete
 Stateless (web apps, APIs, etc) Deployement     Manages replicas, rolling updates, and self-healing
 
 
-
+# Delete
 kubectl delete deployment liatrio-deployment-api -n dev
 kubectl delete svc liatrio-service-api -n dev
 
@@ -36,10 +36,10 @@ kubectl get pods -n dev
 
 
 Service accounts
+
 kubectl get serviceaccounts --all-namespaces
 kubectl get serviceaccount github-actions-sa-user -n github-actions -o yaml
 kubectl get clusterrolebinding --field-selector=subjects.name=github-actions-sa-user
-
 
 kubectl auth can-i list namespaces -n dev --as=system:serviceaccount:github-actions:github-actions-sa-user
 kubectl auth can-i list pods -n staging --as=system:serviceaccount:github-actions:github-actions-sa-user
