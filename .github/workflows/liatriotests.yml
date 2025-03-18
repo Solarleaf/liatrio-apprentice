@@ -290,3 +290,6 @@ jobs:
           kubectl auth can-i list pods -n dev --as=system:serviceaccount:github-actions:github-actions-sa-user
           kubectl auth can-i list pods -n staging --as=system:serviceaccount:github-actions:github-actions-sa-user
           kubectl auth can-i list pods -n prod --as=system:serviceaccount:github-actions:github-actions-sa-user
+          kubectl auth can-i list namespaces -n dev --as=system:serviceaccount:github-actions:github-actions-sa-user
+          kubectl auth can-i list namespaces -n staging --as=system:serviceaccount:github-actions:github-actions-sa-user
+          kubectl auth can-i list namespaces -n prod --as=system:serviceaccount:github-actions:github-actions-sa-user
