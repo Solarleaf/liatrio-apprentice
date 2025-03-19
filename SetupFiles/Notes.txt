@@ -1,4 +1,5 @@
 
+used for testing
 
 For Linux:
 
@@ -19,14 +20,17 @@ Node-level system services	    Static Pods	    Managed by Kubelet, not Kubernete
 Stateless (web apps, APIs, etc) Deployement     Manages replicas, rolling updates, and self-healing
 
 
-
+# Delete
 kubectl delete deployment liatrio-deployment-api -n dev
 kubectl delete svc liatrio-service-api -n dev
 
 kubectl delete svc liatrio-service-api -n staging
 kubectl delete deployment liatrio-deployment-api -n staging
 
+# Credentials
 gcloud container clusters get-credentials cluster-1 --region us-central1-a
+
+# Load
 kubectl run -i --tty load-generator --image=busybox --restart=Never -n dev -- /bin/sh -c "while true; do wget -q -O- http://liatrio-service-api.dev.svc.cluster.local; done"
 
 
@@ -35,11 +39,10 @@ kubectl get pods -n dev
 
 
 Service accounts
+
 kubectl get serviceaccounts --all-namespaces
 kubectl get serviceaccount github-actions-sa-user -n github-actions -o yaml
 kubectl get clusterrolebinding --field-selector=subjects.name=github-actions-sa-user
-
-used for testing
 
 kubectl auth can-i list namespaces -n dev --as=system:serviceaccount:github-actions:github-actions-sa-user
 kubectl auth can-i list pods -n staging --as=system:serviceaccount:github-actions:github-actions-sa-user
@@ -49,3 +52,8 @@ kubectl delete rolebinding user-reader-dev_staging_prod-dev -n dev
 kubectl delete rolebinding user-reader-dev_staging_prod-prod -n prod
 kubectl delete rolebinding user-reader-dev_staging_prod-staging -n staging
 
+# Deployments
+kubectl rollout history deployment liatrio-deployment-api -n dev
+
+# Rollback
+kubectl rollout undo deployment liatrio-deployment-api -n dev

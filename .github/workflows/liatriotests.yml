@@ -191,6 +191,10 @@ jobs:
           cat k8s/deployment.yaml
           kubectl apply -f k8s/deployment.yaml --namespace=$DEPLOY_ENV
 
+          kubectl annotate deployment liatrio-deployment-api \
+            kubernetes.io/change-cause="Deployed ${IMAGE_TAG} from commit $GITHUB_SHA" \
+            --overwrite -n $DEPLOY_ENV
+
       # - name:  Turn them off
       #   run: |
       #     sleep 180
