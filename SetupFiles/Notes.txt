@@ -54,3 +54,6 @@ kubectl delete rolebinding user-reader-dev_staging_prod-staging -n staging
 
 # Deployments
 kubectl rollout history deployment liatrio-deployment-api -n dev
+
+# Rollback
+kubectl rollout undo deployment liatrio-deployment-api -n dev
