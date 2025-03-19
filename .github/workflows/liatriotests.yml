@@ -6,6 +6,7 @@ on:
       - "GitHub"
       - "Kubernetes"
       - "Docker"
+      - "Presentation"
   pull_request:
     branches: [main]
 
