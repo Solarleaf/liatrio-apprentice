@@ -14,8 +14,17 @@ jobs:
     steps:
       - name: Get current version (if exists)
         id: get-version
-        continue-on-error: true
         run: |
-          echo "${{ vars.TESTING }}"
+          CURRENT_VERSION=${{ vars.TESTING_THIS }}
+          echo "Current version: $CURRENT_VERSION"
+          NEW_VERSION=$((CURRENT_VERSION + 1))
+          echo "New version: $NEW_VERSION"
+
+          # Store the new version for later use
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+
+      - name: Update GitHub environment variable
+        run: |
+          gh variable set TESTING_THIS --body "$NEW_VERSION"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
