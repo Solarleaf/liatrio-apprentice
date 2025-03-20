@@ -203,7 +203,7 @@ jobs:
           echo "Branch Name: $BRANCH_NAME"
 
           # Try to fetch the current version dynamically using gh CLI
-          CURRENT_VERSION=$(gh variable get "$BRANCH_NAME" --env dev --repo $GITHUB_REPOSITORY --jq '.value' || echo "")
+          CURRENT_VERSION=$(gh variable get "$BRANCH_NAME" --env dev --repo $GITHUB_REPOSITORY --json '.value' || echo "")
 
           if [[ -z "$CURRENT_VERSION" ]]; then
             CURRENT_VERSION="0.0.0"
