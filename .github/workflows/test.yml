@@ -1,9 +1,7 @@
 name: Increment Branch Version
 
 on:
-  push:
-    branches:
-      - "Version"
+  workflow_dispatch: # Allows manual triggering
 
 jobs:
   increment-version:
@@ -13,15 +11,21 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0 # Ensures we have full repo history, including .git/config
+          fetch-depth: 0 # Ensures full repo history, including .git/config
 
       - name: Set and Increment Version Tag
         run: |
           # Extract branch name and normalize it
           BRANCH_NAME=$(echo "${GITHUB_REF#refs/heads/}" | tr '/' '-' | tr '[:upper:]' '[:lower:]')
 
-          # Read current version from .git/config, default to 0.0.0 if not found
-          CURRENT_VERSION=$(git config --get branch.${BRANCH_NAME}.version || echo "0.0.0")
+          # Ensure version file exists
+          VERSION_FILE="version.txt"
+          if [ ! -f $VERSION_FILE ]; then
+            echo "0.0.0" > $VERSION_FILE
+          fi
+
+          # Read current version from version.txt or .git/config (fallback)
+          CURRENT_VERSION=$(git config --get branch.${BRANCH_NAME}.version || cat $VERSION_FILE || echo "0.0.0")
 
           # Function to increment version
           increment_version() {
@@ -34,10 +38,11 @@ jobs:
           # Get new incremented version
           NEW_VERSION=$(increment_version "$CURRENT_VERSION")
 
-          # Save new version back to .git/config
-          git config branch.${BRANCH_NAME}.version "${NEW_VERSION}"
+          # Save new version to .git/config and version.txt
+          git config --global branch.${BRANCH_NAME}.version "${NEW_VERSION}"
+          echo "${NEW_VERSION}" > $VERSION_FILE
 
-          # Export new version to GitHub Actions env
+          # Export new version to GitHub Actions environment
           echo "NEW_VERSION=${BRANCH_NAME}-${NEW_VERSION}" >> $GITHUB_ENV
           echo "NEW_VERSION=${BRANCH_NAME}-${NEW_VERSION}" >> $GITHUB_OUTPUT
 
@@ -46,8 +51,8 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
 
-          # Ensure changes are added
-          git add .git/config
+          # Ensure changes are tracked
+          git add version.txt
           git commit -m "Update version for ${BRANCH_NAME} to ${NEW_VERSION}" || echo "No changes to commit"
           git push origin ${GITHUB_REF#refs/heads/} || echo "No changes to push"
 
