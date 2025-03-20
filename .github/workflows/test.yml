@@ -15,11 +15,14 @@ jobs:
     runs-on: ubuntu-latest
     environment: dev
 
+    env: # 👈 Define workflow-level variable here
+      VAR_NAME: "TESTING_THISS" # Variable name as a workflow-level environment variable
+
     steps:
       - name: Get current version
         id: get-version
         run: |
-          CURRENT_VERSION=${{ vars.TESTING_THISS }}
+          CURRENT_VERSION=${{ vars[env.VAR_NAME] }}  # Dynamically fetch variable
           echo "Current version: $CURRENT_VERSION"
           NEW_VERSION=$((CURRENT_VERSION + 1))
           echo "New version: $NEW_VERSION"
@@ -27,15 +30,13 @@ jobs:
 
       - name: Update GitHub environment variable
         run: |
-          gh variable set TESTING_THISS --body "$NEW_VERSION" --env dev --repo $GITHUB_REPOSITORY
+          gh variable set "$VAR_NAME" --body "$NEW_VERSION" --env dev --repo $GITHUB_REPOSITORY
         env:
           GH_TOKEN: ${{ secrets.LIAPATS }}
 
       - name: Verify Updated Variable
         run: |
-          echo "Fetching updated variables..."
-          gh variable list --env dev --repo $GITHUB_REPOSITORY
-          CURRENT_VERSION=${{ vars.TESTING_THISS }}
+          CURRENT_VERSION=${{ vars[env.VAR_NAME] }}  # Dynamically fetch variable
           echo "Current version: $CURRENT_VERSION"
         env:
           GH_TOKEN: ${{ secrets.LIAPATS }}
