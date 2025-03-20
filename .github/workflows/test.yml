@@ -12,6 +12,11 @@ jobs:
     environment: dev
 
     steps:
+      - name: Authenticate GitHub CLI
+        run: gh auth status
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Get current version (if exists)
         id: get-version
         run: |
@@ -25,6 +30,6 @@ jobs:
 
       - name: Update GitHub environment variable
         run: |
-          gh variable set TESTING_THIS --body "$NEW_VERSION"
+          gh variable set TESTING_THIS --body "$NEW_VERSION" --repo $GITHUB_REPOSITORY
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
