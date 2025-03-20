@@ -1,54 +1,50 @@
-name: Increment Branch Version
+name: Increment Action Variable
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - Version
+  pull_request:
+
+permissions:
+  actions: write
+  contents: read
 
 jobs:
   increment-version:
     runs-on: ubuntu-latest
 
+    # ✅ Define DEPLOY_ENV dynamically at the job level
+    env:
+      DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
+
+    # ✅ Use DEPLOY_ENV dynamically in the environment field
+    environment: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
+
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0 # Ensures we have full repo history, including .git/config
-
-      - name: Set and Increment Version Tag
+      - name: Print Deployment Environment
         run: |
-          # Extract branch name and normalize it
-          BRANCH_NAME=$(echo "${GITHUB_REF#refs/heads/}" | tr '/' '-' | tr '[:upper:]' '[:lower:]')
+          echo "Using environment: $DEPLOY_ENV"
 
-          # Read current version from .git/config, default to 0.0.0 if not found
-          CURRENT_VERSION=$(git config --get branch.${BRANCH_NAME}.version || echo "0.0.0")
-
-          # Function to increment version
-          increment_version() {
-            local version=$1
-            IFS='.' read -r major minor patch <<< "$version"
-            patch=$((patch + 1))
-            echo "${major}.${minor}.${patch}"
-          }
-
-          # Get new incremented version
-          NEW_VERSION=$(increment_version "$CURRENT_VERSION")
-
-          # Save new version back to .git/config
-          git config branch.${BRANCH_NAME}.version "${NEW_VERSION}"
-
-          # Export new version to GitHub Actions env
-          echo "NEW_VERSION=${BRANCH_NAME}-${NEW_VERSION}" >> $GITHUB_ENV
-          echo "NEW_VERSION=${BRANCH_NAME}-${NEW_VERSION}" >> $GITHUB_OUTPUT
-
-      - name: Commit and Push Updated Version
+      - name: Get current version
+        id: get-version
         run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
+          CURRENT_VERSION=${{ vars.TESTING_THISS }}
+          echo "Current version: $CURRENT_VERSION"
+          NEW_VERSION=$((CURRENT_VERSION + 1))
+          echo "New version: $NEW_VERSION"
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
 
-          # Ensure changes are added
-          git add .git/config
-          git commit -m "Update version for ${BRANCH_NAME} to ${NEW_VERSION}" || echo "No changes to commit"
-          git push origin ${GITHUB_REF#refs/heads/} || echo "No changes to push"
-
-      - name: Display New Version
+      - name: Update GitHub environment variable
         run: |
-          echo "Branch ${BRANCH_NAME} new version: ${NEW_VERSION}"
+          gh variable set TESTING_THISS --body "$NEW_VERSION" --env $DEPLOY_ENV --repo $GITHUB_REPOSITORY
+        env:
+          GH_TOKEN: ${{ secrets.LIAPATS }}
+
+      - name: Verify Updated Variable
+        run: |
+          CURRENT_VERSION=${{ vars.TESTING_THISS }}
+          echo "Current version: $CURRENT_VERSION"
+        env:
+          GH_TOKEN: ${{ secrets.LIAPATS }}
