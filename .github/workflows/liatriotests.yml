@@ -6,6 +6,7 @@ on:
       - "GitHub"
       - "Kubernetes"
       - "Docker"
+      - "Presentation"
   pull_request:
     branches: [main]
 
@@ -191,8 +192,35 @@ jobs:
           cat k8s/deployment.yaml
           kubectl apply -f k8s/deployment.yaml --namespace=$DEPLOY_ENV
 
+      - name: Get Version Tag & Increment
+        id: versionin
+        run: |
+          # Get the latest tag or reset to v0.0.0
+          latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo $latest_tag
+          version_numbers=$(echo "$latest_tag" | grep -oE 'v[0-9]+\.[0-9]+(\.[0-9]+)?' || echo "v0.0.0")
+          version_numbers=${version_numbers#v}
+          IFS='.' read -r -a parts <<< "$version_numbers"
+          major=${parts[0]}
+          minor=${parts[1]}
+          patch=${parts[2]:-0}
+          new_patch=$((patch + 1))
+          new_tag="v$major.$minor.$new_patch"
+          echo $new_tag
+          echo "NEW_VERSION=$new_tag" >> $GITHUB_ENV
+
+      - name: Change-Cause for New Deployment
+        run: |
+          kubectl label deployment liatrio-deployment-api version=${NEW_VERSION} --overwrite -n $DEPLOY_ENV
           kubectl annotate deployment liatrio-deployment-api \
-            kubernetes.io/change-cause="Deployed ${IMAGE_TAG} from commit $GITHUB_SHA" \
+            kubernetes.io/change-cause="Deployed ${NEW_VERSION} from commit $GITHUB_SHA" \
+            --overwrite -n $DEPLOY_ENV
+
+      - name: Label New Deployment
+        run: |
+          kubectl label deployment liatrio-deployment-api version=${NEW_VERSION} --overwrite -n $DEPLOY_ENV
+          kubectl annotate deployment liatrio-deployment-api \
+            kubernetes.io/change-cause="Deployed ${NEW_VERSION} from commit $GITHUB_SHA" \
             --overwrite -n $DEPLOY_ENV
 
       # - name:  Turn them off
@@ -200,10 +228,6 @@ jobs:
       #     sleep 180
       #     kubectl delete deployment liatrio-deployment-api
       #     kubectl delete service liatrio-service-api
-
-      # Some of the cloud prerequirements
-      # gcloud services enable cloudresourcemanager.googleapis.com
-      # gcloud services enable container.googleapis.com
 
   # Per Best Practices this would be a separate file. To avoid Screen swaps keeping it in same file
   #  on:

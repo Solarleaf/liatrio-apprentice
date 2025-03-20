@@ -25,9 +25,11 @@ spec:
           image: docker.io/apptemp/liatrio:latest
           ports:
             - containerPort: 80
+          # Environmental Variables
           env:
             - name: PORT
               value: "80"
+          # Probes
           startupProbe:
             httpGet:
               path: /
@@ -47,6 +49,7 @@ spec:
               port: 80
             initialDelaySeconds: 5
             periodSeconds: 10
+          # Resources
           resources:
             requests:
               cpu: "100m"
