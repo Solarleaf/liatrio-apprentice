@@ -198,9 +198,11 @@ jobs:
         run: |
           # Extract branch name and normalize it
           BRANCH_NAME=$(echo "${GITHUB_REF#refs/heads/}" | tr '/' '-' | tr '[:upper:]' '[:lower:]')
+          echo $BRANCH_name
 
           # Read the current version from .git/config, default to 0.0.0 if not found
           CURRENT_VERSION=$(git config --global --get branch.${BRANCH_NAME}.version || echo "0.0.0")
+          echo $CURRENT_VERSION
 
           # Function to increment version
           increment_version() {
