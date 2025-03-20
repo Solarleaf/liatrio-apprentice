@@ -1,61 +1,47 @@
-name: Increment Branch Version
+name: Increment Action Variable
 
 on:
+  workflow_dispatch:
   push:
     branches:
-      - "Version"
+      - Version
+
 jobs:
-  increment-version:
+  increment_variable:
     runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0 # Ensure we have full repo history
+        uses: actions/checkout@v4
 
-      - name: Set and Increment Version Tag
+      - name: Install GitHub CLI
         run: |
-          # Extract branch name and normalize it
-          BRANCH_NAME=$(echo "${GITHUB_REF#refs/heads/}" | sed 's|refs/heads/||' | tr '/' '-' | tr '[:upper:]' '[:lower:]')
+          sudo apt update
+          sudo apt install -y gh
 
-          # Ensure git config exists in the repository
-          git config --local --get branch.${BRANCH_NAME}.version >/dev/null 2>&1 || git config --local branch.${BRANCH_NAME}.version "0.0.0"
-
-          # Read current version from .git/config
-          CURRENT_VERSION=$(git config --local --get branch.${BRANCH_NAME}.version)
-
-          # Function to increment version
-          increment_version() {
-            local version=$1
-            IFS='.' read -r major minor patch <<< "$version"
-            patch=$((patch + 1))
-            echo "${major}.${minor}.${patch}"
-          }
-
-          # Get new incremented version
-          NEW_VERSION=$(increment_version "$CURRENT_VERSION")
-
-          # Save new version back to .git/config
-          git config --local branch.${BRANCH_NAME}.version "${NEW_VERSION}"
-
-          # Export new version to GitHub Actions environment
-          echo "NEW_VERSION=${BRANCH_NAME}-${NEW_VERSION}" >> $GITHUB_ENV
-          echo "NEW_VERSION=${BRANCH_NAME}-${NEW_VERSION}" >> $GITHUB_OUTPUT
-
-      - name: Commit and Push Updated Version
+      - name: Authenticate GitHub CLI
         run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
+          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
 
-          # Store the new version inside a trackable file
-          echo $(git config --local --get branch.${BRANCH_NAME}.version) > branch_version.txt
-
-          # Ensure changes are tracked
-          git add branch_version.txt
-          git commit -m "Update version for ${BRANCH_NAME} to ${NEW_VERSION}" || echo "No changes to commit"
-          git push origin ${GITHUB_REF#refs/heads/} || echo "No changes to push"
-
-      - name: Display New Version
+      - name: Get Current Variable Value
+        id: get_var
         run: |
-          echo "Branch ${BRANCH_NAME} new version: ${NEW_VERSION}"
+          VAR_NAME="COUNTER"
+          CURRENT_VALUE=$(gh variable list --json name,value | jq -r '.[] | select(.name=="'"$VAR_NAME"'") | .value')
+          CURRENT_VALUE=${CURRENT_VALUE:-0}  # Default to 0 if not set
+          echo "Current Value: $CURRENT_VALUE"
+          echo "CURRENT_VALUE=$CURRENT_VALUE" >> $GITHUB_ENV
+
+      - name: Increment Variable
+        id: increment
+        run: |
+          NEW_VALUE=$((CURRENT_VALUE + 1))
+          echo "New Value: $NEW_VALUE"
+          echo "NEW_VALUE=$NEW_VALUE" >> $GITHUB_ENV
+
+      - name: Update GitHub Actions Variable
+        run: |
+          gh variable set COUNTER --body "$NEW_VALUE"
