@@ -7,6 +7,7 @@ on:
       - "Kubernetes"
       - "Docker"
       - "Presentation"
+      - "Version"
   pull_request:
     branches: [main]
 
