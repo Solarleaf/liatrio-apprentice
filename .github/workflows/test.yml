@@ -12,11 +12,11 @@ jobs:
     environment: dev
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      # - name: Checkout repository
+      #   uses: actions/checkout@v4
 
-      - name: Ensure GitHub CLI is available
-        run: gh --version
+      # - name: Ensure GitHub CLI is available
+      #   run: gh --version
 
       - name: Get current version (if exists)
         id: get-version
