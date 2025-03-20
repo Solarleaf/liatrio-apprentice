@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - Version
+  pull_request:
 
 permissions:
   actions: write
@@ -13,9 +14,19 @@ permissions:
 jobs:
   increment-version:
     runs-on: ubuntu-latest
-    environment: dev
+
+    # ✅ Define DEPLOY_ENV dynamically at the job level
+    env:
+      DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
+
+    # ✅ Use DEPLOY_ENV dynamically in the environment field
+    environment: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
 
     steps:
+      - name: Print Deployment Environment
+        run: |
+          echo "Using environment: $DEPLOY_ENV"
+
       - name: Get current version
         id: get-version
         run: |
@@ -27,7 +38,7 @@ jobs:
 
       - name: Update GitHub environment variable
         run: |
-          gh variable set TESTING_THISS --body "$NEW_VERSION" --env dev --repo $GITHUB_REPOSITORY
+          gh variable set TESTING_THISS --body "$NEW_VERSION" --env $DEPLOY_ENV --repo $GITHUB_REPOSITORY
         env:
           GH_TOKEN: ${{ secrets.LIAPATS }}
 

@@ -20,18 +20,19 @@ env:
   IMAGE_NAME: liatrio-api
   DOCKER_REPO: apptemp/liatrio
   PORT: 80
+
 jobs:
   liatriotests: # Name Required for passing the pull request  checks
     permissions:
       contents: read
       packages: read
-    # if: github.event_name == 'push' && github.event.pull_request == null
-    # if: github.event_name == 'push' && github.event.pull_request == null || github.event_name == 'pull_request'
-    # if: github.event_name == 'push' && github.event_name != 'pull_request' || github.event_name == 'pull_request'
-
+    env:
+      DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
+    environment: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
     # build:
     # Runner using version
     runs-on: ubuntu-24.04
+
     timeout-minutes: 5
     outputs:
       IMAGE_TAG: ${{ steps.expose-image-tag.outputs.IMAGE_TAG }}
@@ -89,6 +90,7 @@ jobs:
     # build:
     needs: liatriotests
     # if: false
+
     env:
       GKE_CLUSTER: cluster-1
       GKE_REGION: us-central1-a
@@ -196,39 +198,25 @@ jobs:
 
       - name: Set Version Tag Based on Branch
         run: |
-          # Extract branch name and normalize it
-          BRANCH_NAME=$(echo "${GITHUB_REF#refs/heads/}" | tr '/' '-' | tr '[:upper:]' '[:lower:]')
-          echo $BRANCH_name
+          # Get the current version from GitHub Actions environment variable
+          CURRENT_VERSION="${{ vars.VERSION }}"
+          if [[ -z "$CURRENT_VERSION" ]]; then
+            CURRENT_VERSION="0.0.0"
+          fi
 
-          # Read the current version from .git/config, default to 0.0.0 if not found
-          CURRENT_VERSION=$(git config --global --get branch.${BRANCH_NAME}.version || echo "0.0.0")
-          echo $CURRENT_VERSION
-
-          # Function to increment version
+          # Function to increment version (adds 0.0.1)
           increment_version() {
             local version=$1
             IFS='.' read -r major minor patch <<< "$version"
-            patch=$((patch + 1))
+            patch=$((patch + 1))  # Increment patch version
             echo "${major}.${minor}.${patch}"
           }
-
           # Get new version
           NEW_VERSION=$(increment_version $CURRENT_VERSION)
-
-          # Save new version back to .git/config
-          git config --global branch.${BRANCH_NAME}.version "${NEW_VERSION}"
 
           # Export version to GitHub Actions
           echo "NEW_VERSION=${BRANCH_NAME}-${NEW_VERSION}" >> $GITHUB_ENV
           echo "NEW_VERSION=${BRANCH_NAME}-${NEW_VERSION}" >> $GITHUB_OUTPUT
-
-      - name: Commit and Push Updated Version
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git add .git/config
-          git commit -m "Update version for ${BRANCH_NAME} to ${NEW_VERSION}" || echo "No changes to commit"
-          git push origin ${GITHUB_REF#refs/heads/} || echo "No changes to push"
 
       - name: Change-Cause for New Deployment
         run: |
