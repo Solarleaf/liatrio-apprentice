@@ -194,24 +194,18 @@ jobs:
           cat k8s/deployment.yaml
           kubectl apply -f k8s/deployment.yaml --namespace=$DEPLOY_ENV
 
-      - name: Get Version Tag & Increment
-        run: |
       - name: Set Version Tag Based on Branch
         run: |
           # Extract branch name and normalize it
           BRANCH_NAME=$(echo "${GITHUB_REF#refs/heads/}" | tr '/' '-' | tr '[:upper:]' '[:lower:]')
 
           # Read the current version from .git/config, default to 0.0.0 if not found
-          CURRENT_VERSION=$(git config --get branch.${BRANCH_NAME}.version || echo "0.0.0")
+          CURRENT_VERSION=$(git config --global --get branch.${BRANCH_NAME}.version || echo "0.0.0")
 
           # Function to increment version
           increment_version() {
             local version=$1
-            local major=$(echo $version | cut -d. -f1)
-            local minor=$(echo $version | cut -d. -f2)
-            local patch=$(echo $version | cut -d. -f3)
-            
-            # Increment patch version
+            IFS='.' read -r major minor patch <<< "$version"
             patch=$((patch + 1))
             echo "${major}.${minor}.${patch}"
           }
@@ -220,7 +214,7 @@ jobs:
           NEW_VERSION=$(increment_version $CURRENT_VERSION)
 
           # Save new version back to .git/config
-          git config branch.${BRANCH_NAME}.version "${NEW_VERSION}"
+          git config --global branch.${BRANCH_NAME}.version "${NEW_VERSION}"
 
           # Export version to GitHub Actions
           echo "NEW_VERSION=${BRANCH_NAME}-${NEW_VERSION}" >> $GITHUB_ENV
