@@ -3,8 +3,8 @@ name: Increment Action Variable
 on:
   workflow_dispatch:
   push:
-    branches:
-      - Version
+    # branches:
+    #   - Version
   pull_request:
 
 permissions:
@@ -30,7 +30,7 @@ jobs:
       - name: Get current version
         id: get-version
         run: |
-          CURRENT_VERSION=${{ vars.TESTING_THISS }}
+          CURRENT_VERSION=${{ vars.TESTING_THIS }}
           echo "Current version: $CURRENT_VERSION"
           NEW_VERSION=$((CURRENT_VERSION + 1))
           echo "New version: $NEW_VERSION"
@@ -44,7 +44,7 @@ jobs:
 
       - name: Verify Updated Variable
         run: |
-          CURRENT_VERSION=${{ vars.TESTING_THISS }}
+          CURRENT_VERSION=${{ vars.TESTING_THIS }}
           echo "Current version: $CURRENT_VERSION"
         env:
           GH_TOKEN: ${{ secrets.LIAPATS }}
