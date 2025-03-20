@@ -29,7 +29,7 @@ jobs:
         run: |
           gh variable set TESTING_THIS --body "$NEW_VERSION" --env dev --repo $GITHUB_REPOSITORY
         env:
-          GH_TOKEN: ${{ secrets.LIAPATS }} # GitHub CLI will automatically use this token
+          GH_TOKEN: ${{ secrets.LIAPATS }} # GitHub CLI will automatically  use this token
 
       - name: Verify Updated Variable
         run: |
