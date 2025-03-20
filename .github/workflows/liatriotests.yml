@@ -96,6 +96,7 @@ jobs:
       GKE_REGION: us-central1-a
       IMAGE_TAG: ${{ needs.liatriotests.outputs.IMAGE_TAG }}
       DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
+      BRANCH_NAME: ${{ github.ref_name }}
     # Runner using version
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -198,25 +199,41 @@ jobs:
 
       - name: Set Version Tag Based on Branch
         run: |
-          # Get the current version from GitHub Actions environment variable
-          CURRENT_VERSION="${{ vars.VERSION }}"
+          # Extract and normalize branch name (only letters)
+          BRANCH_NAME=$(echo "${GITHUB_REF#refs/heads/}" | tr -cd 'a-zA-Z')
+          echo "Branch Name: $BRANCH_NAME"
+
+          # Try to fetch the current version dynamically using gh CLI
+          CURRENT_VERSION=$(gh variable get "$BRANCH_NAME" --env dev --repo $GITHUB_REPOSITORY --jq '.value' || echo "")
+
           if [[ -z "$CURRENT_VERSION" ]]; then
             CURRENT_VERSION="0.0.0"
           fi
 
+          echo "Current Version: $CURRENT_VERSION"
+
           # Function to increment version (adds 0.0.1)
           increment_version() {
             local version=$1
-            IFS='.' read -r major minor patch <<< "$version"
+            IFS='.' read -r major minor patch <<< "$version"  # Extract version numbers
             patch=$((patch + 1))  # Increment patch version
             echo "${major}.${minor}.${patch}"
           }
-          # Get new version
-          NEW_VERSION=$(increment_version $CURRENT_VERSION)
+
+          # Get new version (incremented)
+          NEW_VERSION=$(increment_version "$CURRENT_VERSION")
 
           # Export version to GitHub Actions
-          echo "NEW_VERSION=${BRANCH_NAME}-${NEW_VERSION}" >> $GITHUB_ENV
-          echo "NEW_VERSION=${BRANCH_NAME}-${NEW_VERSION}" >> $GITHUB_OUTPUT
+          echo "NEW_VERSION=${NEW_VERSION}" >> $GITHUB_ENV
+          echo "NEW_VERSION=${NEW_VERSION}" >> $GITHUB_OUTPUT
+
+          # Print new version for debugging
+          echo "New Version: $NEW_VERSION"
+
+          # Update the GitHub Actions environment variable for the branch with the new version
+          gh variable set "$BRANCH_NAME" --body "$NEW_VERSION" --env dev --repo $GITHUB_REPOSITORY
+        env:
+          GH_TOKEN: ${{ secrets.LIAPATS }}
 
       - name: Change-Cause for New Deployment
         run: |
@@ -239,6 +256,7 @@ jobs:
   #     types:
   #       - completed
   Rbac:
+    if: false
     needs: GCloud
     env:
       GKE_CLUSTER: cluster-1
