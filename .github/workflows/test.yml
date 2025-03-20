@@ -6,6 +6,10 @@ on:
     branches:
       - Version
 
+permissions:
+  actions: write # Ensure GitHub Actions can modify variables
+  contents: read # Allow repository read access
+
 jobs:
   increment-version:
     runs-on: ubuntu-latest
