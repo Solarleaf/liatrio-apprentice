@@ -244,12 +244,6 @@ jobs:
             kubernetes.io/change-cause="Deployed ${NEW_VERSION} from commit $GITHUB_SHA" \
             --overwrite -n $DEPLOY_ENV
 
-      # - name:  Turn them off
-      #   run: |
-      #     sleep 180
-      #     kubectl delete deployment liatrio-deployment-api
-      #     kubectl delete service liatrio-service-api
-
   # Per Best Practices this would be a separate file. To avoid Screen swaps keeping it in same file
   #  on:
   #   workflow_run:

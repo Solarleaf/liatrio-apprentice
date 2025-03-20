@@ -7,8 +7,8 @@ on:
       - Version
 
 permissions:
-  actions: write # Ensure GitHub Actions can modify variables
-  contents: read # Allow repository read access
+  actions: write
+  contents: read
 
 jobs:
   increment-version:
@@ -19,7 +19,7 @@ jobs:
       - name: Get current version
         id: get-version
         run: |
-          CURRENT_VERSION=${{ vars.TESTING_THIS }}
+          CURRENT_VERSION=${{ vars.TESTING_THISS }}
           echo "Current version: $CURRENT_VERSION"
           NEW_VERSION=$((CURRENT_VERSION + 1))
           echo "New version: $NEW_VERSION"
@@ -29,13 +29,13 @@ jobs:
         run: |
           gh variable set TESTING_THIS --body "$NEW_VERSION" --env dev --repo $GITHUB_REPOSITORY
         env:
-          GH_TOKEN: ${{ secrets.LIAPATS }} # GitHub CLI will automatically  use this token
+          GH_TOKEN: ${{ secrets.LIAPATS }}
 
       - name: Verify Updated Variable
         run: |
           echo "Fetching updated variables..."
           gh variable list --repo $GITHUB_REPOSITORY
-          CURRENT_VERSION=${{ vars.TESTING_THIS }}
+          CURRENT_VERSION=${{ vars.TESTING_THISS }}
           echo "Current version: $CURRENT_VERSION"
         env:
           GH_TOKEN: ${{ secrets.LIAPATS }}
