@@ -36,4 +36,4 @@ jobs:
         run: |
           gh variable set TESTING_THIS --body "$NEW_VERSION" --repo $GITHUB_REPOSITORY
         env:
-          GH_TOKEN: ${{ secrets.LIAPAT }} # Use PAT for au thentication
+          GH_TOKEN: ${{ secrets.LIAPAT }} # Use PAT for authentication
