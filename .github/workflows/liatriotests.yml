@@ -197,6 +197,7 @@ jobs:
         run: |
           # Get the latest tag or reset to v0.0.0
           latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo $latest_tag
           version_numbers=$(echo "$latest_tag" | grep -oE 'v[0-9]+\.[0-9]+(\.[0-9]+)?' || echo "v0.0.0")
           version_numbers=${version_numbers#v}
           IFS='.' read -r -a parts <<< "$version_numbers"
@@ -209,6 +210,13 @@ jobs:
           echo "NEW_VERSION=$new_tag" >> $GITHUB_ENV
 
       - name: Change-Cause for New Deployment
+        run: |
+          kubectl label deployment liatrio-deployment-api version=${NEW_VERSION} --overwrite -n $DEPLOY_ENV
+          kubectl annotate deployment liatrio-deployment-api \
+            kubernetes.io/change-cause="Deployed ${NEW_VERSION} from commit $GITHUB_SHA" \
+            --overwrite -n $DEPLOY_ENV
+
+      - name: Label New Deployment
         run: |
           kubectl label deployment liatrio-deployment-api version=${NEW_VERSION} --overwrite -n $DEPLOY_ENV
           kubectl annotate deployment liatrio-deployment-api \
