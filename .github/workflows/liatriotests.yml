@@ -237,17 +237,13 @@ jobs:
 
       - name: Change-Cause for New Deployment
         run: |
-          kubectl label deployment liatrio-deployment-api version=${NEW_VERSION} --overwrite -n $DEPLOY_ENV
           kubectl annotate deployment liatrio-deployment-api \
             kubernetes.io/change-cause="Deployed ${NEW_VERSION} from branch ${BRANCH_NAME} at commit $GITHUB_SHA" \
             --overwrite -n $DEPLOY_ENV
 
       - name: Label New Deployment
         run: |
-          kubectl label deployment liatrio-deployment-api version=${NEW_VERSION} --overwrite -n $DEPLOY_ENV
-          kubectl annotate deployment liatrio-deployment-api \
-            kubernetes.io/change-cause="Deployed ${NEW_VERSION} from branch ${BRANCH_NAME} at commit $GITHUB_SHA" \
-            --overwrite -n $DEPLOY_ENV
+          kubectl label deployment liatrio-deployment-api version=${NEW_VERSION} branch=${BRANCH_NAME} commit=${GITHUB_SHA} --overwrite -n $DEPLOY_ENV
 
   # Per Best Practices this would be a separate file. To avoid Screen swaps keeping it in same file
   #  on:
