@@ -1,50 +1,50 @@
-# name: Increment Action Variable
+name: Increment Action Variable
 
-# on:
-#   workflow_dispatch:
-#   push:
-#     # branches:
-#     #   - Version
-#   pull_request:
+on:
+  workflow_dispatch:
+  push:
+    # branches:
+    #   - Version
+  pull_request:
 
-# permissions:
-#   actions: write
-#   contents: read
+permissions:
+  actions: write
+  contents: read
 
-# jobs:
-#   increment-version:
-#     runs-on: ubuntu-latest
+jobs:
+  increment-version:
+    runs-on: ubuntu-latest
 
-#     # ✅ Define DEPLOY_ENV dynamically at the job level
-#     env:
-#       DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
+    # ✅ Define DEPLOY_ENV dynamically at the job level
+    env:
+      DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
 
-#     # ✅ Use DEPLOY_ENV dynamically in the environment field
-#     environment: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
+    # ✅ Use DEPLOY_ENV dynamically in the environment field
+    environment: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
 
-#     steps:
-#       - name: Print Deployment Environment
-#         run: |
-#           echo "Using environment: $DEPLOY_ENV"
+    steps:
+      - name: Print Deployment Environment
+        run: |
+          echo "Using environment: $DEPLOY_ENV"
 
-#       - name: Get current version
-#         id: get-version
-#         run: |
-#           CURRENT_VERSION=${{ vars.TESTING_THIS }}
-#           echo "Current version: $CURRENT_VERSION"
-#           NEW_VERSION=$((CURRENT_VERSION + 1))
-#           echo "New version: $NEW_VERSION"
-#           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+      - name: Get current version
+        id: get-version
+        run: |
+          CURRENT_VERSION=${{ vars.TESTING_THIS }}
+          echo "Current version: $CURRENT_VERSION"
+          NEW_VERSION=$((CURRENT_VERSION + 1))
+          echo "New version: $NEW_VERSION"
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
 
-#       - name: Update GitHub environment variable
-#         run: |
-#           gh variable set TESTING_THISS --body "$NEW_VERSION" --env $DEPLOY_ENV --repo $GITHUB_REPOSITORY
-#         env:
-#           GH_TOKEN: ${{ secrets.LIAPATS }}
+      - name: Update GitHub environment variable
+        run: |
+          gh variable set TESTING_THISS --body "$NEW_VERSION" --env $DEPLOY_ENV --repo $GITHUB_REPOSITORY
+        env:
+          GH_TOKEN: ${{ secrets.LIAPATS }}
 
-#       - name: Verify Updated Variable
-#         run: |
-#           CURRENT_VERSION=${{ vars.TESTING_THIS }}
-#           echo "Current version: $CURRENT_VERSION"
-#         env:
-#           GH_TOKEN: ${{ secrets.LIAPATS }}
+      - name: Verify Updated Variable
+        run: |
+          CURRENT_VERSION=${{ vars.TESTING_THIS }}
+          echo "Current version: $CURRENT_VERSION"
+        env:
+          GH_TOKEN: ${{ secrets.LIAPATS }}
