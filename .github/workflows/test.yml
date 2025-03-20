@@ -19,7 +19,7 @@ jobs:
       - name: Authenticate GitHub CLI
         run: gh auth status
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.LIAPAT }} # Use a Personal Access Token
 
       - name: Get current version (if exists)
         id: get-version
@@ -36,4 +36,4 @@ jobs:
         run: |
           gh variable set TESTING_THIS --body "$NEW_VERSION" --repo $GITHUB_REPOSITORY
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.LIAPAT }} # Use PAT for authentication
