@@ -1,7 +1,9 @@
 name: Increment Branch Version
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - "Version"
 
 jobs:
   increment-version:
