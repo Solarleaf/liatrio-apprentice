@@ -193,34 +193,36 @@ jobs:
           kubectl apply -f k8s/deployment.yaml --namespace=$DEPLOY_ENV
 
       - name: Get Version Tag & Increment
-        id: versionin
         run: |
-          # Ensure all tags are fetched
-          git fetch --tags --force
+      - name: Set Version Tag Based on Branch
+        run: |
+          # Extract branch name and normalize it
+          BRANCH_NAME=$(echo "${GITHUB_REF#refs/heads/}" | tr '/' '-' | tr '[:upper:]' '[:lower:]')
 
-          # Get the latest tag or default to v0.0.0 if no tags exist
-          latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
-          echo "Latest tag found: $latest_tag"
+          # Read the current version from .git/config, default to 0.0.0 if not found
+          CURRENT_VERSION=$(git config --get branch.${BRANCH_NAME}.version || echo "0.0.0")
 
-          # Extract numeric version (strip 'v' prefix if it exists)
-          version_numbers=$(echo "$latest_tag" | grep -oE 'v?[0-9]+\.[0-9]+(\.[0-9]+)?' || echo "v0.0.0")
-          version_numbers=${version_numbers#v}  # Remove 'v' prefix if present
+          # Function to increment version
+          increment_version() {
+            local version=$1
+            local major=$(echo $version | cut -d. -f1)
+            local minor=$(echo $version | cut -d. -f2)
+            local patch=$(echo $version | cut -d. -f3)
+            
+            # Increment patch version
+            patch=$((patch + 1))
+            echo "${major}.${minor}.${patch}"
+          }
 
-          # Split version into major, minor, patch components
-          IFS='.' read -r -a parts <<< "$version_numbers"
-          major=${parts[0]:-0}  # Default to 0 if missing
-          minor=${parts[1]:-0}  # Default to 0 if missing
-          patch=${parts[2]:-0}  # Default to 0 if missing
+          # Get new version
+          NEW_VERSION=$(increment_version $CURRENT_VERSION)
 
-          # Increment the patch version
-          new_patch=$((patch + 1))
-          new_tag="v$major.$minor.$new_patch"
+          # Save new version back to .git/config
+          git config branch.${BRANCH_NAME}.version "${NEW_VERSION}"
 
-          echo "New tag version: $new_tag"
-
-          # Store the new version in GitHub Environment for later steps
-          echo "NEW_VERSION=$new_tag" >> $GITHUB_ENV
-          echo "NEW_VERSION=$new_tag" >> $GITHUB_OUTPUT
+          # Export version to GitHub Actions
+          echo "NEW_VERSION=${BRANCH_NAME}-${NEW_VERSION}" >> $GITHUB_ENV
+          echo "NEW_VERSION=${BRANCH_NAME}-${NEW_VERSION}" >> $GITHUB_OUTPUT
 
       - name: Change-Cause for New Deployment
         run: |
@@ -248,7 +250,6 @@ jobs:
   #     workflows: ["GCloud"]
   #     types:
   #       - completed
-
   Rbac:
     needs: GCloud
     env:
