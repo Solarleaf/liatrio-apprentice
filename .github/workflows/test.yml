@@ -16,7 +16,7 @@ jobs:
     environment: dev
 
     env: # 👈 Define workflow-level variable here
-      VAR_NAME: "TESTING_THISS" # Variable name as a workflow-level environment variable
+      VAR_NAME: "TESTING_THISS" # Variable name  as a workflow-level environment variable
 
     steps:
       - name: Get current version
