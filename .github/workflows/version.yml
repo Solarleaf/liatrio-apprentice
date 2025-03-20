@@ -1,0 +1,66 @@
+name: Increment Version After PR Merge
+
+on:
+  pull_request:
+    branches: [main]
+    types:
+      - closed
+
+jobs:
+  tag_release:
+    if: github.event.pull_request.merged == true # Ensure it runs only when a PR is merged
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Get latest tag and increment version
+        id: versioning
+        run: |
+          # Get the latest tag or default to v0.0.0
+          latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+
+          # Extract version numbers safely
+          version_numbers=$(echo "$latest_tag" | grep -oE 'v[0-9]+\.[0-9]+(\.[0-9]+)?' || echo "v0.0.0")
+          version_numbers=${version_numbers#v}
+
+          # Split into major, minor, patch
+          IFS='.' read -r -a parts <<< "$version_numbers"
+          major=${parts[0]}
+          minor=${parts[1]}
+          patch=${parts[2]:-0}  # Default patch to 0 if missing
+
+          # Increment patch version
+          new_patch=$((patch + 1))
+          new_tag="v$major.$minor.$new_patch"
+
+          # Export the new tag for later steps
+          echo "NEW_VERSION=$new_tag" >> $GITHUB_ENV
+          echo "New version: $new_tag"
+
+      - name: Create and push new Git tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+
+          # Authenticate using GITHUB_TOKEN
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git
+
+          # Ensure tag doesn't already exist
+          if git rev-parse "$NEW_VERSION" >/dev/null 2>&1; then
+            echo "Tag $NEW_VERSION already exists. Skipping tag creation."
+            exit 0
+          fi
+
+          # Create and push the new tag
+          git tag $NEW_VERSION
+          git push origin $NEW_VERSION
+
+      - name: Show the new version
+        run: |
+          echo "Successfully tagged release: ${{ env.NEW_VERSION }}"

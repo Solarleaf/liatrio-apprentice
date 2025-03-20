@@ -9,8 +9,6 @@ on:
       - "Presentation"
   pull_request:
     branches: [main]
-    types:
-      - closed
 
 # Prevent Multiple Actions from happening at once on the same branch.
 # This does not stop Pull Requests from running at the same time as push.
@@ -210,26 +208,18 @@ jobs:
           echo $new_tag
           echo "NEW_VERSION=$new_tag" >> $GITHUB_ENV
 
-      # - name: Create and push new Git tag
-      #   run: |
-      #     git config --global user.name "github-actions"
-      #     git config --global user.email "github-actions@github.com"
-      #     git tag $NEW_VERSION
-      #     git push origin $NEW_VERSION
-
-      #     kubectl annotate deployment liatrio-deployment-api \
-      #       kubernetes.io/change-cause="Deployed ${IMAGE_TAG} from commit $GITHUB_SHA" \
-      #       --overwrite -n $DEPLOY_ENV
+      - name: Change-Cause for New Deployment
+        run: |
+          kubectl label deployment liatrio-deployment-api version=${NEW_VERSION} --overwrite -n $DEPLOY_ENV
+          kubectl annotate deployment liatrio-deployment-api \
+            kubernetes.io/change-cause="Deployed ${NEW_VERSION} from commit $GITHUB_SHA" \
+            --overwrite -n $DEPLOY_ENV
 
       # - name:  Turn them off
       #   run: |
       #     sleep 180
       #     kubectl delete deployment liatrio-deployment-api
       #     kubectl delete service liatrio-service-api
-
-      # Some of the cloud prerequirements
-      # gcloud services enable cloudresourcemanager.googleapis.com
-      # gcloud services enable container.googleapis.com
 
   # Per Best Practices this would be a separate file. To avoid Screen swaps keeping it in same file
   #  on:
