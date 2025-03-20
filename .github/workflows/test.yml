@@ -16,12 +16,6 @@ jobs:
     environment: dev
 
     steps:
-      - name: Authenticate GitHub CLI
-        run: |
-          echo "${{ secrets.LIAPAT }}" | gh auth login --with-token
-        env:
-          GH_TOKEN: ${{ secrets.LIAPAT }}
-
       - name: Get current version
         id: get-version
         run: |
@@ -35,11 +29,13 @@ jobs:
         run: |
           gh variable set TESTING_THIS --body "$NEW_VERSION" --env dev --repo $GITHUB_REPOSITORY
         env:
-          GH_TOKEN: ${{ secrets.LIAPAT }}
+          GH_TOKEN: ${{ secrets.LIAPAT }} # GitHub CLI will automatically use this token
 
       - name: Verify Updated Variable
         run: |
           echo "Fetching updated variables..."
           gh variable list --repo $GITHUB_REPOSITORY
+          CURRENT_VERSION=${{ vars.TESTING_THIS }}
+          echo "Current version: $CURRENT_VERSION"
         env:
           GH_TOKEN: ${{ secrets.LIAPAT }}
