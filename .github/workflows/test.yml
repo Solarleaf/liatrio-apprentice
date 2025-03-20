@@ -1,7 +1,7 @@
 name: Increment Branch Version
 
 on:
-  workflow_dispatch: # Allows manual triggering
+  workflow_dispatch:
 
 jobs:
   increment-version:
