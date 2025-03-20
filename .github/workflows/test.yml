@@ -7,41 +7,21 @@ on:
       - Version
 
 jobs:
-  increment_variable:
+  increment-version:
     runs-on: ubuntu-latest
-    permissions:
-      actions: write
-      contents: read
+    environment: dev
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install GitHub CLI
-        run: |
-          sudo apt update
-          sudo apt install -y gh
+      - name: Ensure GitHub CLI is available
+        run: gh --version
 
-      - name: Authenticate GitHub CLI
+      - name: Get current version (if exists)
+        id: get-version
+        continue-on-error: true
         run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
-
-      - name: Get Current Variable Value
-        id: get_var
-        run: |
-          VAR_NAME="COUNTER"
-          CURRENT_VALUE=$(gh variable list --json name,value | jq -r '.[] | select(.name=="'"$VAR_NAME"'") | .value')
-          CURRENT_VALUE=${CURRENT_VALUE:-0}  # Default to 0 if not set
-          echo "Current Value: $CURRENT_VALUE"
-          echo "CURRENT_VALUE=$CURRENT_VALUE" >> $GITHUB_ENV
-
-      - name: Increment Variable
-        id: increment
-        run: |
-          NEW_VALUE=$((CURRENT_VALUE + 1))
-          echo "New Value: $NEW_VALUE"
-          echo "NEW_VALUE=$NEW_VALUE" >> $GITHUB_ENV
-
-      - name: Update GitHub Actions Variable
-        run: |
-          gh variable set COUNTER --body "$NEW_VALUE"
+          echo "${vars.TESTING_THIS}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
