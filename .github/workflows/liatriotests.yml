@@ -7,6 +7,7 @@ on:
       - "Kubernetes"
       - "Docker"
       - "Presentation"
+      - "Version"
   pull_request:
     branches: [main]
 
@@ -20,18 +21,19 @@ env:
   IMAGE_NAME: liatrio-api
   DOCKER_REPO: apptemp/liatrio
   PORT: 80
+
 jobs:
   liatriotests: # Name Required for passing the pull request  checks
     permissions:
       contents: read
       packages: read
-    # if: github.event_name == 'push' && github.event.pull_request == null
-    # if: github.event_name == 'push' && github.event.pull_request == null || github.event_name == 'pull_request'
-    # if: github.event_name == 'push' && github.event_name != 'pull_request' || github.event_name == 'pull_request'
-
+    env:
+      DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
+    environment: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
     # build:
     # Runner using version
     runs-on: ubuntu-24.04
+
     timeout-minutes: 5
     outputs:
       IMAGE_TAG: ${{ steps.expose-image-tag.outputs.IMAGE_TAG }}
@@ -89,11 +91,13 @@ jobs:
     # build:
     needs: liatriotests
     # if: false
+
     env:
       GKE_CLUSTER: cluster-1
       GKE_REGION: us-central1-a
       IMAGE_TAG: ${{ needs.liatriotests.outputs.IMAGE_TAG }}
       DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
+      BRANCH_NAME: ${{ github.ref_name }}
     # Runner using version
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -192,42 +196,54 @@ jobs:
           cat k8s/deployment.yaml
           kubectl apply -f k8s/deployment.yaml --namespace=$DEPLOY_ENV
 
-      - name: Get Version Tag & Increment
-        id: versionin
+      - name: Set Version Tag Based on Branch
         run: |
-          # Get the latest tag or reset to v0.0.0
-          latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
-          echo $latest_tag
-          version_numbers=$(echo "$latest_tag" | grep -oE 'v[0-9]+\.[0-9]+(\.[0-9]+)?' || echo "v0.0.0")
-          version_numbers=${version_numbers#v}
-          IFS='.' read -r -a parts <<< "$version_numbers"
-          major=${parts[0]}
-          minor=${parts[1]}
-          patch=${parts[2]:-0}
-          new_patch=$((patch + 1))
-          new_tag="v$major.$minor.$new_patch"
-          echo $new_tag
-          echo "NEW_VERSION=$new_tag" >> $GITHUB_ENV
+          # Extract and normalize branch name (only letters)
+          BRANCH_NAME=$(echo "${GITHUB_REF#refs/heads/}" | tr -cd 'a-zA-Z')
+          echo "Branch Name: $BRANCH_NAME"
+
+          # Try to fetch the current version dynamically using gh CLI
+          CURRENT_VERSION=$(gh variable get "$BRANCH_NAME" --env "$DEPLOY_ENV" --repo $GITHUB_REPOSITORY --json name,value --jq '.value' || echo "")
+
+
+          if [[ -z "$CURRENT_VERSION" ]]; then
+            CURRENT_VERSION="0.0.0"
+          fi
+
+          echo "Current Version: $CURRENT_VERSION"
+
+          # Function to increment version (adds 0.0.1)
+          increment_version() {
+            local version=$1
+            IFS='.' read -r major minor patch <<< "$version"  # Extract version numbers
+            patch=$((patch + 1))  # Increment patch version
+            echo "${major}.${minor}.${patch}"
+          }
+
+          # Get new version (incremented)
+          NEW_VERSION=$(increment_version "$CURRENT_VERSION")
+
+          # Export version to GitHub Actions
+          echo "NEW_VERSION=${NEW_VERSION}" >> $GITHUB_ENV
+          echo "BRANCH_NAME=${BRANCH_NAME}" >> $GITHUB_ENV
+
+          # Print new version for debugging
+          echo "New Version: $NEW_VERSION"
+
+          # Update the GitHub Actions environment variable for the branch with the new version
+          gh variable set "$BRANCH_NAME" --body "$NEW_VERSION" --env "$DEPLOY_ENV" --repo $GITHUB_REPOSITORY
+        env:
+          GH_TOKEN: ${{ secrets.LIAPATS }}
 
       - name: Change-Cause for New Deployment
         run: |
-          kubectl label deployment liatrio-deployment-api version=${NEW_VERSION} --overwrite -n $DEPLOY_ENV
           kubectl annotate deployment liatrio-deployment-api \
-            kubernetes.io/change-cause="Deployed ${NEW_VERSION} from commit $GITHUB_SHA" \
+            kubernetes.io/change-cause="Deployed: ${NEW_VERSION} from branch: ${BRANCH_NAME} at commit: $GITHUB_SHA" \
             --overwrite -n $DEPLOY_ENV
 
       - name: Label New Deployment
         run: |
-          kubectl label deployment liatrio-deployment-api version=${NEW_VERSION} --overwrite -n $DEPLOY_ENV
-          kubectl annotate deployment liatrio-deployment-api \
-            kubernetes.io/change-cause="Deployed ${NEW_VERSION} from commit $GITHUB_SHA" \
-            --overwrite -n $DEPLOY_ENV
-
-      # - name:  Turn them off
-      #   run: |
-      #     sleep 180
-      #     kubectl delete deployment liatrio-deployment-api
-      #     kubectl delete service liatrio-service-api
+          kubectl label deployment liatrio-deployment-api version=${NEW_VERSION} branch=${BRANCH_NAME} commit=${GITHUB_SHA} --overwrite -n $DEPLOY_ENV
 
   # Per Best Practices this would be a separate file. To avoid Screen swaps keeping it in same file
   #  on:
@@ -235,8 +251,8 @@ jobs:
   #     workflows: ["GCloud"]
   #     types:
   #       - completed
-
   Rbac:
+    # if: false
     needs: GCloud
     env:
       GKE_CLUSTER: cluster-1
