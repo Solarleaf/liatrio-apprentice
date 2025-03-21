@@ -252,7 +252,7 @@ jobs:
   #     types:
   #       - completed
   Rbac:
-    if: false
+    # if: false
     needs: GCloud
     env:
       GKE_CLUSTER: cluster-1
