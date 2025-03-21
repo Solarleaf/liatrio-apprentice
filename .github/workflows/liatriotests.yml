@@ -238,7 +238,7 @@ jobs:
       - name: Change-Cause for New Deployment
         run: |
           kubectl annotate deployment liatrio-deployment-api \
-            kubernetes.io/change-cause="Deployed ${NEW_VERSION} from branch ${BRANCH_NAME} at commit $GITHUB_SHA" \
+            kubernetes.io/change-cause="Deployed: ${NEW_VERSION} from branch: ${BRANCH_NAME} at commit: $GITHUB_SHA" \
             --overwrite -n $DEPLOY_ENV
 
       - name: Label New Deployment
