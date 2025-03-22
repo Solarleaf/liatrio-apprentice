@@ -1,5 +1,8 @@
 
-used fortesting
+used for testing
+
+liatrio-421422
+
 
 For Linux:
 
@@ -64,3 +67,32 @@ kubectl get deployment liatrio-deployment-api -n $DEPLOY_ENV --show-labels
 
 # Rollback
 kubectl rollout undo deployment liatrio-deployment-api -n dev
+
+
+
+
+
+Static Address for Workflow:
+
+gcloud compute addresses create my-static-ip --global
+gcloud compute addresses list
+loadBalancerIP: YOUR_RESERVED_IP
+
+
+gcloud compute addresses list
+gcloud compute addresses describe ADDRESS_NAME
+
+Promote:
+gcloud compute addresses create ADDRESS_NAME --addresses=IP_ADDRESS \
+    [--region=REGION | --global]
+POST https://compute.googleapis.com/compute/v1/projects/PROJECT_ID/regions/REGION/addresses
+{
+  "name": "ADDRESS_NAME",
+  "address": "IPV4_ADDRESS"
+  "addressType": "EXTERNAL"
+}
+
+
+Delete:
+gcloud compute addresses delete ADDRESS_NAME
+DELETE https://compute.googleapis.com/compute/v1/projects/PROJECT_ID/regions/REGION/addresses/ADDRESS_NAME

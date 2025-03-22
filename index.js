@@ -1,12 +1,18 @@
 // Imports Express 
 const express = require("express");
-// Imports HTTP protocals
-const http = require("http");
+// Not used: Imports HTTP protocals
+// const http = require("http");
+
 const app = express();
-// Port and IP
+// Port is from the environment or defaults to 80
 const port = process.env.PORT || 80;
+// Only available inside the same machine or container, good for local
 // const hostname = '127.17.0.1';
+
+// 0.0.0.0 for listening on all interfaces.
+// Kubernetes may break routing otherwise
 const hostname = '0.0.0.0';
+
 const mess_n = "My name is fun";
 const funFacts = [
     "Kubernetes Had a Secret Codename: Project Seven",
@@ -23,13 +29,19 @@ app.get("/", (req, res) => {
     const responseObject = {
         message: mess_n,
         timestamp: new Date().getTime(),
-        // Minified
+        test: Date.now(),
+        // Minified. Removes spaces
         mini: mess_n.replace(/\s+/g, ''),
         funFact: funFacts[Math.floor(Math.random() * funFacts.length)],
     };
     res.status(200).json(responseObject);
 });
-// Start Server and binding the Port
+
+app.use((req, res) => {
+    res.status(404).json({ error: "Route not found" });
+});
+
+// Start Server and list/binding on the Port
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}!`);
     console.log(`Server running at http://${hostname}:${port}/`);
