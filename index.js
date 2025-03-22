@@ -44,7 +44,7 @@ app.get("/", (req, res) => {
 
 // Express. Req not used
 app.use((req, res) => {
-    res.status(404).json({ error: "Route not found" + req.method });
+    res.status(404).json({ error: "Route not found. Request method:" + req.method });
 });
 
 // Start Server and list/binding on the Port
