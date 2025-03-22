@@ -30,8 +30,9 @@ const funFacts = [
 app.get("/", (req, res) => {
     const responseObject = {
         message: mess_n,
-        timestamp: new Date().getTime(),
-        test: Date.now(),
+        // Better version
+        // timestamp: new Date().getTime(),
+        timestamp: Date.now(),
         request: req.method,
         // Minified. Removes spaces
         mini: mess_n.replace(/\s+/g, ''),
