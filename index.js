@@ -1,4 +1,4 @@
-// Imports Express 
+// Imports Express. Not using ES module in package so going with standard
 const express = require("express");
 // Not used: Imports HTTP protocals. Express handles this
 // const http = require("http");
@@ -44,7 +44,7 @@ app.get("/", (req, res) => {
 
 // Express. Req not used
 app.use((req, res) => {
-    res.status(404).json({ error: 'Route not found ${req.method}' });
+    res.status(404).json({ error: `Route not found ${req.method}` });
 });
 
 // Start Server and list/binding on the Port
