@@ -36,7 +36,7 @@ app.get("/", (req, res) => {
         request: req.method,
         // Minified. Removes spaces
         mini: mess_n.replace(/\s+/g, ''),
-        funFact: funFacts[Math.floor(Math.random() * funFacts.length)],
+        // funFact: funFacts[Math.floor(Math.random() * funFacts.length)],
     };
     // Express response helpers
     res.status(200).json(responseObject);
@@ -44,7 +44,7 @@ app.get("/", (req, res) => {
 
 // Express. Req not used
 app.use((req, res) => {
-    res.status(404).json({ error: "Route not found. Request method:" + req.method });
+    res.status(404).json({ error: "Route not found. Request method:" + req });
 });
 
 // Start Server and list/binding on the Port
