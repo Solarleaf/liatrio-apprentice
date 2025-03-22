@@ -1,6 +1,6 @@
 // Imports Express. Not using ES module in package so going with standard
 const express = require("express");
-// Not used: Imports HTTP protocals. Express handles this
+// Imports HTTP protocals (Node). Express handles this
 // const http = require("http");
 
 const app = express();
@@ -22,7 +22,7 @@ const funFacts = [
     "Kubernetes” is the Greek word for a ship’s captain. We get the words Cybernetic and Gubernatorial from it",
     "Why don’t Kubernetes pods ever get lost? Because they always have a service to find them!",
     "Why did the container apply for a job? It wanted better orchestration in its life!",
-    "What’s a Kubernetes cluster’s favorite type of music? Heavy metal… because it’s full of nodes!",
+    "What’s a Kubernetes cluster’s favorite type of music? Bare metal… because it servers nodes!",
     "How does a DevOps engineer like their coffee? With CI/CD (Caffeine Input / Caffeine Deployment)!",
 ];
 // Routing that responds to a HTTP GET request. Req not used
