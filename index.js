@@ -1,6 +1,6 @@
 // Imports Express 
 const express = require("express");
-// Not used: Imports HTTP protocals
+// Not used: Imports HTTP protocals. Express handles this
 // const http = require("http");
 
 const app = express();
@@ -11,6 +11,7 @@ const port = process.env.PORT || 80;
 
 // 0.0.0.0 for listening on all interfaces.
 // Kubernetes may break routing otherwise
+
 const hostname = '0.0.0.0';
 
 const mess_n = "My name is fun";
@@ -24,24 +25,29 @@ const funFacts = [
     "What’s a Kubernetes cluster’s favorite type of music? Heavy metal… because it’s full of nodes!",
     "How does a DevOps engineer like their coffee? With CI/CD (Caffeine Input / Caffeine Deployment)!",
 ];
-// Routing that responds to a HTTP GET request
+// Routing that responds to a HTTP GET request. Req not used
+// Express routing system
 app.get("/", (req, res) => {
     const responseObject = {
         message: mess_n,
         timestamp: new Date().getTime(),
         test: Date.now(),
+        request: req.method,
         // Minified. Removes spaces
         mini: mess_n.replace(/\s+/g, ''),
         funFact: funFacts[Math.floor(Math.random() * funFacts.length)],
     };
+    // Express response helpers
     res.status(200).json(responseObject);
 });
 
+// Express. Req not used
 app.use((req, res) => {
-    res.status(404).json({ error: "Route not found" });
+    res.status(404).json({ error: 'Route not found ${req.method}' });
 });
 
 // Start Server and list/binding on the Port
+// Express createServer()
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}!`);
     console.log(`Server running at http://${hostname}:${port}/`);
