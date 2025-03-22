@@ -33,7 +33,7 @@ app.get("/", (req, res) => {
         // Better version
         // timestamp: new Date().getTime(),
         timestamp: Date.now(),
-        request: req.method,
+        request: req.url,
         // Minified. Removes spaces
         mini: mess_n.replace(/\s+/g, ''),
         // funFact: funFacts[Math.floor(Math.random() * funFacts.length)],
