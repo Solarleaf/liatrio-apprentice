@@ -1,5 +1,5 @@
 
-used for  testing
+used fortesting
 
 For Linux:
 
@@ -59,6 +59,8 @@ kubectl delete rolebinding user-reader-dev_staging_prod-staging -n staging
 
 # Deployments
 kubectl rollout history deployment liatrio-deployment-api -n dev
+kubectl get deployment liatrio-deployment-api -n $DEPLOY_ENV --show-labels
+
 
 # Rollback
 kubectl rollout undo deployment liatrio-deployment-api -n dev
