@@ -25,7 +25,7 @@ const funFacts = [
     "What’s a Kubernetes cluster’s favorite type of music? Bare metal… because it servers nodes!",
     "How does a DevOps engineer like their coffee? With CI/CD (Caffeine Input / Caffeine Deployment)!",
 ];
-// Routing that responds to a HTTP GET request. Req not used
+// Routing that responds to a HTTP GET request
 // Express routing system
 app.get("/", (req, res) => {
     const responseObject = {
@@ -42,18 +42,20 @@ app.get("/", (req, res) => {
     res.status(200).json(responseObject);
 });
 
-// Express. Req not used
-res.status(404).json({ 
-    error: "Route not found.",
-    request: {
-        method: req.method,
-        url: req.originalUrl,
-        path: req.path,
-        query: req.query,
-        headers: req.headers,
-        params: req.params,
-        body: req.body
-    }
+// Express
+app.use((req, res) => {
+    res.status(404).json({ 
+        error: "Route not found.",
+        request: {
+            method: req.method,
+            url: req.originalUrl,
+            path: req.path,
+            query: req.query,
+            headers: req.headers,
+            params: req.params,
+            body: req.body
+        }
+    });
 });
 
 // Start Server and list/binding on the Port
