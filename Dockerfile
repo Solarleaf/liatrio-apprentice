@@ -1,6 +1,7 @@
 # Build Stage
 
 # apprentice-action / action/yaml is using node-version '16' However, 16 is not listed as a supported tag
+# node-version also has warnings in GitHub Actions
 # ARG NODE_VERSION=16.20.2
 
 # Going with a 20.19.0-alpine.3.20. Earliest listed is 18. No 19.
@@ -25,6 +26,8 @@ COPY package*.json ./
 # Install dependencies
 # Using production for now since not using any Dev tools in this area, for now
 # RUN npm install --production
+# ci is clean install defined by package-lock.json
+# CI is generally better for DevOps
 RUN npm ci --omit=dev
 
 # Rest of code. Needs to be below dependencies

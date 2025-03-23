@@ -23,12 +23,14 @@ env:
   PORT: 80
 
 jobs:
-  liatriotests: # Name Required for passing the pull request  checks
+  liatriotests: # Name Required for passing the pull request checks
+    # Security scan wanted these labelled
     permissions:
       contents: read
       packages: read
     env:
       DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
+    # Static Analsysis phase. Can't use DEPLOY_ENV from above since that happens after Static Analysis
     environment: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
     # build:
     # Runner using version
@@ -53,7 +55,7 @@ jobs:
         uses: liatrio/github-actions/apprentice-action@0b41561cca6822cc8d880fe0e49e7807a41fdf91
 
       - name: Log in to Docker Hub
-        # If success just in case an if: failure() is every used
+        # If success just in case an if: failure() is ever used
         # Want to make sure that everything worked before starting the upload process
         if: success()
         # uses: docker/login-action@v2 3-13-25
