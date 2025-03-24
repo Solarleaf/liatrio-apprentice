@@ -258,6 +258,7 @@ jobs:
     env:
       GKE_CLUSTER: cluster-1
       GKE_REGION: us-central1-a
+      DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
     # Runner using version
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -343,3 +344,7 @@ jobs:
         run: |
           kubectl get deployment liatrio-deployment-api -n $DEPLOY_ENV --show-labels
           kubectl rollout history deployment liatrio-deployment-api -n $DEPLOY_ENV
+
+      - name: Horizontal Pod Autoscaler Trigger & Rolling Update
+        run: |
+          kubectl patch deployment liatrio-deployment-api -p
