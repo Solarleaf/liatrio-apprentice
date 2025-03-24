@@ -71,13 +71,13 @@ jobs:
           echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
           echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_OUTPUT
       # Creates a latest and a time stamped version making manual rollbacks easier if needed
-      - name: Tag Docker Image
+      - name: ⭐ Tag Docker Image
         if: success()
         run: |
           docker tag $IMAGE_NAME $DOCKER_REPO:latest
           docker tag $IMAGE_NAME $DOCKER_REPO:${IMAGE_TAG}
 
-      - name: Push Docker Image
+      - name: ⭐ Push Docker Image
         if: success()
         run: |
           docker push $DOCKER_REPO:latest
@@ -252,7 +252,7 @@ jobs:
   #     workflows: ["GCloud"]
   #     types:
   #       - completed
-  Rbac:
+  Tests:
     # if: false
     needs: GCloud
     env:
@@ -304,7 +304,7 @@ jobs:
       - name: Get Kubernetes Credentials
         run: gcloud container clusters get-credentials $GKE_CLUSTER --region $GKE_REGION
 
-      - name: ⭐ Establish Namespaces
+      - name: Establish Namespaces
         run: |
           kubectl apply -f k8s/namespaces.yaml
 
@@ -338,3 +338,8 @@ jobs:
           kubectl auth can-i list namespaces -n dev --as=system:serviceaccount:github-actions:github-actions-sa-user
           kubectl auth can-i list namespaces -n staging --as=system:serviceaccount:github-actions:github-actions-sa-user
           kubectl auth can-i list namespaces -n prod --as=system:serviceaccount:github-actions:github-actions-sa-user
+
+      - name: ⭐ Version Control. Change Cause & Deployment Label
+        run: |
+          kubectl get deployment liatrio-deployment-api -n $DEPLOY_ENV --show-labels
+          kubectl rollout history deployment liatrio-deployment-api -n $DEPLOY_ENV
