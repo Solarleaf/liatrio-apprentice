@@ -345,9 +345,16 @@ jobs:
           kubectl get deployment liatrio-deployment-api -n $DEPLOY_ENV --show-labels
           kubectl rollout history deployment liatrio-deployment-api -n $DEPLOY_ENV
 
-      - name: Horizontal Pod Autoscaler Trigger & Rolling Update
+      - name: ⭐ Horizontal Pod Autoscaler To 1% to Trigger All Pods
         run: |
           echo "$DEPLOY_ENV"
-          kubectl patch hpa liatrio-hpa-api -n $DEPLOY_ENV --patch-file k8s/hpa.yaml 
+          kubectl patch hpa liatrio-hpa-api -n $DEPLOY_ENV --patch-file k8s/hpa.yaml
+          kubectl get pods -n $DEPLOY_ENV
+
+      - name: ⭐ Patch Rollout
+        run: |
           kubectl patch deployment liatrio-deployment-api -n $DEPLOY_ENV \
            -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"rollout-timestamp\":\"trigger-$(date +%s)\"}}}}}"
+           kubectl rollout status deployment liatrio-deployment-api -n $DEPLOY_ENV
+           kubectl get pods -n dev
+           kubectl rollout history deployment liatrio-deployment-api -n $DEPLOY_ENV
