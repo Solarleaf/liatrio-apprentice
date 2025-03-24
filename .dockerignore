@@ -10,6 +10,7 @@ gha-creds-*.json
 k8s/
 SetupFiles/
 Void/
+audit-report.txt
 
 **/.classpath
 **/.dockerignore
