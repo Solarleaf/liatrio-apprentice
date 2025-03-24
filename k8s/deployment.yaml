@@ -37,7 +37,7 @@ spec:
             httpGet:
               path: /
               port: 80
-            initialDelaySeconds: 5
+            initialDelaySeconds: 10
             periodSeconds: 10
             failureThreshold: 10
           # Health Check. If failed, kills and restarts. Deadlock, freeze, etc
@@ -45,19 +45,19 @@ spec:
             httpGet:
               path: /
               port: 80
-            initialDelaySeconds: 3
+            initialDelaySeconds: 10
             periodSeconds: 10
           # Ready for traffic
           readinessProbe:
             httpGet:
               path: /
               port: 80
-            initialDelaySeconds: 5
+            initialDelaySeconds: 10
             periodSeconds: 10
           # Resources
           resources:
             requests:
-              cpu: "100m"
+              cpu: "128m"
               memory: "150Mi" # More than 150Mb
             limits:
               cpu: "200m"
