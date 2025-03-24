@@ -57,10 +57,10 @@ spec:
           # Resources
           resources:
             requests:
-              cpu: "50m"
-              memory: "50Mi" # More than 50Mb
+              cpu: "100m"
+              memory: "150Mi" # More than 150Mb
             limits:
-              cpu: "150m"
+              cpu: "200m"
               memory: "250Mi"
 ---
 # Have this in same file for less screen changing
