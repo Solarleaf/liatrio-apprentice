@@ -320,16 +320,16 @@ jobs:
             echo "ERROR: Token generation failed!"
             exit 1
           fi
-          echo "Checking Deployments using ServiceAccount..."
+          echo "Checking Deployments using ServiceAccount"
           echo ""
           echo "Deployments:"
-          kubectl --token=$TOKEN get deployment -n dev
+          kubectl --token=$TOKEN get deployment -n $DEPLOY_ENV
           echo ""
           echo "Pods:"
-          kubectl --token=$TOKEN get pods -n dev
+          kubectl --token=$TOKEN get pods -n $DEPLOY_ENV
           echo ""
           echo "Describe Deployment:"
-          kubectl --token=$TOKEN describe deployment liatrio-deployment-api -n dev
+          kubectl --token=$TOKEN describe deployment liatrio-deployment-api -n $DEPLOY_ENV
 
       - name: ⭐ Auth test
         run: |
@@ -362,7 +362,7 @@ jobs:
           echo "Patching HPA"
           kubectl patch hpa liatrio-hpa-api -n $DEPLOY_ENV --patch-file k8s/hpa.yaml
           echo ""
-          echo "Horizontal Pod Autoscaler Status:"
+          echo "Horizontal Pod Autoscaler Status. Note: CPU may be unknown as that can take a bit to load after a patch. HPA:"
           kubectl get hpa -n $DEPLOY_ENV
           echo ""
           echo "Current Pods:"
