@@ -32,6 +32,7 @@ spec:
             - name: PORT
               value: "80"
           # Probes
+          # Extra time before liveness check. Good for slow startup apps
           startupProbe:
             httpGet:
               path: /
@@ -39,12 +40,14 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 10
             failureThreshold: 10
+          # Health Check. If failed, kills and restarts. Deadlock, freeze, etc
           livenessProbe:
             httpGet:
               path: /
               port: 80
             initialDelaySeconds: 3
             periodSeconds: 10
+          # Ready for traffic
           readinessProbe:
             httpGet:
               path: /
@@ -55,13 +58,14 @@ spec:
           resources:
             requests:
               cpu: "100m"
-              memory: "128Mi"
+              memory: "128Mi" # Around 134Mb
             limits:
               cpu: "500m"
               memory: "256Mi"
 ---
 # Have this in same file for less screen changing
-# Namespaces in separate for better pratices
+# Namespaces in separate file for better pratices.
+# Namespaces needs to exist before deployment from GitHub Actions
 apiVersion: v1
 kind: Service
 metadata:

@@ -183,6 +183,7 @@ jobs:
       - name: ⭐ Print Environment
         run: echo "Deploying to $DEPLOY_ENV"
 
+      # This needs to run before deployment to establish namespaces
       - name: ⭐ Establish Namespaces & GitHub actions applies relevant namespace
         run: |
           echo "Google Actions adds namespace. Branch is dev. Pull request is staging"
@@ -192,6 +193,7 @@ jobs:
         run: |
           kubectl config set-context --current --namespace=$DEPLOY_ENV
 
+      # Namespaces must be run before the container is deployed
       - name: ⭐ Deploy Container
         run: |
           echo "${IMAGE_TAG}"
