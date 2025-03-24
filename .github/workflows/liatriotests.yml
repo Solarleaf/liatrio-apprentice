@@ -183,8 +183,9 @@ jobs:
       - name: ⭐ Print Environment
         run: echo "Deploying to $DEPLOY_ENV"
 
-      - name: ⭐ Establish Namespaces
+      - name: ⭐ Establish Namespaces & GitHub actions applies relevant namespace
         run: |
+          echo "Google Actions adds namespace. Branch is dev. Pull request is staging"
           kubectl apply -f k8s/namespaces.yaml
 
       - name: Set Kubernetes Context
@@ -236,13 +237,13 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.LIAPATS }}
 
-      - name: ⭐ Change-Cause for New Deployment
+      - name: Change-Cause for New Deployment (Shown in Tests)
         run: |
           kubectl annotate deployment liatrio-deployment-api \
             kubernetes.io/change-cause="Deployed: ${NEW_VERSION} from branch: ${BRANCH_NAME} at commit: $GITHUB_SHA" \
             --overwrite -n $DEPLOY_ENV
 
-      - name: ⭐ Label New Deployment
+      - name: Label New Deployment (Shown in Tests)
         run: |
           kubectl label deployment liatrio-deployment-api version=${NEW_VERSION} branch=${BRANCH_NAME} commit=${GITHUB_SHA} --overwrite -n $DEPLOY_ENV
 
@@ -311,6 +312,7 @@ jobs:
 
       - name: ⭐ Establish Service Account, Binding, & Role
         run: |
+          echo "Setting up Service Account: github-actions-sa-user to have get & list for namespaces, pods, services, & deployments"      
           kubectl apply -f k8s/rbac.yaml
       - name: ⭐ Generate Service Account Token & Test
         run: |

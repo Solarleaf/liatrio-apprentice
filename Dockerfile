@@ -54,3 +54,12 @@ CMD ["node", "index.js"]
 # Health Checks explicitly disabled in Kubernetes 1.8
 # HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD curl -fs http://localhost:$PORT || exit 1
 
+
+# docker build -t liatrio-app .
+# docker run -d --name liatrio-test -p 80:80 liatrio-app
+
+# Powershell
+# docker stop liatrio-test; docker rm liatrio-test
+
+# CMD
+# docker stop liatrio-test && docker rm liatrio-test

@@ -1,5 +1,7 @@
 # deployment.yaml Main File
 
+# Namespaces are applied in GitHub Actions or manually as needed
+
 # Deployment
 apiVersion: apps/v1
 kind: Deployment
@@ -59,7 +61,7 @@ spec:
               memory: "256Mi"
 ---
 # Have this in same file for less screen changing
-# Namespaces in separate for better pratices, no namespace req, names easy
+# Namespaces in separate for better pratices
 apiVersion: v1
 kind: Service
 metadata:

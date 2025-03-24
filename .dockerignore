@@ -8,9 +8,9 @@
 gha-creds-*.json
 .github/
 k8s/
-SetupFiles/
 Void/
 audit-report.txt
+Notes/
 
 **/.classpath
 **/.dockerignore
