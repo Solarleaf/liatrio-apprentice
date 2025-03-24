@@ -64,7 +64,7 @@ spec:
               memory: "250Mi"
 ---
 # Have this in same file for less screen changing
-# Namespaces in separate file for better pratices.
+# Namespaces in separate file for better pratices
 # Namespaces needs to exist before deployment from GitHub Actions
 apiVersion: v1
 kind: Service
