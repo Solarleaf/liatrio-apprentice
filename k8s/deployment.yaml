@@ -1,5 +1,7 @@
 # deployment.yaml Main File
 
+# Namespaces are applied in GitHub Actions or manually as needed
+
 # Deployment
 apiVersion: apps/v1
 kind: Deployment
@@ -30,36 +32,40 @@ spec:
             - name: PORT
               value: "80"
           # Probes
+          # Extra time before liveness check. Good for slow startup apps
           startupProbe:
             httpGet:
               path: /
               port: 80
-            initialDelaySeconds: 5
+            initialDelaySeconds: 10
             periodSeconds: 10
             failureThreshold: 10
+          # Health Check. If failed, kills and restarts. Deadlock, freeze, etc
           livenessProbe:
             httpGet:
               path: /
               port: 80
-            initialDelaySeconds: 3
+            initialDelaySeconds: 10
             periodSeconds: 10
+          # Ready for traffic
           readinessProbe:
             httpGet:
               path: /
               port: 80
-            initialDelaySeconds: 5
+            initialDelaySeconds: 10
             periodSeconds: 10
           # Resources
           resources:
             requests:
-              cpu: "100m"
-              memory: "128Mi"
+              cpu: "128m"
+              memory: "150Mi" # More than 150Mb
             limits:
-              cpu: "500m"
-              memory: "256Mi"
+              cpu: "200m"
+              memory: "250Mi"
 ---
 # Have this in same file for less screen changing
-# Namespaces in separate for better pratices, no namespace req, names easy
+# Namespaces in separate file for better pratices
+# Namespaces needs to exist before deployment from GitHub Actions
 apiVersion: v1
 kind: Service
 metadata:
@@ -93,10 +99,10 @@ spec:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: 50
+          averageUtilization: 90
     - type: Resource
       resource:
         name: memory
         target:
           type: Utilization
-          averageUtilization: 70
+          averageUtilization: 90

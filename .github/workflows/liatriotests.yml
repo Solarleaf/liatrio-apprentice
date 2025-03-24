@@ -23,12 +23,14 @@ env:
   PORT: 80
 
 jobs:
-  liatriotests: # Name Required for passing the pull request  checks
+  liatriotests: # Name Required for passing the pull request checks
+    # Security scan wanted these labelled
     permissions:
       contents: read
       packages: read
     env:
       DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
+    # Static Analsysis phase. Can't use DEPLOY_ENV from above since that happens after Static Analysis
     environment: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
     # build:
     # Runner using version
@@ -42,18 +44,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
-      - name: Build Docker Image
+      - name: ⭐ Build Docker Image
         run: docker build -t $IMAGE_NAME .
 
-      - name: Run Docker
+      - name: ⭐ Run Docker
         run: docker run -d -p $PORT:$PORT $IMAGE_NAME
 
       # liatrio/github-actions/apprentice-action@v1.0.0 3-13-25
-      - name: run Liatrio 6 tests
+      - name: ⭐ Run Liatrio 6 tests
         uses: liatrio/github-actions/apprentice-action@0b41561cca6822cc8d880fe0e49e7807a41fdf91
 
       - name: Log in to Docker Hub
-        # If success just in case an if: failure() is every used
+        # If success just in case an if: failure() is ever used
         # Want to make sure that everything worked before starting the upload process
         if: success()
         # uses: docker/login-action@v2 3-13-25
@@ -62,20 +64,20 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Set Image Tag as Commit Sha
+      - name: ⭐ Set Image Tag as Commit Sha
         id: expose-image-tag
         run: |
           IMAGE_TAG=${GITHUB_SHA::7}
           echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
           echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_OUTPUT
       # Creates a latest and a time stamped version making manual rollbacks easier if needed
-      - name: Tag Docker Image
+      - name: ⭐ Tag Docker Image
         if: success()
         run: |
           docker tag $IMAGE_NAME $DOCKER_REPO:latest
           docker tag $IMAGE_NAME $DOCKER_REPO:${IMAGE_TAG}
 
-      - name: Push Docker Image
+      - name: ⭐ Push Docker Image
         if: success()
         run: |
           docker push $DOCKER_REPO:latest
@@ -144,10 +146,10 @@ jobs:
             echo "CREATE_CLUSTER=true" >> $GITHUB_OUTPUT
           fi
 
-      - name: Deploy Cluster
+      - name: ⭐ Provision Cluster
         if: steps.check-cluster.outputs.CREATE_CLUSTER == 'false'
         run: |
-          echo "Creating GKE Cluster from k8s/cluster.txt..."
+          echo "Provisioning GKE Cluster from k8s/cluster.txt"
           # gcloud components install beta --quiet # Install beta # IF needed
           chmod +x k8s/cluster.txt  # Ensure it's executable
           bash k8s/cluster.txt --quiet &      # Run the cluster creation command
@@ -155,7 +157,7 @@ jobs:
 
       - name: Wait for Cluster Readiness
         run: |
-          echo "Waiting for cluster to be ready..."
+          echo "Waiting for cluster to be ready"
           for ((i=1; i<=10; i++)); do
             STATUS=$(gcloud container clusters describe ${GKE_CLUSTER} --region ${GKE_REGION} --format="value(status)")
 
@@ -168,7 +170,7 @@ jobs:
               sleep 30
             fi
 
-            echo "Attempt $i/10: Cluster '${GKE_CLUSTER}' is still not ready... (Status: $STATUS)"
+            echo "Attempt $i/10: Cluster '${GKE_CLUSTER}' is still not ready. (Status: $STATUS)"
             sleep 30
           done
 
@@ -178,25 +180,28 @@ jobs:
       - name: Get Kubernetes Credentials
         run: gcloud container clusters get-credentials $GKE_CLUSTER --region $GKE_REGION
 
-      - name: Print Environment
+      - name: ⭐ Print Environment
         run: echo "Deploying to $DEPLOY_ENV"
 
-      - name: Establish Namespaces
+      # This needs to run before deployment to establish namespaces
+      - name: ⭐ Establish Namespaces & GitHub actions applies relevant namespace
         run: |
+          echo "Google Actions adds namespace. Branch is dev. Pull request is staging"
           kubectl apply -f k8s/namespaces.yaml
 
       - name: Set Kubernetes Context
         run: |
           kubectl config set-context --current --namespace=$DEPLOY_ENV
 
-      - name: Deploy Container
+      # Namespaces must be run before the container is deployed
+      - name: ⭐ Deploy Container
         run: |
           echo "${IMAGE_TAG}"
           sed -i "s|\(image: docker.io/${DOCKER_REPO}:\)[^[:space:]]*|\1${IMAGE_TAG}|" k8s/deployment.yaml
           cat k8s/deployment.yaml
           kubectl apply -f k8s/deployment.yaml --namespace=$DEPLOY_ENV
 
-      - name: Set Version Tag Based on Branch
+      - name: ⭐ Set Version Tag Based on Branch
         run: |
           # Extract and normalize branch name (only letters)
           BRANCH_NAME=$(echo "${GITHUB_REF#refs/heads/}" | tr -cd 'a-zA-Z')
@@ -204,7 +209,6 @@ jobs:
 
           # Try to fetch the current version dynamically using gh CLI
           CURRENT_VERSION=$(gh variable get "$BRANCH_NAME" --env "$DEPLOY_ENV" --repo $GITHUB_REPOSITORY --json name,value --jq '.value' || echo "")
-
 
           if [[ -z "$CURRENT_VERSION" ]]; then
             CURRENT_VERSION="0.0.0"
@@ -235,13 +239,13 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.LIAPATS }}
 
-      - name: Change-Cause for New Deployment
+      - name: Change-Cause for New Deployment (Shown in Tests)
         run: |
           kubectl annotate deployment liatrio-deployment-api \
             kubernetes.io/change-cause="Deployed: ${NEW_VERSION} from branch: ${BRANCH_NAME} at commit: $GITHUB_SHA" \
             --overwrite -n $DEPLOY_ENV
 
-      - name: Label New Deployment
+      - name: Label New Deployment (Shown in Tests)
         run: |
           kubectl label deployment liatrio-deployment-api version=${NEW_VERSION} branch=${BRANCH_NAME} commit=${GITHUB_SHA} --overwrite -n $DEPLOY_ENV
 
@@ -251,12 +255,13 @@ jobs:
   #     workflows: ["GCloud"]
   #     types:
   #       - completed
-  Rbac:
+  KubernetesTests:
     # if: false
     needs: GCloud
     env:
       GKE_CLUSTER: cluster-1
       GKE_REGION: us-central1-a
+      DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
     # Runner using version
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -307,10 +312,11 @@ jobs:
         run: |
           kubectl apply -f k8s/namespaces.yaml
 
-      - name: Establish Service Account, Binding, & Role
+      - name: ⭐ RBAC. Role Based Action Control. Create Service Account, Roles, & Binding
         run: |
+          echo "Setting up Service Account: github-actions-sa-user to have get & list for namespaces, pods, services, & deployments"      
           kubectl apply -f k8s/rbac.yaml
-      - name: Generate Service Account Token & Test
+      - name: ⭐ Generate Service Account Token & Test
         run: |
           TOKEN=$(kubectl create token github-actions-sa-user -n github-actions)
           echo "::add-mask::$TOKEN"
@@ -318,22 +324,82 @@ jobs:
             echo "ERROR: Token generation failed!"
             exit 1
           fi
-          echo "Checking Deployments using ServiceAccount..."
+          echo "Checking Deployments using ServiceAccount"
           echo ""
           echo "Deployments:"
-          kubectl --token=$TOKEN get deployment -n dev
+          kubectl --token=$TOKEN get deployment -n $DEPLOY_ENV
           echo ""
           echo "Pods:"
-          kubectl --token=$TOKEN get pods -n dev
+          kubectl --token=$TOKEN get pods -n $DEPLOY_ENV
           echo ""
           echo "Describe Deployment:"
-          kubectl --token=$TOKEN describe deployment liatrio-deployment-api -n dev
+          kubectl --token=$TOKEN describe deployment liatrio-deployment-api -n $DEPLOY_ENV
 
-      - name: Auth test
+      - name: ⭐ Auth test
         run: |
+          echo "Testing Can-I as the GitHub Service Account User"
+          echo ""
+          echo "Can list Pods under dev?"
           kubectl auth can-i list pods -n dev --as=system:serviceaccount:github-actions:github-actions-sa-user
+          echo "Can list Pods under staging?"
           kubectl auth can-i list pods -n staging --as=system:serviceaccount:github-actions:github-actions-sa-user
+          echo "Can list Pods under prod?"
           kubectl auth can-i list pods -n prod --as=system:serviceaccount:github-actions:github-actions-sa-user
+          echo ""
+          echo "Can list namespaces dev? Note: There will be a warning since namespaces aren't namespace scoped"
           kubectl auth can-i list namespaces -n dev --as=system:serviceaccount:github-actions:github-actions-sa-user
+          echo "Can list namespaces staging? Note: There will be a warning since namespaces aren't namespace scoped"
           kubectl auth can-i list namespaces -n staging --as=system:serviceaccount:github-actions:github-actions-sa-user
+          echo "Can list namespaces prod? Note: There will be a warning since namespaces aren't namespace scoped"
           kubectl auth can-i list namespaces -n prod --as=system:serviceaccount:github-actions:github-actions-sa-user
+
+      - name: ⭐ Version Control. Change Cause & Deployment Label
+        run: |
+          echo "Deployment Label:"
+          kubectl get deployment liatrio-deployment-api -n $DEPLOY_ENV --show-labels
+          echo ""
+          echo "Rollout History:"
+          kubectl rollout history deployment liatrio-deployment-api -n $DEPLOY_ENV
+
+      - name: ⭐ Horizontal Pod Autoscaler To 1% to Trigger All Pods
+        run: |
+          echo "Patching HPA"
+          kubectl patch hpa liatrio-hpa-api -n $DEPLOY_ENV --patch-file k8s/hpa_test.yaml
+          echo ""
+          echo "Horizontal Pod Autoscaler Status. Note: CPU may be unknown as that can take a bit to load after a patch. HPA:"
+          kubectl get hpa -n $DEPLOY_ENV
+          echo ""
+          echo "Current Pods:"
+          kubectl get pods -n $DEPLOY_ENV
+
+      - name: ⭐ Patch Rollout
+        run: |
+          echo "Patching a timestamp to trigger a rollout"
+          kubectl patch deployment liatrio-deployment-api -n $DEPLOY_ENV \
+           -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"rollout-timestamp\":\"trigger-$(date +%s)\"}}}}}"
+           echo ""
+           echo "Rollout Status"
+           kubectl rollout status deployment liatrio-deployment-api -n $DEPLOY_ENV
+           echo ""
+           echo "Pods:"
+           kubectl get pods -n $DEPLOY_ENV
+           echo ""
+           echo "Change cause to Timestamp"
+           kubectl annotate deployment liatrio-deployment-api \
+            kubernetes.io/change-cause="Timestamp to trigger a rollout" \
+            --overwrite -n $DEPLOY_ENV
+           echo "Rollout History:"
+           kubectl rollout history deployment liatrio-deployment-api -n $DEPLOY_ENV
+      - name: ⭐ Rollback
+        run: |
+          echo "Rollout History:"
+          kubectl rollout history deployment liatrio-deployment-api -n $DEPLOY_ENV
+          echo ""
+          echo "Rolling back to previous version"
+          kubectl rollout undo deployment liatrio-deployment-api -n $DEPLOY_ENV
+          echo ""
+          echo "Rollout History:"
+          kubectl rollout history deployment liatrio-deployment-api -n $DEPLOY_ENV
+      - name: Setting HPA back to normal
+        run: |
+          kubectl patch hpa liatrio-hpa-api -n $DEPLOY_ENV --patch-file k8s/hpa_reset.yaml

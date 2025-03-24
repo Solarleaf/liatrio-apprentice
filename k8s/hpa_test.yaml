@@ -1,0 +1,15 @@
+# HPA.yaml Designed to max the Horizontal Pod Autoscaling
+spec:
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 1
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 1
