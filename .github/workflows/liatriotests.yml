@@ -146,10 +146,10 @@ jobs:
             echo "CREATE_CLUSTER=true" >> $GITHUB_OUTPUT
           fi
 
-      - name: ⭐ Deploy Cluster
+      - name: ⭐ Provision Cluster
         if: steps.check-cluster.outputs.CREATE_CLUSTER == 'false'
         run: |
-          echo "Creating GKE Cluster from k8s/cluster.txt..."
+          echo "Provisioning GKE Cluster from k8s/cluster.txt"
           # gcloud components install beta --quiet # Install beta # IF needed
           chmod +x k8s/cluster.txt  # Ensure it's executable
           bash k8s/cluster.txt --quiet &      # Run the cluster creation command
@@ -157,7 +157,7 @@ jobs:
 
       - name: Wait for Cluster Readiness
         run: |
-          echo "Waiting for cluster to be ready..."
+          echo "Waiting for cluster to be ready"
           for ((i=1; i<=10; i++)); do
             STATUS=$(gcloud container clusters describe ${GKE_CLUSTER} --region ${GKE_REGION} --format="value(status)")
 
@@ -170,7 +170,7 @@ jobs:
               sleep 30
             fi
 
-            echo "Attempt $i/10: Cluster '${GKE_CLUSTER}' is still not ready... (Status: $STATUS)"
+            echo "Attempt $i/10: Cluster '${GKE_CLUSTER}' is still not ready. (Status: $STATUS)"
             sleep 30
           done
 
