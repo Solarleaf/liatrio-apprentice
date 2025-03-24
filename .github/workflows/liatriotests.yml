@@ -44,14 +44,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
-      - name: Build Docker Image
+      - name: ⭐ Build Docker Image
         run: docker build -t $IMAGE_NAME .
 
-      - name: Run Docker
+      - name: ⭐ Run Docker
         run: docker run -d -p $PORT:$PORT $IMAGE_NAME
 
       # liatrio/github-actions/apprentice-action@v1.0.0 3-13-25
-      - name: run Liatrio 6 tests
+      - name: ⭐ Run Liatrio 6 tests
         uses: liatrio/github-actions/apprentice-action@0b41561cca6822cc8d880fe0e49e7807a41fdf91
 
       - name: Log in to Docker Hub
@@ -64,7 +64,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Set Image Tag as Commit Sha
+      - name: ⭐ Set Image Tag as Commit Sha
         id: expose-image-tag
         run: |
           IMAGE_TAG=${GITHUB_SHA::7}
@@ -146,7 +146,7 @@ jobs:
             echo "CREATE_CLUSTER=true" >> $GITHUB_OUTPUT
           fi
 
-      - name: Deploy Cluster
+      - name: ⭐ Deploy Cluster
         if: steps.check-cluster.outputs.CREATE_CLUSTER == 'false'
         run: |
           echo "Creating GKE Cluster from k8s/cluster.txt..."
@@ -180,10 +180,10 @@ jobs:
       - name: Get Kubernetes Credentials
         run: gcloud container clusters get-credentials $GKE_CLUSTER --region $GKE_REGION
 
-      - name: Print Environment
+      - name: ⭐ Print Environment
         run: echo "Deploying to $DEPLOY_ENV"
 
-      - name: Establish Namespaces
+      - name: ⭐ Establish Namespaces
         run: |
           kubectl apply -f k8s/namespaces.yaml
 
@@ -191,14 +191,14 @@ jobs:
         run: |
           kubectl config set-context --current --namespace=$DEPLOY_ENV
 
-      - name: Deploy Container
+      - name: ⭐ Deploy Container
         run: |
           echo "${IMAGE_TAG}"
           sed -i "s|\(image: docker.io/${DOCKER_REPO}:\)[^[:space:]]*|\1${IMAGE_TAG}|" k8s/deployment.yaml
           cat k8s/deployment.yaml
           kubectl apply -f k8s/deployment.yaml --namespace=$DEPLOY_ENV
 
-      - name: Set Version Tag Based on Branch
+      - name: ⭐ Set Version Tag Based on Branch
         run: |
           # Extract and normalize branch name (only letters)
           BRANCH_NAME=$(echo "${GITHUB_REF#refs/heads/}" | tr -cd 'a-zA-Z')
@@ -206,7 +206,6 @@ jobs:
 
           # Try to fetch the current version dynamically using gh CLI
           CURRENT_VERSION=$(gh variable get "$BRANCH_NAME" --env "$DEPLOY_ENV" --repo $GITHUB_REPOSITORY --json name,value --jq '.value' || echo "")
-
 
           if [[ -z "$CURRENT_VERSION" ]]; then
             CURRENT_VERSION="0.0.0"
@@ -237,13 +236,13 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.LIAPATS }}
 
-      - name: Change-Cause for New Deployment
+      - name: ⭐ Change-Cause for New Deployment
         run: |
           kubectl annotate deployment liatrio-deployment-api \
             kubernetes.io/change-cause="Deployed: ${NEW_VERSION} from branch: ${BRANCH_NAME} at commit: $GITHUB_SHA" \
             --overwrite -n $DEPLOY_ENV
 
-      - name: Label New Deployment
+      - name: ⭐ Label New Deployment
         run: |
           kubectl label deployment liatrio-deployment-api version=${NEW_VERSION} branch=${BRANCH_NAME} commit=${GITHUB_SHA} --overwrite -n $DEPLOY_ENV
 
@@ -305,14 +304,14 @@ jobs:
       - name: Get Kubernetes Credentials
         run: gcloud container clusters get-credentials $GKE_CLUSTER --region $GKE_REGION
 
-      - name: Establish Namespaces
+      - name: ⭐ Establish Namespaces
         run: |
           kubectl apply -f k8s/namespaces.yaml
 
-      - name: Establish Service Account, Binding, & Role
+      - name: ⭐ Establish Service Account, Binding, & Role
         run: |
           kubectl apply -f k8s/rbac.yaml
-      - name: Generate Service Account Token & Test
+      - name: ⭐ Generate Service Account Token & Test
         run: |
           TOKEN=$(kubectl create token github-actions-sa-user -n github-actions)
           echo "::add-mask::$TOKEN"
@@ -331,7 +330,7 @@ jobs:
           echo "Describe Deployment:"
           kubectl --token=$TOKEN describe deployment liatrio-deployment-api -n dev
 
-      - name: Auth test
+      - name: ⭐ Auth test
         run: |
           kubectl auth can-i list pods -n dev --as=system:serviceaccount:github-actions:github-actions-sa-user
           kubectl auth can-i list pods -n staging --as=system:serviceaccount:github-actions:github-actions-sa-user

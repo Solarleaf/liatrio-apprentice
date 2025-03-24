@@ -72,5 +72,10 @@ git add .
 git commit -m "Update for presentation"
 git push -u origin Presentation
 
+node index.js
+docker build -t liatrio-app .
+docker run -d -p 80:80 liatrio-app
+
+docker build -t liatrio-app --nocache . # Waits a bit longer
 
 */
