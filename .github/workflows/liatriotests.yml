@@ -347,4 +347,4 @@ jobs:
 
       - name: Horizontal Pod Autoscaler Trigger & Rolling Update
         run: |
-          kubectl patch deployment liatrio-deployment-api -p
+          kubectl patch deployment liatrio-deployment-api -p -n $DEPLOY_ENV
