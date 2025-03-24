@@ -33,7 +33,7 @@ app.get("/", (req, res) => {
         // Better version
         // timestamp: new Date().getTime(),
         timestamp: Date.now(),
-        request: req.url,
+        request: req.hostname,
         // Minified. Removes spaces
         mini: mess_n.replace(/\s+/g, ''),
         // funFact: funFacts[Math.floor(Math.random() * funFacts.length)],
@@ -49,7 +49,7 @@ app.use((req, res) => {
         request: {
             method: req.method,
             url: req.originalUrl,
-            path: req.host,
+            path: req.hostname,
             query: req.query,
             headers: req.headers,
             params: req.params,
