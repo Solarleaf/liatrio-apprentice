@@ -333,28 +333,52 @@ jobs:
 
       - name: ⭐ Auth test
         run: |
+          echo "Testing Can-I as the GitHub Service Account User"
+          echo ""
+          echo "Can list Pods under dev?"
           kubectl auth can-i list pods -n dev --as=system:serviceaccount:github-actions:github-actions-sa-user
+          echo "Can list Pods under staging?"
           kubectl auth can-i list pods -n staging --as=system:serviceaccount:github-actions:github-actions-sa-user
+          echo "Can list Pods under prod?"
           kubectl auth can-i list pods -n prod --as=system:serviceaccount:github-actions:github-actions-sa-user
+          echo ""
+          echo "Can list namespaces dev? Note: There will be a warning since namespaces aren't namespace scoped"
           kubectl auth can-i list namespaces -n dev --as=system:serviceaccount:github-actions:github-actions-sa-user
+          echo "Can list namespaces staging? Note: There will be a warning since namespaces aren't namespace scoped"
           kubectl auth can-i list namespaces -n staging --as=system:serviceaccount:github-actions:github-actions-sa-user
+          echo "Can list namespaces prod? Note: There will be a warning since namespaces aren't namespace scoped"
           kubectl auth can-i list namespaces -n prod --as=system:serviceaccount:github-actions:github-actions-sa-user
 
       - name: ⭐ Version Control. Change Cause & Deployment Label
         run: |
+          echo "Deployment Label:"
           kubectl get deployment liatrio-deployment-api -n $DEPLOY_ENV --show-labels
+          echo ""
+          echo "Rollout History:"
           kubectl rollout history deployment liatrio-deployment-api -n $DEPLOY_ENV
 
       - name: ⭐ Horizontal Pod Autoscaler To 1% to Trigger All Pods
         run: |
-          echo "$DEPLOY_ENV"
+          echo "Patching HPA"
           kubectl patch hpa liatrio-hpa-api -n $DEPLOY_ENV --patch-file k8s/hpa.yaml
+          echo ""
+          echo "Horizontal Pod Autoscaler Status:"
+          kubectl get hpa -n $DEPLOY_ENV
+          echo ""
+          echo "Current Pods:"
           kubectl get pods -n $DEPLOY_ENV
 
       - name: ⭐ Patch Rollout
         run: |
+          echo "Patching a timestamp to trigger a rollout"
           kubectl patch deployment liatrio-deployment-api -n $DEPLOY_ENV \
            -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"rollout-timestamp\":\"trigger-$(date +%s)\"}}}}}"
+           echo ""
+           echo "Rollout Status"
            kubectl rollout status deployment liatrio-deployment-api -n $DEPLOY_ENV
-           kubectl get pods -n dev
+           echo ""
+           echo "Pods:"
+           kubectl get pods -n $DEPLOY_ENV
+           echo ""
+           echo "Rollout History:"
            kubectl rollout history deployment liatrio-deployment-api -n $DEPLOY_ENV
