@@ -58,10 +58,10 @@ spec:
           resources:
             requests:
               cpu: "100m"
-              memory: "128Mi" # Around 134Mb
+              memory: "50Mi" # More than 50Mb
             limits:
-              cpu: "500m"
-              memory: "256Mi"
+              cpu: "200m"
+              memory: "150Mi"
 ---
 # Have this in same file for less screen changing
 # Namespaces in separate file for better pratices.
