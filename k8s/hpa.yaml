@@ -1,4 +1,4 @@
-# Designed to max the Horizontal Pod Autoscaling
+# HPA.yaml Designed to max the Horizontal Pod Autoscaling
 spec:
   metrics:
     - type: Resource

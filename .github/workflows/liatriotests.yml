@@ -348,5 +348,6 @@ jobs:
       - name: Horizontal Pod Autoscaler Trigger & Rolling Update
         run: |
           echo "$DEPLOY_ENV"
-          kubectl apply -f k8s/hpa.yaml -n $DEPLOY_ENV
-          kubectl patch deployment liatrio-deployment-api --patch-file k8s/timestamp_patch.yaml -n $DEPLOY_ENV
+          kubectl patch hpa liatrio-hpa-api -n $DEPLOY_ENV --patch-file k8s/hpa.yaml 
+          kubectl patch deployment liatrio-deployment-api -n $DEPLOY_ENV \
+           -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"rollout-timestamp\":\"trigger-$(date +%s)\"}}}}}"
