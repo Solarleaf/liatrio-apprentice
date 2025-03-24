@@ -57,11 +57,11 @@ spec:
           # Resources
           resources:
             requests:
-              cpu: "100m"
+              cpu: "50m"
               memory: "50Mi" # More than 50Mb
             limits:
-              cpu: "200m"
-              memory: "150Mi"
+              cpu: "150m"
+              memory: "250Mi"
 ---
 # Have this in same file for less screen changing
 # Namespaces in separate file for better pratices.
@@ -99,10 +99,10 @@ spec:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: 50
+          averageUtilization: 90
     - type: Resource
       resource:
         name: memory
         target:
           type: Utilization
-          averageUtilization: 70
+          averageUtilization: 90
