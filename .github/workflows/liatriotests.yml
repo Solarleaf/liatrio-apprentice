@@ -255,7 +255,7 @@ jobs:
   #     workflows: ["GCloud"]
   #     types:
   #       - completed
-  Tests:
+  Kubernetes Tests:
     # if: false
     needs: GCloud
     env:
