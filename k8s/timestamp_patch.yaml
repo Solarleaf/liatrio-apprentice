@@ -1,0 +1,6 @@
+# Designed to trigger a rollout
+spec:
+  template:
+    metadata:
+      annotations:
+        test: "Test on pod to trigger rollout trigger-$(date +%s)"

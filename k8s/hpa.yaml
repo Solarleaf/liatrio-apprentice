@@ -1,11 +1,3 @@
-# Designed to trigger a rollout
-spec:
-  template:
-    metadata:
-      annotations:
-        test: "Test on pod to trigger rollout"
-
-
 # Designed to max the Horizontal Pod Autoscaling
 spec:
   metrics:
