@@ -360,7 +360,7 @@ jobs:
       - name: ⭐ Horizontal Pod Autoscaler To 1% to Trigger All Pods
         run: |
           echo "Patching HPA"
-          kubectl patch hpa liatrio-hpa-api -n $DEPLOY_ENV --patch-file k8s/hpa.yaml
+          kubectl patch hpa liatrio-hpa-api -n $DEPLOY_ENV --patch-file k8s/hpa_test.yaml
           echo ""
           echo "Horizontal Pod Autoscaler Status. Note: CPU may be unknown as that can take a bit to load after a patch. HPA:"
           kubectl get hpa -n $DEPLOY_ENV
@@ -380,5 +380,22 @@ jobs:
            echo "Pods:"
            kubectl get pods -n $DEPLOY_ENV
            echo ""
+           echo "Change cause to Timestamp"
+           kubectl annotate deployment liatrio-deployment-api \
+            kubernetes.io/change-cause="Timestamp to trigger a rollout" \
+            --overwrite -n $DEPLOY_ENV
            echo "Rollout History:"
            kubectl rollout history deployment liatrio-deployment-api -n $DEPLOY_ENV
+      - name: ⭐ Rollback
+        run: |
+          echo "Rollout History:"
+          kubectl rollout history deployment liatrio-deployment-api -n $DEPLOY_ENV
+          echo ""
+          echo "Rolling back to previous version"
+          kubectl rollout undo deployment liatrio-deployment-api -n $DEPLOY_ENV
+          echo ""
+          echo "Rollout History:"
+          kubectl rollout history deployment liatrio-deployment-api -n $DEPLOY_ENV
+      - name: Setting HPA back to normal
+        run: |
+          kubectl patch hpa liatrio-hpa-api -n $DEPLOY_ENV --patch-file k8s/hpa_reset.yaml
