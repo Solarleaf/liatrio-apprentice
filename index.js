@@ -58,7 +58,7 @@ app.use((req, res) => {
     });
 });
 
-// Start Server  and list/binding on the Port
+// Start Server and  list/binding on the Port
 // Express createServer()  
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}!`);
