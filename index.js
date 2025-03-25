@@ -33,9 +33,9 @@ app.get("/", (req, res) => {
         // Better version
         // timestamp: new Date().getTime(),
         timestamp: Date.now(),
-        request: req.hostname,
         // Minified. Removes spaces
         mini: mess_n.replace(/\s+/g, ''),
+        request: req.hostname,
         // funFact: funFacts[Math.floor(Math.random() * funFacts.length)],
     };
     // Express response helpers
@@ -67,7 +67,7 @@ app.listen(port, () => {
 
 
 /*
-
+ 
 git checkout Presentation
 git add .
 git commit -m "Update for presentation"
