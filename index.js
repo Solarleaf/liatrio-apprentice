@@ -36,7 +36,7 @@ app.get("/", (req, res) => {
         request: req.hostname,
         // Minified. Removes spaces
         mini: mess_n.replace(/\s+/g, ''),
-        funFact: funFacts[Math.floor(Math.random() * funFacts.length)],
+        // funFact: funFacts[Math.floor(Math.random() * funFacts.length)],
     };
     // Express response helpers
     res.status(200).json(responseObject);
@@ -72,6 +72,7 @@ git checkout Presentation
 git add .
 git commit -m "Update for presentation"
 git push -u origin Presentation
+
 docker build -t liatrio-app .
 node index.js
 
