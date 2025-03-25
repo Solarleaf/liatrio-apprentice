@@ -73,10 +73,10 @@ git add .
 git commit -m "Update for presentation"
 git push -u origin Presentation
 
-docker build -t liatrio-app .
 node index.js 
 
 
+docker build -t liatrio-app .
 docker run -d --name liatrio-test -p 80:80 liatrio-app
 
 # Powershell
