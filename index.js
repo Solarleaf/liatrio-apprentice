@@ -33,10 +33,10 @@ app.get("/", (req, res) => {
         // Better version
         // timestamp: new Date().getTime(),
         timestamp: Date.now(),
-        request: req.hostname,
         // Minified. Removes spaces
         mini: mess_n.replace(/\s+/g, ''),
-        // funFact: funFacts[Math.floor(Math.random() * funFacts.length)],
+        request: req.hostname,
+        funFact: funFacts[Math.floor(Math.random() * funFacts.length)],
     };
     // Express response helpers
     res.status(200).json(responseObject);
@@ -58,7 +58,7 @@ app.use((req, res) => {
     });
 });
 
-// Start Server and list/binding on the Port
+// Start Server and  list/binding on the Port
 // Express createServer()  
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}!`);
@@ -67,15 +67,16 @@ app.listen(port, () => {
 
 
 /*
-
+ 
 git checkout Presentation
 git add .
 git commit -m "Update for presentation"
 git push -u origin Presentation
-docker build -t liatrio-app .
-node index.js
 
 docker build -t liatrio-app .
+node index.js 
+
+
 docker run -d --name liatrio-test -p 80:80 liatrio-app
 
 # Powershell

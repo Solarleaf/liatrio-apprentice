@@ -1,7 +1,5 @@
 # liatrio-apprentice
 
-Currently a work in progress!
-
 A simple web application that uses Node.js, Express.js, and other tools to create a simple web application which returns a JSON object via a API request.
 
 Tools Used:
