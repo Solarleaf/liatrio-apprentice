@@ -67,6 +67,10 @@ app.listen(port, () => {
 
 
 /*
+
+git checkout Presentation; git add .; git commit -m "Update for presentation"; git push -u origin Presentation
+node index.js
+# newline
   
 git checkout Presentation
 git add .
