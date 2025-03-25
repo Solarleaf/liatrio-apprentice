@@ -74,7 +74,7 @@ git commit -m "Update for presentation"
 git push -u origin Presentation
 
 docker build -t liatrio-app .
-node index.js
+node index.js 
 
 
 docker run -d --name liatrio-test -p 80:80 liatrio-app
