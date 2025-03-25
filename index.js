@@ -36,6 +36,7 @@ app.get("/", (req, res) => {
         // Minified. Removes spaces
         mini: mess_n.replace(/\s+/g, ''),
         request: req.hostname,
+        // request: req.method,
         // funFact: funFacts[Math.floor(Math.random() * funFacts.length)],
     };
     // Express response helpers
