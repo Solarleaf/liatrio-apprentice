@@ -1,6 +1,17 @@
 name: Apprentice GitHub Actions
 
-# on:
+on:
+  workflow_run:
+    workflows: ["Trigger Workflow"]
+    types:
+      - completed
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-lock
+  cancel-in-progress: false
+
+  # on:
 #   push:
 #     branches:
 #       - "GitHub"
@@ -10,16 +21,6 @@ name: Apprentice GitHub Actions
 #       - "Version"
 #   pull_request:
 #     branches: [main]
-
-on:
-  workflow_run:
-    workflows: ["Trigger Workflow"]
-    types:
-      - completed
-
-concurrency:
-  group: deploy-lock
-  cancel-in-progress: false
 
 # Locks for this workflow
 # concurrency:
