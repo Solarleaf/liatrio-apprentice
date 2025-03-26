@@ -1,0 +1,26 @@
+# .github/workflows/trigger.yml
+name: Trigger Workflow
+
+on:
+  push:
+    branches:
+      - "GitHub"
+      - "Kubernetes"
+      - "Docker"
+      - "Presentation"
+      - "Version"
+  pull_request:
+    branches: [main]
+
+jobs:
+  queue-it:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Save event type
+        run: echo "${{ github.event_name }}" > event_type.txt
+      # uses: actions/download-artifact@v4 3-26-25
+      - name: Upload event type as artifact
+        uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e
+        with:
+          name: trigger-event
+          path: event_type.txt

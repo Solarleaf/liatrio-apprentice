@@ -11,13 +11,20 @@ on:
   pull_request:
     branches: [main]
 
+# on:
+#   workflow_run:
+#     workflows: ["Trigger Workflow"]
+#     types:
+#       - completed
+
+# Locks for this workflow
 # concurrency:
-#   group: repo-wide-lock
+#   group: ${{ github.workflow }}
 #   cancel-in-progress: false
 
-concurrency:
-  group: ${{ github.workflow }}
-  cancel-in-progress: false
+# concurrency:
+#   group: deploy-lock
+#   cancel-in-progress: false
 
 # Prevent Multiple Actions from happening at once on the same branch.
 # This does not   stop Pull Requests from running at the same time as push.
@@ -38,8 +45,8 @@ jobs:
       packages: read
     env:
       DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
-    # Static Analsysis phase. Can't use DEPLOY_ENV from above since that happens after Static Analysis
-    environment: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
+    # Static Analysis phase. Can't use DEPLOY_ENV from above since that happens after Static Analysis
+    # environment: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
     # build:
     # Runner using version
     runs-on: ubuntu-24.04
