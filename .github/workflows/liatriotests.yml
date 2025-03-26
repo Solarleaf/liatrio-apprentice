@@ -363,7 +363,7 @@ jobs:
 
       - name: ⭐ Horizontal Pod Autoscaler To 1% to Trigger All Pods
         run: |
-          echo "Patching HPA"
+          echo "Patching HPA - This should not trigger a rollout"
           kubectl patch hpa liatrio-hpa-api -n $DEPLOY_ENV --patch-file k8s/hpa_test.yaml
           echo ""
           echo "Horizontal Pod Autoscaler Status. Note: CPU may be unknown as that can take a bit to load after a patch. HPA:"
@@ -371,6 +371,32 @@ jobs:
           echo ""
           echo "Current Pods:"
           kubectl get pods -n $DEPLOY_ENV
+
+      - name: Wait for HPA to reach max replicas
+        run: |
+          MAX_REPLICAS=$(kubectl get hpa liatrio-deployment-api -n $DEPLOY_ENV -o jsonpath='{.spec.maxReplicas}')
+          echo "Waiting for deployment to scale to $MAX_REPLICAS replicas..."
+
+          for i in {1..10}; do
+            CURRENT_REPLICAS=$(kubectl get deployment liatrio-deployment-api -n $DEPLOY_ENV -o jsonpath='{.status.readyReplicas}')
+            echo "Ready replicas: $CURRENT_REPLICAS"
+
+            if [[ "$CURRENT_REPLICAS" == "$MAX_REPLICAS" ]]; then
+              echo "HPA has reached max replicas ($MAX_REPLICAS)"
+              break
+            fi
+
+            echo "Waiting... ($i/10)"
+            sleep 5
+          done
+
+          if [[ "$CURRENT_REPLICAS" != "$MAX_REPLICAS" ]]; then
+            echo "Timeout: HPA did not reach max replicas after waiting."
+          fi
+
+      - name: Setting HPA back to normal
+        run: |
+          kubectl patch hpa liatrio-hpa-api -n $DEPLOY_ENV --patch-file k8s/hpa_reset.yaml
 
       - name: ⭐ Patch Rollout
         run: |
@@ -400,6 +426,3 @@ jobs:
           echo ""
           echo "Rollout History:"
           kubectl rollout history deployment liatrio-deployment-api -n $DEPLOY_ENV
-      - name: Setting HPA back to normal
-        run: |
-          kubectl patch hpa liatrio-hpa-api -n $DEPLOY_ENV --patch-file k8s/hpa_reset.yaml
