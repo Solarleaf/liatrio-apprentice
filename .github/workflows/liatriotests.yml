@@ -11,8 +11,12 @@ on:
   pull_request:
     branches: [main]
 
+# concurrency:
+#   group: repo-wide-lock
+#   cancel-in-progress: false
+
 concurrency:
-  group: repo-wide-lock
+  group: ${{ github.workflow }}
   cancel-in-progress: false
 
 # Prevent Multiple Actions from happening at once on the same branch.
