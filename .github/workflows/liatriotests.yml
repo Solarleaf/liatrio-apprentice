@@ -11,10 +11,14 @@ on:
   pull_request:
     branches: [main]
 
+concurrency:
+  group: repo-wide-lock
+  cancel-in-progress: false
+
 # Prevent Multiple Actions from happening at once on the same branch.
 # This does not stop Pull Requests from running at the same time as push.
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+# concurrency:
+#   group: ${{ github.workflow }}-${{ github.ref }}
 # group: ci-${{ github.ref }}
 
 env:
@@ -312,6 +316,45 @@ jobs:
         run: |
           kubectl apply -f k8s/namespaces.yaml
 
+      - name: ⭐ Horizontal Pod Autoscaler To 1% to Trigger All Pods
+        run: |
+          echo "Patching HPA - This should not trigger a rollout"
+          kubectl patch hpa liatrio-hpa-api -n $DEPLOY_ENV --patch-file k8s/hpa_test.yaml
+          echo ""
+          echo "Horizontal Pod Autoscaler Status. Note: CPU may be unknown as that can take a bit to load after a patch. HPA:"
+          kubectl get hpa -n $DEPLOY_ENV
+          echo ""
+          echo "Current Pods:"
+          kubectl get pods -n $DEPLOY_ENV
+
+      - name: Wait for HPA to scale
+        run: |
+          HPA_NAME=liatrio-hpa-api
+          MAX_REPLICAS=$(kubectl get hpa $HPA_NAME -n $DEPLOY_ENV -o jsonpath='{.spec.maxReplicas}')
+          echo "Waiting for $HPA_NAME to scale to $MAX_REPLICAS replicas..."
+
+          for i in {1..20}; do
+            CURRENT_REPLICAS=$(kubectl get deployment liatrio-deployment-api -n $DEPLOY_ENV -o jsonpath='{.status.readyReplicas}')
+            echo "Ready replicas: $CURRENT_REPLICAS"
+
+            if [[ "$CURRENT_REPLICAS" == "$MAX_REPLICAS" ]]; then
+              echo "$HPA_NAME has reached max replicas ($MAX_REPLICAS)"
+              break
+            fi
+
+            echo "Waiting... ($i/20)"
+            sleep 15
+          done
+
+          if [[ "$CURRENT_REPLICAS" != "$MAX_REPLICAS" ]]; then
+            echo "Timeout: $HPA_NAME did not reach max replicas."
+            exit 1
+          fi
+
+      - name: Setting HPA back to normal
+        run: |
+          kubectl patch hpa liatrio-hpa-api -n $DEPLOY_ENV --patch-file k8s/hpa_reset.yaml
+
       - name: ⭐ RBAC. Role Based Action Control. Create Service Account, Roles, & Binding
         run: |
           echo "Setting up Service Account: github-actions-sa-user to have get & list for namespaces, pods, services, & deployments"      
@@ -361,17 +404,6 @@ jobs:
           echo "Rollout History:"
           kubectl rollout history deployment liatrio-deployment-api -n $DEPLOY_ENV
 
-      - name: ⭐ Horizontal Pod Autoscaler To 1% to Trigger All Pods
-        run: |
-          echo "Patching HPA"
-          kubectl patch hpa liatrio-hpa-api -n $DEPLOY_ENV --patch-file k8s/hpa_test.yaml
-          echo ""
-          echo "Horizontal Pod Autoscaler Status. Note: CPU may be unknown as that can take a bit to load after a patch. HPA:"
-          kubectl get hpa -n $DEPLOY_ENV
-          echo ""
-          echo "Current Pods:"
-          kubectl get pods -n $DEPLOY_ENV
-
       - name: ⭐ Patch Rollout
         run: |
           echo "Patching a timestamp to trigger a rollout"
@@ -400,6 +432,3 @@ jobs:
           echo ""
           echo "Rollout History:"
           kubectl rollout history deployment liatrio-deployment-api -n $DEPLOY_ENV
-      - name: Setting HPA back to normal
-        run: |
-          kubectl patch hpa liatrio-hpa-api -n $DEPLOY_ENV --patch-file k8s/hpa_reset.yaml

@@ -9,9 +9,11 @@ metadata:
   name: liatrio-deployment-api
 spec:
   replicas: 1
+  # Rolling replaces old pods with new ones allowing for zero downtime and availability
   strategy:
     type: RollingUpdate
     rollingUpdate:
+      # Ensures that there will always be a pod available
       maxUnavailable: 0
       maxSurge: 1
   selector:
@@ -24,6 +26,7 @@ spec:
     spec:
       containers:
         - name: liatrio-container-api
+          # GitHub actions makes sure that this is always a versioned Deployment
           image: docker.io/apptemp/liatrio:latest
           ports:
             - containerPort: 80
@@ -57,7 +60,7 @@ spec:
           # Resources
           resources:
             requests:
-              cpu: "128m"
+              cpu: "50m"
               memory: "150Mi" # More than 150Mb
             limits:
               cpu: "200m"
@@ -91,6 +94,7 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: liatrio-deployment-api
+  # This overides scaling in the deployment
   minReplicas: 1
   maxReplicas: 2
   metrics:

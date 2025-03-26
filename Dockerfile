@@ -1,4 +1,4 @@
-# Build Stage
+# Build Stage  
 
 # apprentice-action / action/yaml is using node-version '16' However, 16 is not listed as a supported tag
 # node-version also has warnings in GitHub Actions
@@ -30,7 +30,10 @@ COPY package*.json ./
 # CI is generally better for DevOps
 RUN npm ci --omit=dev
 
-# Rest of code. Needs to be below dependencies
+# Rest of code. Needs to be below dependencies.
+# .dockerignore handles node_modules so copying that over is not an issue
+# If not for the ignore file, copy below would overwrite modules
+# Normally there isn't a layer/cache buster so thhis is last as the above is usually cached
 COPY . .
 
 # Run stage
