@@ -12,6 +12,10 @@ on:
   pull_request:
     branches: [main]
 
+concurrency:
+  group: repo-serialized-lock
+  cancel-in-progress: false
+
 jobs:
   queue-it:
     runs-on: ubuntu-latest
