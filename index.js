@@ -59,7 +59,7 @@ app.use((req, res) => {
     });
 });
 
-// Start Server and  list/binding on the Port  a
+// Start Server and  list/binding on the Port  
 // Express createServer()   
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}!`);
@@ -69,7 +69,7 @@ app.listen(port, () => {
 
 /*
 
-git checkout Presentation; git add .; git commit -m "Update for presentation"; git push -u origin Presentation
+git checkout Presentation; git add .; git commit -m "Update for presentation"; git push -u origin Presentation 
 node index.js
 # newline
   
