@@ -12,7 +12,7 @@ on:
     branches: [main]
 
 concurrency:
-  group: repo-serialized-lock
+  group: deploy-lock
   cancel-in-progress: false
 
 # concurrency:
