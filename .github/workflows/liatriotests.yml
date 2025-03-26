@@ -372,26 +372,28 @@ jobs:
           echo "Current Pods:"
           kubectl get pods -n $DEPLOY_ENV
 
-      - name: Wait for HPA to reach max replicas
+      - name: Wait for HPA to scale
         run: |
-          MAX_REPLICAS=$(kubectl get hpa liatrio-deployment-api -n $DEPLOY_ENV -o jsonpath='{.spec.maxReplicas}')
-          echo "Waiting for deployment to scale to $MAX_REPLICAS replicas..."
+          HPA_NAME=liatrio-hpa-api
+          MAX_REPLICAS=$(kubectl get hpa $HPA_NAME -n $DEPLOY_ENV -o jsonpath='{.spec.maxReplicas}')
+          echo "Waiting for $HPA_NAME to scale to $MAX_REPLICAS replicas..."
 
-          for i in {1..10}; do
+          for i in {1..20}; do
             CURRENT_REPLICAS=$(kubectl get deployment liatrio-deployment-api -n $DEPLOY_ENV -o jsonpath='{.status.readyReplicas}')
             echo "Ready replicas: $CURRENT_REPLICAS"
 
             if [[ "$CURRENT_REPLICAS" == "$MAX_REPLICAS" ]]; then
-              echo "HPA has reached max replicas ($MAX_REPLICAS)"
+              echo "$HPA_NAME has reached max replicas ($MAX_REPLICAS)"
               break
             fi
 
-            echo "Waiting... ($i/10)"
-            sleep 5
+            echo "Waiting... ($i/20)"
+            sleep 15
           done
 
           if [[ "$CURRENT_REPLICAS" != "$MAX_REPLICAS" ]]; then
-            echo "Timeout: HPA did not reach max replicas after waiting."
+            echo "Timeout: $HPA_NAME did not reach max replicas."
+            exit 1
           fi
 
       - name: Setting HPA back to normal
