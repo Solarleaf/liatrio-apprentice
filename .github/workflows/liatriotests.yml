@@ -12,8 +12,12 @@ on:
     branches: [main]
 
 concurrency:
-  group: repo-wide-lock
+  group: repo-serialized-lock
   cancel-in-progress: false
+
+# concurrency:
+#   group: repo-wide-lock
+#   cancel-in-progress: false
 
 # Prevent Multiple Actions from happening at once on the same branch.
 # This does not stop Pull Requests from running at the same time as push.
