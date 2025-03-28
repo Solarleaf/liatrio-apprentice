@@ -41,7 +41,7 @@ jobs:
 
       - name: Run Tests
         run: |
-          bash .Tests/test.sh
+          bash Tests/test.sh
 
       - name: Cleanup K3D
         if: always()
