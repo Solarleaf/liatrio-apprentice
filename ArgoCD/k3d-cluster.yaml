@@ -1,0 +1,10 @@
+apiVersion: k3d.io/v1alpha4
+kind: Simple
+name: cluster-1
+ports:
+  - port: 8080:80
+    nodeFilters:
+      - loadbalancer
+  - port: 9999:443
+    nodeFilters:
+      - loadbalancer
