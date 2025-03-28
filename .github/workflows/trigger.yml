@@ -12,6 +12,10 @@ on:
   pull_request:
     branches: [main]
 
+concurrency:
+  group: queue-lock-${{ github.event_name }}
+  cancel-in-progress: false
+
 jobs:
   queue-it:
     runs-on: ubuntu-latest
@@ -19,7 +23,7 @@ jobs:
       - name: Save event type
         run: echo "${{ github.event_name }}" > event_type.txt
 
-      # uses: actions/upload-artifact@v4    3-26-25
+      # uses: actions/upload-artifact@v4   3-26-25
       - name: Upload event type as artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
