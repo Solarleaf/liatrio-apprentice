@@ -10,7 +10,7 @@ curl http://localhost:8080
 echo ""
 
 echo "Running curl test from inside the cluster."
-kubectl run curlpod --rm -i --tty --image=curlimages/curl --restart=Never -- \
+kubectl run curlpod --rm -i --image=curlimages/curl --restart=Never -- \
   curl -s http://liatrio-service-api:8080
 
 echo ""
