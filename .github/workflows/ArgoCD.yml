@@ -28,8 +28,8 @@ jobs:
 
       - name: Install kubectl
         run: |
-          sudo apt update
-          sudo apt install -y curl
+          sudo apt-get update
+          sudo apt-get install -y curl
           curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
           chmod +x kubectl && sudo mv kubectl /usr/local/bin/
 
