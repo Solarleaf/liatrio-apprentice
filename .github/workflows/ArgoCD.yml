@@ -43,6 +43,12 @@ jobs:
         run: |
           bash Tests/test.sh
 
+      - name: Install Argo
+        run: |
+          kubectl create namespace argocd
+          kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+
       - name: Cleanup K3D
         if: always()
         run: |
