@@ -38,6 +38,7 @@ app.get("/", (req, res) => {
         request: req.hostname,
         // request: req.method,
         funFact: funFacts[Math.floor(Math.random() * funFacts.length)],
+        portUsed: port,
     };
     // Express response helpers
     res.status(200).json(responseObject);
@@ -45,7 +46,7 @@ app.get("/", (req, res) => {
 
 // Express
 app.use((req, res) => {
-    res.status(404).json({ 
+    res.status(404).json({
         error: "Route not found.",
         request: {
             method: req.method,
