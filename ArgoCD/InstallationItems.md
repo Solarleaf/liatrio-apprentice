@@ -11,7 +11,8 @@ metadata:
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 Yaml File: Get the file from ^ above or:
 curl -L https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml -o k8s/argocd-install.yaml
-kubectl apply -n argocd -f k8s/argocd-install.yaml
+kubectl apply -n argocd -f ArgoCD/argocd-install.yaml
+kubectl apply -n argocd -f ArgoCD/argocd-namespace.yaml
 
 # ArgoCD CLI
 curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
