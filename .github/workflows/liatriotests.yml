@@ -1,13 +1,5 @@
 name: Apprentice GitHub Actions
 
-
-# on:
-#   workflow_run:
-#     workflows: ["Trigger Workflow"]
-#     types:
-#       - completed
-
-
 on:
   push:
     branches:
@@ -20,19 +12,9 @@ on:
   pull_request:
     branches: [main]
 
-
-
 concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: false
-
-# concurrency:
-#   group: deploy-lock
-#   cancel-in-progress: false
-
-# concurrency:
-#   group: repo-wide-lock
-#   cancel-in-progress: false
 
 # Prevent Multiple Actions from happening at once on the same  branch.
 # This does not stop Pull Requests from running at the same time as push.
