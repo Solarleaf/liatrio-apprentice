@@ -1,13 +1,5 @@
 name: Apprentice GitHub Actions
 
-
-# on:
-#   workflow_run:
-#     workflows: ["Trigger Workflow"]
-#     types:
-#       - completed
-
-
 on:
   push:
     branches:
@@ -19,6 +11,12 @@ on:
       # - "ArgoCD"
   pull_request:
     branches: [main]
+
+# on:
+#   workflow_run:
+#     workflows: ["Trigger Workflow"]
+#     types:
+#       - completed
 
 concurrency:
   group: ${{ github.workflow }}
