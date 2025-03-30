@@ -36,7 +36,7 @@ jobs:
       - name: Deploy App to Cluster
         run: |
           kubectl apply -f k8s/namespaces.yaml || true
-          kubectl apply -f k8s/test.yaml
+          kubectl apply -f ArgoManifest/test.yaml
           kubectl rollout status deployment/liatrio-deployment-api
 
       - name: Run Tests
