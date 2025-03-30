@@ -1,0 +1,54 @@
+name: K3D CI Pipeline
+
+on:
+  push:
+    branches: ["ArgoCD"]
+
+jobs:
+  k3d-ci:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v2
+
+      - name: Install K3D
+        run: |
+          curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+
+      - name: Create K3D Cluster
+        run: |
+          k3d cluster create cluster-1 --wait --port "8081:8081@loadbalancer"
+
+      - name: Install kubectl
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl && sudo mv kubectl /usr/local/bin/
+
+      - name: Deploy App to Cluster
+        run: |
+          kubectl apply -f k8s/namespaces.yaml || true
+          kubectl apply -f ArgoManifest/test.yaml
+          kubectl rollout status deployment/liatrio-deployment-api
+
+      - name: Run Tests
+        run: |
+          bash Tests/test.sh
+
+      - name: Install Argo
+        run: |
+          kubectl create namespace argocd
+          kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+
+      - name: Cleanup K3D
+        if: always()
+        run: |
+          k3d cluster delete cluster-1
