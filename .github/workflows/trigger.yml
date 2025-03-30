@@ -9,6 +9,7 @@ on:
       - "Docker"
       - "Presentation"
       - "Version"
+      - "ArgoCD"
   pull_request:
     branches: [main]
 

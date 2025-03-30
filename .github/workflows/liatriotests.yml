@@ -1,15 +1,24 @@
 name: Apprentice GitHub Actions
 
+
 on:
-  push:
-    branches:
-      - "GitHub"
-      - "Kubernetes"
-      - "Docker"
-      - "Presentation"
-      - "Version"
-  pull_request:
-    branches: [main]
+  workflow_run:
+    workflows: ["Trigger Workflow"]
+    types:
+      - completed
+
+
+# on:
+#   push:
+#     branches:
+#       - "GitHub"
+#       - "Kubernetes"
+#       - "Docker"
+#       - "Presentation"
+#       - "Version"
+#       - "ArgoCD"
+#   pull_request:
+#     branches: [main]
 
 concurrency:
   group: repo-wide-lock
