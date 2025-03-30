@@ -24,7 +24,7 @@ jobs:
 
       - name: Create K3D Cluster
         run: |
-          k3d cluster create cluster-1 --wait --port "8080:8080@loadbalancer"
+          k3d cluster create cluster-1 --wait --port "8081:8081@loadbalancer"
 
       - name: Install kubectl
         run: |
