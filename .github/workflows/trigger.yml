@@ -1,4 +1,5 @@
 # .github/workflows/trigger.yml
+# Does not currently work since the tests file uses a lot of contexts from the workflow it's in
 name: Trigger Workflow
 
 on:
