@@ -28,6 +28,9 @@ kubectl patch svc argocd-server -n argocd --type=merge --patch-file=ArgoSetup/ar
 curl -L https://raw.githubusercontent.com/argoproj-labs/argocd-image-updater/stable/manifests/install.yaml -o ArgoSetup/argocd-image-install.yaml
 kubectl apply -n argocd -f ArgoSetup/argocd-image-install.yaml
 
+kubectl -n argocd create secret generic git-deploy-key \
+ --from-file=sshPrivateKey=./argocd-image-updater
+
 # Check if Argo CD CLI exists and runs successfully
 
 if ! which argocd >/dev/null 2>&1 || ! argocd version --client >/dev/null 2>&1; then

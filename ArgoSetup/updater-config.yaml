@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-image-updater-config
+  namespace: argocd
+data:
+  git: |
+    - url: git@github.com:Solarleaf/liatrio-apprentice.git
+      sshPrivateKeySecret:
+        name: git-deploy-key
+        key: sshPrivateKey
