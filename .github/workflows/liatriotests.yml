@@ -45,7 +45,7 @@ jobs:
   liatriotests: # Name Required for passing the pull request checks
     # Security scan wanted these labelled
     permissions:
-      contents: read
+      contents: write
       packages: read
     env:
       DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
