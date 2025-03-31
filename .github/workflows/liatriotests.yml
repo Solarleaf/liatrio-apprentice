@@ -55,7 +55,6 @@ jobs:
     # build:
     # Runner using version
     runs-on: ubuntu-24.04
-
     timeout-minutes: 5
     outputs:
       NEW_VERSION: ${{ steps.set-version.outputs.NEW_VERSION }}
@@ -150,8 +149,9 @@ jobs:
           git add k8s/deployment.yaml
       - name: Push using PAT
         run: |
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} HEAD:${{ github.ref_name }}
-          # git push https://x-access-token:${{ secrets.ARGO_ADD }}@github.com/${{ github.repository }} HEAD:${{ github.ref_name }}
+          # git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} HEAD:${{ github.ref_name }}
+          git commit -m "Automated commit [skip ci]"
+          git push https://x-access-token:${{ secrets.ARGO_ADD }}@github.com/${{ github.repository }} HEAD:${{ github.ref_name }}
 
   GCloud:
     # build:
