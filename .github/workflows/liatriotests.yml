@@ -142,17 +142,24 @@ jobs:
           D_NEW_TAG="${BRANCH_NAME}${NEW_VERSION}"
           sed -i "s|${D_OLD_IMAGE_LINE}.*|${D_OLD_IMAGE_LINE}${D_NEW_TAG}|" k8s/deployment.yaml
 
-      - name: Configure Git
+      - name: ⭐ Push Deployment File Update
         run: |
-          git config user.name "Your Name"
-          git config user.email "yo12ur121@email.com"
-      - name: Push using PAT
-        run: |
-          git config --global credential.helper ""
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          # Ensure you are on the correct branch
+          git checkout "${GITHUB_REF_NAME}"
+
+          # Stage the file
           git add k8s/deployment.yaml
-          git commit -m "Automated commit [skip ci]"
-          git diff --cached --quiet && echo "No changes to commit" || git commit -m "Automated commit [skip ci]"
-          git push https://x-access-token:${{ secrets.ARGO_ADD }}@github.com/${{ github.repository }} HEAD:${{ github.ref_name }}
+
+          # Only commit if there are changes
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Automated update of deployment.yaml [skip ci]"
+            git push https://x-access-token:${{ secrets.ARGO_ADD }}@github.com/${{ github.repository }} HEAD:${{ github.ref_name }}
+          fi
 
   GCloud:
     # build:
