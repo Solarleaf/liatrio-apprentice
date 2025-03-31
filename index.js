@@ -44,7 +44,7 @@ app.get("/", (req, res) => {
     res.status(200).json(responseObject);
 });
 
-// Express 
+// Express  
 app.use((req, res) => {
     res.status(404).json({
         error: "Route not found.",
