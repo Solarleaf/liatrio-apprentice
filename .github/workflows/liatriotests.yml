@@ -140,11 +140,13 @@ jobs:
           echo "${NEW_VERSION}"
           D_OLD_IMAGE_LINE="image: docker.io/${DOCKER_REPO}:"
           D_NEW_TAG="${BRANCH_NAME}${NEW_VERSION}"
+          echo "$D_NEW_TAG"
           sed -i -E "/name: NEW_VERSION/{n;s/value: \".*\"/value: \"$D_NEW_TAG\"/}" ArgoManifest/deployment.yaml
 
       - name: Update NEW_VERSION in deployment.yaml
         run: |
           D_NEW_TAG="${BRANCH_NAME}${NEW_VERSION}"
+          echo "$D_NEW_TAG"
           sed -i "/name: NEW_VERSION/{n;s/value:.*/value: \"$D_NEW_TAG\"/}" ArgoManifest/deployment.yaml
           cat ArgoManifest/deployment.yaml
 
