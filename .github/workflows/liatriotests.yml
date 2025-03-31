@@ -139,7 +139,7 @@ jobs:
   GCloud:
     # build:
     needs: liatriotests
-    if: false
+    # if: false
 
     env:
       GKE_CLUSTER: cluster-1
@@ -266,7 +266,7 @@ jobs:
   #     types:
   #       - completed
   KubernetesTests:
-    if: false
+    # if: false
     needs: GCloud
     env:
       GKE_CLUSTER: cluster-1
