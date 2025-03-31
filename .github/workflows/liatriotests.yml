@@ -58,7 +58,7 @@ jobs:
 
     timeout-minutes: 5
     outputs:
-      IMAGE_TAG: ${{ steps.set-version.outputs.IMAGE_TAG }}
+      NEW_VERSION: ${{ steps.set-version.outputs.NEW_VERSION }}
     steps:
       # checkout@v4 using Sha 3-13-25
       - name: Checkout code
@@ -108,18 +108,18 @@ jobs:
             echo "${major}.${minor}.${patch}"
           }
 
-          # Get Image Tag (incremented)
-          IMAGE_TAG=$(increment_version "$CURRENT_VERSION")
+          # Get new version (incremented)
+          NEW_VERSION=$(increment_version "$CURRENT_VERSION")
 
           # Export version to GitHub Actions
-          echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
+          echo "NEW_VERSION=${NEW_VERSION}" >> $GITHUB_ENV
           echo "BRANCH_NAME=${BRANCH_NAME}" >> $GITHUB_ENV
 
-          # Print Image Tag for debugging
-          echo "Image Tag: $IMAGE_TAG"
+          # Print new version for debugging
+          echo "New Version: $NEW_VERSION"
 
-          # Update the GitHub Actions environment variable for the branch with the Image Tag
-          gh variable set "$BRANCH_NAME" --body "$IMAGE_TAG" --env "$DEPLOY_ENV" --repo $GITHUB_REPOSITORY
+          # Update the GitHub Actions environment variable for the branch with the new version
+          gh variable set "$BRANCH_NAME" --body "$NEW_VERSION" --env "$DEPLOY_ENV" --repo $GITHUB_REPOSITORY
         env:
           GH_TOKEN: ${{ secrets.LIAPATS }}
 
@@ -128,13 +128,13 @@ jobs:
         if: success()
         run: |
           docker tag $IMAGE_NAME $DOCKER_REPO:latest
-          docker tag $IMAGE_NAME $DOCKER_REPO:${IMAGE_TAG}
+          docker tag $IMAGE_NAME $DOCKER_REPO:${NEW_VERSION}
 
       - name: ⭐ Push Docker Image
         if: success()
         run: |
           docker push $DOCKER_REPO:latest
-          docker push $DOCKER_REPO:${IMAGE_TAG}
+          docker push $DOCKER_REPO:${NEW_VERSION}
 
   GCloud:
     # build:
@@ -144,7 +144,7 @@ jobs:
     env:
       GKE_CLUSTER: cluster-1
       GKE_REGION: us-central1-a
-      IMAGE_TAG: ${{ needs.liatriotests.outputs.IMAGE_TAG }}
+      NEW_VERSION: ${{ needs.liatriotests.outputs.NEW_VERSION }}
       DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
       BRANCH_NAME: ${{ github.ref_name }}
     # Runner using version
@@ -244,20 +244,20 @@ jobs:
       # Namespaces must be run before the container is deployed
       - name: ⭐ Deploy Container
         run: |
-          echo "${IMAGE_TAG}"
-          sed -i "s|\(image: docker.io/${DOCKER_REPO}:\)[^[:space:]]*|\1${IMAGE_TAG}|" k8s/deployment.yaml
+          echo "${NEW_VERSION}"
+          sed -i "s|\(image: docker.io/${DOCKER_REPO}:\)[^[:space:]]*|\1${NEW_VERSION}|" k8s/deployment.yaml
           cat k8s/deployment.yaml
           kubectl apply -f k8s/deployment.yaml --namespace=$DEPLOY_ENV
 
       - name: Change-Cause for New Deployment (Shown in Tests)
         run: |
           kubectl annotate deployment liatrio-deployment-api \
-            kubernetes.io/change-cause="Deployed: ${IMAGE_TAG} from branch: ${BRANCH_NAME} at commit: $GITHUB_SHA" \
+            kubernetes.io/change-cause="Deployed: ${NEW_VERSION} from branch: ${BRANCH_NAME} at commit: $GITHUB_SHA" \
             --overwrite -n $DEPLOY_ENV
 
       - name: Label New Deployment (Shown in Tests)
         run: |
-          kubectl label deployment liatrio-deployment-api version=${IMAGE_TAG} branch=${BRANCH_NAME} commit=${GITHUB_SHA} --overwrite -n $DEPLOY_ENV
+          kubectl label deployment liatrio-deployment-api version=${NEW_VERSION} branch=${BRANCH_NAME} commit=${GITHUB_SHA} --overwrite -n $DEPLOY_ENV
 
   # Per Best Practices this would be a separate file. To avoid Screen swaps keeping it in same file
   #  on:
