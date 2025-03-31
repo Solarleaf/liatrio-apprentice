@@ -145,7 +145,7 @@ jobs:
       - name: Update NEW_VERSION in deployment.yaml
         run: |
           D_NEW_TAG="${BRANCH_NAME}${NEW_VERSION}"
-          sed -i -E "/name:\s*NEW_VERSION/{n;s/value:\s*\".*\"/value: \"${D_NEW_TAG}\"/}" ArgoManifest/deployment.yaml
+          sed -i "/name: NEW_VERSION/{n;s/value:.*/value: \"$D_NEW_TAG\"/}" ArgoManifest/deployment.yaml
           run: cat ArgoManifest/deployment.yaml
 
       - name: ⭐ Commit and Push deployment.yaml change
