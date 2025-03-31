@@ -53,6 +53,15 @@ kubectl -n argocd create secret generic git-deploy-key \
 argocd repo add git@github.com:Solarleaf/liatrio-apprentice.git \
  --ssh-private-key-path ./argocd-image-updater
 
+kubectl create secret generic git-ssh-key \
+ --from-file=sshPrivateKey=/path/to/your/private/key \
+ -n argocd
+
+kubectl create secret generic argocd-repo-creds \
+ --from-literal=username=$(echo -n "Solarleif" | base64) \
+  --from-literal=password=$(echo -n "your_personal_access_token" | base64) \
+ -n argocd
+
 # Kill Cluster
 
 k3d cluster delete cluster-1
