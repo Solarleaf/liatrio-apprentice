@@ -6,12 +6,8 @@ metadata:
   annotations:
     argocd-image-updater.argoproj.io/image-list: apptemp/liatrio
     argocd-image-updater.argoproj.io/apptemp_liatrio.update-strategy: newest-build
-    # argocd-image-updater.argoproj.io/write-back-method: git:secret:argocd/git-creds
     argocd-image-updater.argoproj.io/write-back-method: git:secret:argocd-image-updater/git-creds
-    # argocd-image-updater.argoproj.io/source-type: directory
-    # argocd-image-updater.argoproj.io/apptemp_liatrio.ignore-tags: latest
-    # argocd-image-updater.argoproj.io/source-type: kustomize
-    # argocd-image-updater.argoproj.io/write-back-target: ArgoManifest
+    argocd-image-updater.argoproj.io/<image_alias>.force-update: "true"
 
 spec:
   project: default
@@ -21,15 +17,6 @@ spec:
     # repoURL: https://github.com/Solarleaf/liatrio-apprentice
     targetRevision: ArgoCD
     path: ArgoManifest/
-    # sshPRivateKeySecret:
-    #   name: git-ssh-key
-    #   key: sshPrivateKey
-    # usernameSecret:
-    #   name: argocd-repo-creds
-    #   key: username
-    # passwordSecret:
-    #   name: argocd-repo-creds
-    #   key: password
 
   destination:
     server: https://kubernetes.default.svc
