@@ -37,8 +37,8 @@ app.get("/", (req, res) => {
         mini: mess_n.replace(/\s+/g, ''),
         request: req.hostname,
         requests: req.method,
-        funFact: funFacts[Math.floor(Math.random() * funFacts.length)],
-        portUsed: port,
+        // funFact: funFacts[Math.floor(Math.random() * funFacts.length)],
+        // portUsed: port,
     };
     // Express response helpers
     res.status(200).json(responseObject);
