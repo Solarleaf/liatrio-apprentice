@@ -3,6 +3,15 @@ kind: Application
 metadata:
   name: test
   namespace: argocd
+  annotations:
+    argocd-image-updater.argoproj.io/image-list: apptemp/liatrio
+    argocd-image-updater.argoproj.io/apptemp_liatrio.update-strategy: latest
+    # More ephemeral
+    argocd-image-updater.argoproj.io/write-back-method: argocd
+    # This method uses credentials, better for logging, better versioning
+    #argocd-image-updater.argoproj.io/write-back-method: git
+    # argocd-image-updater.argoproj.io/apptemp_liatrio.ignore-tags: latest
+    argocd-image-updater.argoproj.io/write-back-target: manifests
 spec:
   project: default
 
@@ -11,13 +20,13 @@ spec:
     targetRevision: ArgoCD
     path: ArgoManifest
 
-  destination: 
+  destination:
     server: https://kubernetes.default.svc
     namespace: dev
 
   syncPolicy:
     syncOptions:
-    - CreateNamespace=true
+      - CreateNamespace=true
 
     automated:
       selfHeal: true
