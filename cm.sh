@@ -1,1 +1,1 @@
-git add . && git commit -m "$1" &&  git push
+git add . && git commit -m && git pull --rebase origin ArgoCD "$1" &&  git push
