@@ -297,7 +297,6 @@ jobs:
         env:
           EXPECTED_VERSION: ${{ env.NEW_VERSION }}
         run: |
-          kubectl rollout restart deployment liatrio-deployment-api -n dev
           for i in {1..10}; do
             EXTERNAL_IP=$(kubectl get svc liatrio-service-api -n dev -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
             if [[ -z "$EXTERNAL_IP" ]]; then
@@ -320,7 +319,7 @@ jobs:
 
           echo "📦 Full response: $RESPONSE"
 
-          VERSION=$(echo "$RESPONSE" | jq -r '.version // .NEW_VERSION // empty')
+          DEPLOYED_VERSION=$(echo "$RESPONSE" | jq -r '.version // .NEW_VERSION // empty')
 
           echo "🔍 Comparing expected version '${EXPECTED_VERSION}' to deployed version '${DEPLOYED_VERSION}'..."
 
