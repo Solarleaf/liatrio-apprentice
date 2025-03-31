@@ -17,13 +17,15 @@ fi
 
 kubectl create namespace argocd
 
-# kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+# ArgoCD
 
 curl -L https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml -o argocd-install.yaml
 kubectl apply -n argocd -f ArgoSetup/argocd-install.yaml
 kubectl patch svc argocd-server -n argocd --type=merge --patch-file=ArgoSetup/argocd-setup.yaml
 
-curl -L https://raw.githubusercontent.com/argoproj-labs/argocd-image-updater/stable/manifests/install.yaml -o argocd-image-install.yaml
+# ArgoCD Image Updater
+
+curl -L https://raw.githubusercontent.com/argoproj-labs/argocd-image-updater/stable/manifests/install.yaml -o ArgoSetup/argocd-image-install.yaml
 kubectl apply -n argocd -f ArgoSetup/argocd-image-install.yaml
 
 # Check if Argo CD CLI exists and runs successfully
