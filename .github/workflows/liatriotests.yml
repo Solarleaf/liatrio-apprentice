@@ -158,9 +158,8 @@ jobs:
             echo "✅ No changes to commit"
           else
             git commit -m "Automated update of deployment.yaml [skip ci]"
-            gh repo set-default "${GITHUB_REPOSITORY}"
-            gh auth status
-            git push https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git HEAD:${GITHUB_REF_NAME}
+            git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+            git push origin HEAD:${GITHUB_REF_NAME}
           fi
 
   GCloud:
