@@ -1,6 +1,0 @@
-resources:
-  - test.yaml
-
-images:
-  - name: apptemp/liatrio
-    newTag: ArgoCD0.0.12
