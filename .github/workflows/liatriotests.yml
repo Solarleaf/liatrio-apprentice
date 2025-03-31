@@ -320,7 +320,7 @@ jobs:
           echo "📦 Full response: $RESPONSE"
 
           DEPLOYED_VERSION=""
-            for attempt in {1..9}; do
+            for attempt in {1..12}; do
               echo "⏳ Attempt $attempt to verify deployed version..."
 
               RESPONSE=$(curl -s "http://$EXTERNAL_IP")
