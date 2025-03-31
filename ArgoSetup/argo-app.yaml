@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: liatrio-ArgoCD-api
+  name: liatrio-argocd-api
   namespace: argocd
 spec:
   project: default
