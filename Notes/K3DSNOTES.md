@@ -31,6 +31,9 @@ kubectl apply -n argocd -f ArgoSetup/argocd-image-install.yaml
 kubectl -n argocd create secret generic git-deploy-key \
  --from-file=sshPrivateKey=./argocd-image-updater
 
+argocd repo add git@github.com:Solarleaf/liatrio-apprentice.git \
+ --ssh-private-key-path ./argocd-image-updater
+
 # Check if Argo CD CLI exists and runs successfully
 
 if ! which argocd >/dev/null 2>&1 || ! argocd version --client >/dev/null 2>&1; then
