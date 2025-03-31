@@ -282,6 +282,20 @@ jobs:
       - name: ⭐ Deploy ArgoCD Appp
         run: |
           kubectl apply -f ArgoSetup/argo-app.yaml
+      - name: ⭐ Wait for ArgoCD App Sync
+        run: |
+          export ARGOCD_SERVER=localhost:8080
+
+          # Get the base64-encoded password securely
+          ARGOCD_ADMIN_PASSWORD=$(kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}")
+
+          # Mask it from logs
+          echo "::add-mask::$ARGOCD_ADMIN_PASSWORD"
+
+          # Login using base64-encoded password directly
+          argocd login $ARGOCD_SERVER --insecure --username admin --password $(echo "$ARGOCD_ADMIN_PASSWORD" | base64 -d)
+
+          # Wait for the app to sync and become healthy
           argocd app wait liatrio-argocd-api --health --sync
           kubectl rollout status deployment liatrio-deployment-api -n dev #$DEPLOY_ENV
 
