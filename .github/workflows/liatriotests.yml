@@ -143,10 +143,13 @@ jobs:
           sed -i "s|${D_OLD_IMAGE_LINE}.*|${D_OLD_IMAGE_LINE}${D_NEW_TAG}|" k8s/deployment.yaml
 
       - name: ⭐ Push Deployment File Update
+        env:
+          GITHUB_TOKEN: ${{ secrets.ARGO_ADD }} # <-- Must be your PAT with repo scope
         run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git remote set-url origin https://x-access-token:${PAT}@github.com/${{ github.repository }}
+          git config user.name "Your Name"
+          git config user.email "you@example.com"
+
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
           git checkout "${GITHUB_REF_NAME}"
 
           git add k8s/deployment.yaml
