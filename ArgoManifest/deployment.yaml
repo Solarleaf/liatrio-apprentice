@@ -27,7 +27,7 @@ spec:
       containers:
         - name: liatrio-container-api
           # GitHub actions makes sure that this is always a versioned Deployment
-          image: docker.io/apptemp/liatrio:ArgoCD0.0.88
+          image: docker.io/apptemp/liatrio:ArgoCD0.0.89
           ports:
             - containerPort: 80
           # Environmental Variables
@@ -35,7 +35,7 @@ spec:
             - name: PORT
               value: "80"
             - name: NEW_VERSION
-              value: "ArgoCD0.0.88"
+              value: "ArgoCD0.0.89"
           # Probes
           # Extra time before liveness check. Good for slow startup apps
           startupProbe:
