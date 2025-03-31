@@ -120,3 +120,12 @@ kubectl create secret generic argocd-repo-creds \
  --from-literal=username=$(echo -n "Solarleif" | base64) \
   --from-literal=password=$(echo -n "your_personal_access_token" | base64) \
  -n argocd
+
+# Helm
+
+if command -v helm &> /dev/null; then echo "Helm is already installed $(helm version)"; else
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+chmod 700 get_helm.sh
+./get_helm.sh
+rm -f get_helm.sh
+fi
