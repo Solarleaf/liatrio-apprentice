@@ -39,12 +39,12 @@ jobs:
       - name: Deploy App to Cluster
         run: |
           kubectl create namespace argocd
-          kubectl apply -f ArgoManifest/test.yaml
+          kubectl apply -f Tests/argo_cd_test.yaml
           kubectl rollout status deployment/liatrio-deployment-api
 
       - name: Run Tests
         run: |
-          bash Tests/test.sh
+          bash Tests/argo_cd_test.sh
 
       - name: Install Argo
         run: |
