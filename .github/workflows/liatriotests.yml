@@ -140,7 +140,7 @@ jobs:
           echo "${NEW_VERSION}"
           D_OLD_IMAGE_LINE="image: docker.io/${DOCKER_REPO}:"
           D_NEW_TAG="${BRANCH_NAME}${NEW_VERSION}"
-          sed -i "s|${D_OLD_IMAGE_LINE}.*|${D_OLD_IMAGE_LINE}${D_NEW_TAG}|" k8s/deployment.yaml
+          sed -i "s|${D_OLD_IMAGE_LINE}.*|${D_OLD_IMAGE_LINE}${D_NEW_TAG}|" ArgoManifest/deployment.yaml
 
       - name: ⭐ Commit and Push deployment.yaml change
         env:
@@ -260,7 +260,6 @@ jobs:
             curl -L https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml -o argocd-install.yaml
             kubectl create namespace argocd
             kubectl apply -n argocd -f ArgoSetup/argocd-install.yaml
-            kubectl patch svc argocd-server -n argocd --type=merge --patch-file=ArgoSetup/argocd-setup.yaml
           else
             echo "✅ ArgoCD already installed — skipping setup."
           fi
