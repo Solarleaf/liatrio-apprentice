@@ -48,10 +48,12 @@ jobs:
       contents: write
       packages: read
     env:
-      DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
+      # DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
+      DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'dev' || 'dev' }}
       BRANCH_NAME: ${{ github.ref_name }}
     # Static Analsysis phase. Can't use DEPLOY_ENV from above since that happens after Static Analysis
-    environment: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
+    # environment: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
+    environment: ${{ github.event_name == 'pull_request' && 'dev' || 'dev' }}
     # build:
     # Runner using version
     runs-on: ubuntu-24.04
@@ -179,7 +181,8 @@ jobs:
       GKE_CLUSTER: cluster-1
       GKE_REGION: us-central1-a
       NEW_VERSION: ${{ needs.liatriotests.outputs.NEW_VERSION }}
-      DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
+      DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'dev' || 'dev' }}
+      # DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
       BRANCH_NAME: ${{ github.ref_name }}
     # Runner using version
     runs-on: ubuntu-24.04
@@ -391,7 +394,8 @@ jobs:
     env:
       GKE_CLUSTER: cluster-1
       GKE_REGION: us-central1-a
-      DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
+      # DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
+      DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'dev' || 'dev' }}
     # Runner using version
     runs-on: ubuntu-24.04
     timeout-minutes: 15
