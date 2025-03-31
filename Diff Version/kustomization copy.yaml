@@ -3,5 +3,5 @@ resources:
   - test.yaml
 
 images:
-  - name: apptemp/Chief
+  - name: apptemp/chief
     newTag: ArgoCD0.0.12

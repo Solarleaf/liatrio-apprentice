@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: liatrio-deployment-api
+  name: chief-deployment-api
 spec:
   replicas: 1
   # Rolling replaces old pods with new ones allowing for zero downtime and availability
@@ -14,16 +14,16 @@ spec:
       maxSurge: 1
   selector:
     matchLabels:
-      app: liatrio-app-api
+      app: chief-app-api
   template:
     metadata:
       labels:
-        app: liatrio-app-api
+        app: chief-app-api
     spec:
       containers:
-        - name: liatrio-container-api
+        - name: chief-container-api
           # GitHub actions makes sure that this is always a versioned Deployment
-          image: docker.io/apptemp/liatrio
+          image: docker.io/apptemp/chief
           ports:
             - containerPort: 8081
           # Environmental Variables
@@ -60,10 +60,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: liatrio-service-api
+  name: chief-service-api
 spec:
   selector:
-    app: liatrio-app-api
+    app: chief-app-api
   ports:
     - protocol: TCP
       port: 8081
