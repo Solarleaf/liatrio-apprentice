@@ -10,7 +10,7 @@ metadata:
     # argocd-image-updater.argoproj.io/write-back-method: argocd
     # This method uses credentials, better for logging, better versioning
     argocd-image-updater.argoproj.io/write-back-method: git
-    argocd-image-updater.argoproj.io/apptemp_liatrio.ignore-tags: latest
+    # argocd-image-updater.argoproj.io/apptemp_liatrio.ignore-tags: latest
     argocd-image-updater.argoproj.io/write-back-target: manifests
     # argocd-image-updater.argoproj.io/source-type: director y
     argocd-image-updater.argoproj.io/source-type: kustomize
