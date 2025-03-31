@@ -3,4 +3,4 @@ resources:
 
 images:
   - name: apptemp/liatrio
-    newTag: latest
+    newTag: ArgoCD0.0.12
