@@ -142,20 +142,21 @@ jobs:
           D_NEW_TAG="${BRANCH_NAME}${NEW_VERSION}"
           sed -i "s|${D_OLD_IMAGE_LINE}.*|${D_OLD_IMAGE_LINE}${D_NEW_TAG}|" k8s/deployment.yaml
 
-      - name: ⭐ Push Deployment File Update
+      - name: ⭐ Commit and Push deployment.yaml change
         env:
-          GITHUB_TOKEN: ${{ secrets.ARGO_ADD }} # <-- Must be your PAT with repo scope
+          GH_TOKEN: ${{ secrets.ARGO_ADD }}
         run: |
-          git config user.name "Your Name"
-          git config user.email "you@example.com"
+          echo "$GH_TOKEN" | gh auth login --with-token
 
-          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
+          git config user.name "Auto Deployer"
+          git config user.email "bot@liatrio.com"
+
           git checkout "${GITHUB_REF_NAME}"
 
           git add k8s/deployment.yaml
 
           if git diff --cached --quiet; then
-            echo "No changes to commit"
+            echo "✅ No changes to commit"
           else
             git commit -m "Automated update of deployment.yaml [skip ci]"
             git push origin "${GITHUB_REF_NAME}"
