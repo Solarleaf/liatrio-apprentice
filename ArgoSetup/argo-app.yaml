@@ -12,7 +12,7 @@ metadata:
     argocd-image-updater.argoproj.io/write-back-method: git
     argocd-image-updater.argoproj.io/apptemp_liatrio.ignore-tags: latest
     argocd-image-updater.argoproj.io/write-back-target: manifests
-    # argocd-image-updater.argoproj.io/source-type: directory
+    # argocd-image-updater.argoproj.io/source-type: director y
     argocd-image-updater.argoproj.io/source-type: kustomize
 spec:
   project: default
