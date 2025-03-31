@@ -6,7 +6,7 @@ metadata:
   annotations:
     argocd-image-updater.argoproj.io/image-list: apptemp/liatrio
     argocd-image-updater.argoproj.io/apptemp_liatrio.update-strategy: newest-build
-    argocd-image-updater.argoproj.io/write-back-method: git:secret:argocd-image-updater/git-creds
+    # argocd-image-updater.argoproj.io/write-back-method: git:secret:argocd-image-updater/git-creds
     argocd-image-updater.argoproj.io/write-back-method: git:secret:git-ssh-key
     # argocd-image-updater.argoproj.io/apptemp_liatrio.force-update: "true"
 
