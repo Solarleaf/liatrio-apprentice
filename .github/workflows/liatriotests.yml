@@ -142,6 +142,11 @@ jobs:
           D_NEW_TAG="${BRANCH_NAME}${NEW_VERSION}"
           sed -i "s|${D_OLD_IMAGE_LINE}.*|${D_OLD_IMAGE_LINE}${D_NEW_TAG}|" ArgoManifest/deployment.yaml
 
+      - name: Update NEW_VERSION in deployment.yaml
+        run: |
+          D_NEW_TAG="${BRANCH_NAME}${NEW_VERSION}"
+          sed -i "s|\(name: NEW_VERSION\s*value: \).*|\1\"${D_NEW_TAG}\"|" ArgoManifest/deployment.yaml
+
       - name: ⭐ Commit and Push deployment.yaml change
         env:
           GH_TOKEN: ${{ secrets.ARGO_ADD }}
@@ -282,22 +287,50 @@ jobs:
       - name: ⭐ Deploy ArgoCD Appp
         run: |
           kubectl apply -f ArgoSetup/argo-app.yaml
+
       - name: ⭐ Wait for ArgoCD App Sync
+        env:
+          EXPECTED_VERSION: ${{ env.NEW_VERSION }}
         run: |
-          export ARGOCD_SERVER=localhost:8080
+          for i in {1..10}; do
+            EXTERNAL_IP=$(kubectl get svc liatrio-service-api -n dev -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
+            if [[ -z "$EXTERNAL_IP" ]]; then
+              echo "Waiting for external IP..."
+              sleep 10
+            else
+              echo "::add-mask::$EXTERNAL_IP"
+              break
+            fi
+          done
 
-          # Get the base64-encoded password securely
-          ARGOCD_ADMIN_PASSWORD=$(kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}")
+          if [[ -z "$EXTERNAL_IP" ]]; then
+            echo "❌ Failed to get external IP"
+            exit 1
+          fi
 
-          # Mask it from logs
-          echo "::add-mask::$ARGOCD_ADMIN_PASSWORD"
+          echo "🌐 Curling app at http://$EXTERNAL_IP"
 
-          # Login using base64-encoded password directly
-          argocd login $ARGOCD_SERVER --insecure --username admin --password $(echo "$ARGOCD_ADMIN_PASSWORD" | base64 -d)
+          RESPONSE=$(curl -s "http://$EXTERNAL_IP")
 
-          # Wait for the app to sync and become healthy
-          argocd app wait liatrio-argocd-api --health --sync
-          kubectl rollout status deployment liatrio-deployment-api -n dev #$DEPLOY_ENV
+          echo "📦 Full response: $RESPONSE"
+
+          VERSION=$(echo "$RESPONSE" | jq -r '.version // .NEW_VERSION // empty')
+
+          if [[ -z "$VERSION" ]]; then
+            echo "❌ Version not found in response"
+            exit 1
+          fi
+
+          echo "🔍 Comparing expected version '${EXPECTED_VERSION}' to deployed version '${DEPLOYED_VERSION}'..."
+
+          if [[ "$DEPLOYED_VERSION" == "$EXPECTED_VERSION" ]]; then
+            echo "✅ Version match confirmed: $DEPLOYED_VERSION"
+          else
+            echo "❌ Version mismatch!"
+            echo "Expected: $EXPECTED_VERSION"
+            echo "Got:      $DEPLOYED_VERSION"
+            exit 1
+          fi
 
       # # This needs to run before deployment to establish namespaces
       # - name: ⭐ Establish Namespaces & GitHub actions applies relevant namespace

@@ -34,6 +34,8 @@ spec:
           env:
             - name: PORT
               value: "80"
+            - name: NEW_VERSION
+              value: "NEW_VERSION"
           # Probes
           # Extra time before liveness check. Good for slow startup apps
           startupProbe:
