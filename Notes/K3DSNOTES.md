@@ -28,12 +28,6 @@ kubectl patch svc argocd-server -n argocd --type=merge --patch-file=ArgoSetup/ar
 curl -L https://raw.githubusercontent.com/argoproj-labs/argocd-image-updater/stable/manifests/install.yaml -o ArgoSetup/argocd-image-install.yaml
 kubectl apply -n argocd -f ArgoSetup/argocd-image-install.yaml
 
-kubectl -n argocd create secret generic git-deploy-key \
- --from-file=sshPrivateKey=./argocd-image-updater
-
-argocd repo add git@github.com:Solarleaf/liatrio-apprentice.git \
- --ssh-private-key-path ./argocd-image-updater
-
 # Check if Argo CD CLI exists and runs successfully
 
 if ! which argocd >/dev/null 2>&1 || ! argocd version --client >/dev/null 2>&1; then
@@ -47,11 +41,17 @@ echo "✅ Argo CD CLI is already installed and working:"
 echo "$(argocd version --client --short)"
 fi
 
+kubectl apply -f ArgoSetup/argo-app.yaml
+
 argocd admin initial-password -n argocd
 argocd login localhost:8080 --username admin --insecure
 argocd account update-password
 
-kubectl apply -f ArgoSetup/argo-app.yaml
+kubectl -n argocd create secret generic git-deploy-key \
+ --from-file=sshPrivateKey=./argocd-image-updater
+
+argocd repo add git@github.com:Solarleaf/liatrio-apprentice.git \
+ --ssh-private-key-path ./argocd-image-updater
 
 # Kill Cluster
 
