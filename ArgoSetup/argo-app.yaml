@@ -22,7 +22,7 @@ spec:
   source:
     repoURL: git@github.com:Solarleaf/liatrio-apprentice.git
     targetRevision: ArgoCD
-    path: ArgoManifest
+    path: ArgoManifest/
     kustomize: {}
 
   destination:
