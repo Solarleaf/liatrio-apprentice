@@ -305,6 +305,9 @@ jobs:
 
       - name: ⭐ Wait for ArgoCD App Sync
         run: |
+          echo "🔍 BRANCH_NAME: ${BRANCH_NAME}"
+          echo "🔍 NEW_VERSION: ${NEW_VERSION}"
+          echo "🔍 EXPECTED VERSION: ${BRANCH_NAME}${NEW_VERSION}"
           for i in {1..10}; do
             EXTERNAL_IP=$(kubectl get svc liatrio-service-api -n dev -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
             if [[ -z "$EXTERNAL_IP" ]]; then
@@ -336,7 +339,7 @@ jobs:
 
               DEPLOYED_VERSION=$(echo "$RESPONSE" | jq -r '.version // .NEW_VERSION // empty')
 
-              echo "🔍 Comparing expected version '${BRANCH_NAME}${NEW_VERSION}' to deployed version '${DEPLOYED_VERSION}'..."
+              echo "🔍 Comparing expected version ${BRANCH_NAME}${NEW_VERSION} to deployed version ${DEPLOYED_VERSION}"
 
               if [[ "$DEPLOYED_VERSION" == "${BRANCH_NAME}${NEW_VERSION}" ]]; then
                 echo "✅ Version match confirmed: $DEPLOYED_VERSION"
