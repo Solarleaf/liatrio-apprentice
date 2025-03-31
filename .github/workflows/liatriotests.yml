@@ -146,7 +146,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.ARGO_ADD }}
         run: |
-          echo "$GH_TOKEN" | gh auth login --with-token
 
           git config user.name "Auto Deployer"
           git config user.email "bot@liatrio.com"
@@ -159,7 +158,9 @@ jobs:
             echo "✅ No changes to commit"
           else
             git commit -m "Automated update of deployment.yaml [skip ci]"
-            git push origin "${GITHUB_REF_NAME}"
+            gh repo set-default "${GITHUB_REPOSITORY}"
+            gh auth status
+            git push https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git HEAD:${GITHUB_REF_NAME}
           fi
 
   GCloud:
