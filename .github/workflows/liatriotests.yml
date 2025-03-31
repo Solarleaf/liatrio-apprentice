@@ -134,7 +134,7 @@ jobs:
         if: success()
         run: |
           docker push $DOCKER_REPO:latest
-          docker push $DOCKER_REPO:${NEW_VERSION}
+          docker push $DOCKER_REPO:${BRANCH_NAME}${NEW_VERSION}
 
   GCloud:
     # build:
