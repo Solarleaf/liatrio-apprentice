@@ -23,11 +23,6 @@ curl -L https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/inst
 kubectl apply -n argocd -f ArgoSetup/argocd-install.yaml
 kubectl patch svc argocd-server -n argocd --type=merge --patch-file=ArgoSetup/argocd-setup.yaml
 
-# ArgoCD Image Updater
-
-curl -L https://raw.githubusercontent.com/argoproj-labs/argocd-image-updater/stable/manifests/install.yaml -o ArgoSetup/argocd-image-install.yaml
-kubectl apply -n argocd -f ArgoSetup/argocd-image-install.yaml
-
 # Check if Argo CD CLI exists and runs successfully
 
 if ! which argocd >/dev/null 2>&1 || ! argocd version --client >/dev/null 2>&1; then
@@ -42,25 +37,11 @@ echo "$(argocd version --client --short)"
 fi
 
 kubectl apply -f ArgoSetup/argo-app.yaml
+kubectl rollout status deployment liatrio-deployment-api -n dev
 
 argocd admin initial-password -n argocd
 argocd login localhost:8080 --username admin --insecure
 argocd account update-password
-
-kubectl -n argocd create secret generic git-deploy-key \
- --from-file=sshPrivateKey=./argocd-image-updater
-
-argocd repo add git@github.com:Solarleaf/liatrio-apprentice.git \
- --ssh-private-key-path ./argocd-image-updater
-
-kubectl create secret generic git-ssh-key \
- --from-file=sshPrivateKey=/path/to/your/private/key \
- -n argocd
-
-kubectl create secret generic argocd-repo-creds \
- --from-literal=username=$(echo -n "Solarleif" | base64) \
-  --from-literal=password=$(echo -n "your_personal_access_token" | base64) \
- -n argocd
 
 # Kill Cluster
 
@@ -117,3 +98,25 @@ ArgoCD Application Manifest files.
 └── base/
 ├── common-labels.yaml
 └── kustomization.yaml
+
+# ArgoCD Image Updater
+
+curl -L https://raw.githubusercontent.com/argoproj-labs/argocd-image-updater/stable/manifests/install.yaml -o ArgoSetup/argocd-image-install.yaml
+kubectl apply -n argocd -f ArgoSetup/argocd-image-install.yaml
+
+# Argo CD Image
+
+kubectl -n argocd create secret generic git-deploy-key \
+ --from-file=sshPrivateKey=./argocd-image-updater
+
+argocd repo add git@github.com:Solarleaf/liatrio-apprentice.git \
+ --ssh-private-key-path ./argocd-image-updater
+
+kubectl create secret generic git-ssh-key \
+ --from-file=sshPrivateKey=/path/to/your/private/key \
+ -n argocd
+
+kubectl create secret generic argocd-repo-creds \
+ --from-literal=username=$(echo -n "Solarleif" | base64) \
+  --from-literal=password=$(echo -n "your_personal_access_token" | base64) \
+ -n argocd
