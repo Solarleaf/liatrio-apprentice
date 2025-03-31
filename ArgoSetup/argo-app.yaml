@@ -4,7 +4,7 @@ metadata:
   name: test
   namespace: argocd
   annotations:
-    argocd-image-updater.argoproj.io/image-list: apptemp/liatrio
+    # argocd-image-updater.argoproj.io/image-list: apptemp/liatrio*
     argocd-image-updater.argoproj.io/apptemp_liatrio.update-strategy: newest-build
     argocd-image-updater.argoproj.io/write-back-method: git
     argocd-image-updater.argoproj.io/source-type: directory
