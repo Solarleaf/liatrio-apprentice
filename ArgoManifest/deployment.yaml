@@ -27,7 +27,7 @@ spec:
       containers:
         - name: liatrio-container-api
           # GitHub actions makes sure that this is always a versioned Deployment
-          image: docker.io/apptemp/liatrio:ArgoCD0.0.69
+          image: docker.io/apptemp/liatrio:ArgoCD0.0.70
           ports:
             - containerPort: 80
           # Environmental Variables
