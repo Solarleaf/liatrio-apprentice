@@ -15,10 +15,9 @@ else
   echo"n$(kubectl version)"
 fi
 
-kubectl create namespace argocd
-
 # ArgoCD
 
+kubectl create namespace argocd
 curl -L https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml -o argocd-install.yaml
 kubectl apply -n argocd -f ArgoSetup/argocd-install.yaml
 kubectl patch svc argocd-server -n argocd --type=merge --patch-file=ArgoSetup/argocd-setup.yaml

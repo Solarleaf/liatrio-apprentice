@@ -253,20 +253,52 @@ jobs:
       - name: ⭐ Print Environment
         run: echo "Deploying to $DEPLOY_ENV"
 
-      # This needs to run before deployment to establish namespaces
-      - name: ⭐ Establish Namespaces & GitHub actions applies relevant namespace
+      - name: ArgoCD Install
         run: |
-          echo "Google Actions adds namespace. Branch is dev. Pull request is staging"
-          kubectl apply -f k8s/namespaces.yaml
+          if ! kubectl get ns argocd &> /dev/null; then
+            echo "ArgoCD not found — installing..."
+            curl -L https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml -o argocd-install.yaml
+            kubectl create namespace argocd
+            kubectl apply -n argocd -f ArgoSetup/argocd-install.yaml
+            kubectl patch svc argocd-server -n argocd --type=merge --patch-file=ArgoSetup/argocd-setup.yaml
+          else
+            echo "✅ ArgoCD already installed — skipping setup."
+          fi
 
-      - name: Set Kubernetes Context
+      - name: ArgoCD CLI
         run: |
-          kubectl config set-context --current --namespace=$DEPLOY_ENV
+          if ! which argocd >/dev/null 2>&1 || ! argocd version --client >/dev/null 2>&1; then
+            echo "🔧 Argo CD CLI not found or broken — installing..."
+            curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+            sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
+            rm argocd-linux-amd64
+            echo "✅ Argo CD CLI installed successfully."
+          else
+            echo "✅ Argo CD CLI is already installed and working:"
+            echo "$(argocd version --client --short)"
+          fi
 
       # Namespaces must be run before the container is deployed
-      - name: ⭐ Deploy Container
+      # WIP dev tag since no staging right now
+      - name: ⭐ Deploy ArgoCD Appp
         run: |
-          kubectl apply -f k8s/deployment.yaml --namespace=$DEPLOY_ENV
+          kubectl apply -f ArgoSetup/argo-app.yaml
+          kubectl rollout status deployment liatrio-deployment-api -n dev #$DEPLOY_ENV
+
+      # # This needs to run before deployment to establish namespaces
+      # - name: ⭐ Establish Namespaces & GitHub actions applies relevant namespace
+      #   run: |
+      #     echo "Google Actions adds namespace. Branch is dev. Pull request is staging"
+      #     kubectl apply -f k8s/namespaces.yaml
+
+      # - name: Set Kubernetes Context
+      #   run: |
+      #     kubectl config set-context --current --namespace=$DEPLOY_ENV
+
+      # # Namespaces must be run before the container is deployed
+      # - name: ⭐ Deploy Container
+      #   run: |
+      #     kubectl apply -f k8s/deployment.yaml --namespace=$DEPLOY_ENV
 
       - name: Change-Cause for New Deployment (Shown in Tests)
         run: |
