@@ -1,4 +1,4 @@
-# Start
+# Star t
 
 k3d cluster create cluster-1
 
