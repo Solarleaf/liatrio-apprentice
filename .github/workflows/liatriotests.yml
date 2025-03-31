@@ -128,7 +128,7 @@ jobs:
         if: success()
         run: |
           docker tag $IMAGE_NAME $DOCKER_REPO:latest
-          docker tag $IMAGE_NAME $DOCKER_REPO:${NEW_VERSION}
+          docker tag $IMAGE_NAME $DOCKER_REPO:${BRANCH_NAME}${NEW_VERSION}
 
       - name: ⭐ Push Docker Image
         if: success()
