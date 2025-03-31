@@ -282,6 +282,7 @@ jobs:
       - name: ⭐ Deploy ArgoCD Appp
         run: |
           kubectl apply -f ArgoSetup/argo-app.yaml
+          argocd app wait liatrio-ArgoCD-api --health --sync
           kubectl rollout status deployment liatrio-deployment-api -n dev #$DEPLOY_ENV
 
       # # This needs to run before deployment to establish namespaces
