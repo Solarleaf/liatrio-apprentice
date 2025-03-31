@@ -112,6 +112,8 @@ jobs:
 
           # Export version to GitHub Actions
           echo "NEW_VERSION=${NEW_VERSION}" >> $GITHUB_ENV
+          echo "NEW_VERSION=${NEW_VERSION}" >> $GITHUB_OUTPUT
+
           echo "BRANCH_NAME=${BRANCH_NAME}" >> $GITHUB_ENV
 
           # Print new version for debugging
