@@ -162,7 +162,7 @@ jobs:
           fi
 
   GCloud:
-    # build:
+    # build :
     needs: liatriotests
     # if: false
 
