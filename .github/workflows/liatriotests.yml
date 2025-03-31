@@ -151,6 +151,7 @@ jobs:
         run: |
           git add k8s/deployment.yaml
           git commit -m "Automated commit [skip ci]"
+          git diff --cached --quiet && echo "No changes to commit" || git commit -m "Automated commit [skip ci]"
           git push https://x-access-token:${{ secrets.ARGO_ADD }}@github.com/${{ github.repository }} HEAD:${{ github.ref_name }}
 
   GCloud:
