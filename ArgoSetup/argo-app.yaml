@@ -6,6 +6,7 @@ metadata:
   annotations:
     argocd-image-updater.argoproj.io/image-list: apptemp/liatrio
     argocd-image-updater.argoproj.io/apptemp_liatrio.update-strategy: newest-build
+    argocd-image-updater.argoproj.io/myimage.allow-tags: regexp:^[0-9a-f]{7}$
     # More ephemeral
     # argocd-image-updater.argoproj.io/write-back-method: argocd
     # This method uses credentials, better for logging, better versioning
