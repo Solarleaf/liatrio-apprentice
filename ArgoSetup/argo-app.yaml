@@ -15,6 +15,8 @@ spec:
 
   source:
     repoURL: git@github.com:Solarleaf/liatrio-apprentice.git
+    directory:
+      recurse: true
     # repoURL: https://github.com/Solarleaf/liatrio-apprentice
     targetRevision: ArgoCD
     path: ArgoManifest/
