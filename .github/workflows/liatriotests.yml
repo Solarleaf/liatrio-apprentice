@@ -136,6 +136,23 @@ jobs:
           docker push $DOCKER_REPO:latest
           docker push $DOCKER_REPO:${BRANCH_NAME}${NEW_VERSION}
 
+      - name: ⭐ Rename Container
+        run: |
+          echo "${NEW_VERSION}"
+          D_OLD_IMAGE_LINE="image: docker.io/${DOCKER_REPO}:"
+          D_NEW_TAG="${BRANCH_NAME}${NEW_VERSION}"
+          sed -i "s|${D_OLD_IMAGE_LINE}.*|${D_OLD_IMAGE_LINE}${D_NEW_TAG}|" k8s/deployment.yaml
+
+      - name: Configure Git
+        run: |
+          git config user.name "Your Name"
+          git config user.email "yo12ur121@email.com"
+          git add k8s/deployment.yaml
+      - name: Push using PAT
+        run: |
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} HEAD:${{ github.ref_name }}
+          # git push https://x-access-token:${{ secrets.ARGO_ADD }}@github.com/${{ github.repository }} HEAD:${{ github.ref_name }}
+
   GCloud:
     # build:
     needs: liatriotests
@@ -244,9 +261,6 @@ jobs:
       # Namespaces must be run before the container is deployed
       - name: ⭐ Deploy Container
         run: |
-          echo "${NEW_VERSION}"
-          sed -i "s|REPLACEME|${BRANCH_NAME}${NEW_VERSION}|" k8s/deployment.yaml
-          cat k8s/deployment.yaml
           kubectl apply -f k8s/deployment.yaml --namespace=$DEPLOY_ENV
 
       - name: Change-Cause for New Deployment (Shown in Tests)
@@ -259,12 +273,6 @@ jobs:
         run: |
           kubectl label deployment liatrio-deployment-api version=${NEW_VERSION} branch=${BRANCH_NAME} commit=${GITHUB_SHA} --overwrite -n $DEPLOY_ENV
 
-  # Per Best Practices this would be a separate file. To avoid Screen swaps keeping it in same file
-  #  on:
-  #   workflow_run:
-  #     workflows: ["GCloud"]
-  #     types:
-  #       - completed
   KubernetesTests:
     if: false
     needs: GCloud
