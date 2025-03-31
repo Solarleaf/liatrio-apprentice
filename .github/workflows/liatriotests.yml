@@ -319,18 +319,33 @@ jobs:
 
           echo "📦 Full response: $RESPONSE"
 
-          DEPLOYED_VERSION=$(echo "$RESPONSE" | jq -r '.version // .NEW_VERSION // empty')
+          DEPLOYED_VERSION=""
+            for attempt in {1..9}; do
+              echo "⏳ Attempt $attempt to verify deployed version..."
 
-          echo "🔍 Comparing expected version '${EXPECTED_VERSION}' to deployed version '${DEPLOYED_VERSION}'..."
+              RESPONSE=$(curl -s "http://$EXTERNAL_IP")
+              echo "📦 Full response: $RESPONSE"
 
-          if [[ "$DEPLOYED_VERSION" == "$EXPECTED_VERSION" ]]; then
-            echo "✅ Version match confirmed: $DEPLOYED_VERSION"
-          else
-            echo "❌ Version mismatch!"
-            echo "Expected: $EXPECTED_VERSION"
-            echo "Got:      $DEPLOYED_VERSION"
-            exit 1
-          fi
+              DEPLOYED_VERSION=$(echo "$RESPONSE" | jq -r '.version // .NEW_VERSION // empty')
+
+              echo "🔍 Comparing expected version '${EXPECTED_VERSION}' to deployed version '${DEPLOYED_VERSION}'..."
+
+              if [[ "$DEPLOYED_VERSION" == "$EXPECTED_VERSION" ]]; then
+                echo "✅ Version match confirmed: $DEPLOYED_VERSION"
+                break
+              fi
+
+              echo "❌ Version mismatch (Attempt $attempt). Retrying in 10 seconds..."
+              sleep 10
+            done
+
+            # Final check after retries
+            if [[ "$DEPLOYED_VERSION" != "$EXPECTED_VERSION" ]]; then
+              echo "❌ Final mismatch after retries!"
+              echo "Expected: $EXPECTED_VERSION"
+              echo "Got:      $DEPLOYED_VERSION"
+              exit 1
+            fi
 
       # # This needs to run before deployment to establish namespaces
       # - name: ⭐ Establish Namespaces & GitHub actions applies relevant namespace
