@@ -304,8 +304,6 @@ jobs:
           argocd app sync liatrio-argocd-api
 
       - name: ⭐ Wait for ArgoCD App Sync
-        env:
-          EXPECTED_VERSION: ${{ env.NEW_VERSION }}
         run: |
           for i in {1..10}; do
             EXTERNAL_IP=$(kubectl get svc liatrio-service-api -n dev -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
@@ -338,9 +336,9 @@ jobs:
 
               DEPLOYED_VERSION=$(echo "$RESPONSE" | jq -r '.version // .NEW_VERSION // empty')
 
-              echo "🔍 Comparing expected version '${EXPECTED_VERSION}' to deployed version '${DEPLOYED_VERSION}'..."
+              echo "🔍 Comparing expected version '${BRANCH_NAME}${NEW_VERSION}' to deployed version '${DEPLOYED_VERSION}'..."
 
-              if [[ "$DEPLOYED_VERSION" == "$EXPECTED_VERSION" ]]; then
+              if [[ "$DEPLOYED_VERSION" == "${BRANCH_NAME}${NEW_VERSION}" ]]; then
                 echo "✅ Version match confirmed: $DEPLOYED_VERSION"
                 break
               fi
@@ -350,9 +348,9 @@ jobs:
             done
 
             # Final check after retries
-            if [[ "$DEPLOYED_VERSION" != "$EXPECTED_VERSION" ]]; then
+            if [[ "$DEPLOYED_VERSION" != "${BRANCH_NAME}${NEW_VERSION}" ]]; then
               echo "❌ Final mismatch after retries!"
-              echo "Expected: $EXPECTED_VERSION"
+              echo "Expected: ${BRANCH_NAME}${NEW_VERSION}"
               echo "Got:      $DEPLOYED_VERSION"
               exit 1
             fi
