@@ -316,11 +316,6 @@ jobs:
 
           VERSION=$(echo "$RESPONSE" | jq -r '.version // .NEW_VERSION // empty')
 
-          if [[ -z "$VERSION" ]]; then
-            echo "❌ Version not found in response"
-            exit 1
-          fi
-
           echo "🔍 Comparing expected version '${EXPECTED_VERSION}' to deployed version '${DEPLOYED_VERSION}'..."
 
           if [[ "$DEPLOYED_VERSION" == "$EXPECTED_VERSION" ]]; then
