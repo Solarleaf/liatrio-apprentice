@@ -6,16 +6,10 @@ metadata:
   annotations:
     argocd-image-updater.argoproj.io/image-list: apptemp/liatrio
     argocd-image-updater.argoproj.io/apptemp_liatrio.update-strategy: newest-build
-    # argocd-image-updater.argoproj.io/myimage.allow-tags: regexp:^[0-9a-f]{7}$
     argocd-image-updater.argoproj.io/write-back-method: git
-    argocd-image-updater.argoproj.io/source-type: kustomize
-    argocd-image-updater.argoproj.io/write-back-target: ArgoManifest
-    # argocd-image-updater.argoproj.io/write-back-method: argocd
-    # This method uses credentials, better for logging, better versioning
-
-    # argocd-image-updater.argoproj.io/apptemp_liatrio.ignore-tags: latest
-    # argocd-image-updater.argoproj.io/write-back-target: manifests
-    # argocd-image-updater.argoproj.io/source-type: directory
+    argocd-image-updater.argoproj.io/source-type: directory
+    # argocd-image-updater.argoproj.io/source-type: kustomize
+    # argocd-image-updater.argoproj.io/write-back-target: ArgoManifest
 
 spec:
   project: default
