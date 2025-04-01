@@ -68,18 +68,17 @@ jobs:
       #     fi
       #     echo "BRANCH_NAME=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
       #     echo "BRANCH_NAME=$BRANCH_NAME" >> "$GITHUB_ENV"
-
       - name: Determine Branch Name
         id: branch-name
         run: |
           if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
-            echo "BRANCH_NAME=${GITHUB_HEAD_REF}" >> "$GITHUB_ENV"
-            echo "BRANCH_NAME=${GITHUB_HEAD_REF}" >> "$GITHUB_OUTPUT"
+            BRANCH_NAME="${GITHUB_HEAD_REF}"
           else
-            REF_NAME=$(echo "${GITHUB_REF}" | sed 's|refs/heads/||')
-            echo "BRANCH_NAME=${REF_NAME}" >> "$GITHUB_ENV"
-            echo "BRANCH_NAME=${REF_NAME}" >> "$GITHUB_OUTPUT"
+            BRANCH_NAME="${GITHUB_REF#refs/heads/}"
           fi
+
+          echo "BRANCH_NAME=$BRANCH_NAME" >> "$GITHUB_ENV"
+          echo "BRANCH_NAME=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
 
       - name: ⭐ Build Docker Image
         run: docker build -t $IMAGE_NAME .
