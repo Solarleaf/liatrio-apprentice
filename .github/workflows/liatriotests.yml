@@ -50,6 +50,7 @@ jobs:
     # build:
     # Runner using version
     runs-on: ubuntu-24.04
+    if: github.actor != 'github-actions[bot]'
     timeout-minutes: 5
     outputs:
       NEW_VERSION: ${{ steps.set-version.outputs.NEW_VERSION }}
@@ -171,14 +172,14 @@ jobs:
             TARGET_BRANCH="${GITHUB_REF_NAME}"
             echo "${TARGET_BRANCH}"
           fi
-          git config user.name "Auto Deployer"
+          git config user.name "github-actions[bot]"
           git config user.email "1337@supa.com"
           git checkout "$TARGET_BRANCH"
           git add ArgoManifest/deployment.yaml
           if git diff --cached --quiet; then
             echo "✅ No changes to commit"
           else
-            git commit -m "Automated update of deployment.yaml [skip ci]"
+            git commit -m "Automated update of deployment.yaml" #[skip ci]"
             git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
             
             git push origin HEAD:$TARGET_BRANCH
