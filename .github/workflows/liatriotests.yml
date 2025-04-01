@@ -130,7 +130,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.LIAPATS }}
 
-      # Creates a latest and a time stamped version making manual rollbacks easier if needed
+      # Creates a latest and a time stamped version making manual rollbacks easier if  needed
       - name: ⭐ Tag Docker Image
         if: success()
         run: |
