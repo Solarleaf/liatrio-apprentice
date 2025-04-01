@@ -445,17 +445,18 @@ jobs:
       - name: Ignore HPA drift temporarily
         run: |
           kubectl patch application liatrio-argocd-api -n argocd --type merge -p '{
-            "ignoreDifferences": [
-              {
-                "group": "autoscaling",
-                "kind": "HorizontalPodAutoscaler",
-                "name": "liatrio-hpa-api",
-                "namespace": "dev",
-                "jsonPointers": [
-                  "/spec/metrics"
-                ]
-              }
-            ]
+            "spec": {
+              "ignoreDifferences": [
+                {
+                  "group": "autoscaling",
+                  "kind": "HorizontalPodAutoscaler",
+                  "name": "liatrio-hpa-api",
+                  "namespace": "dev",
+                  "jsonPointers": ["/spec/metrics"]
+                }
+              ]
+            }
+          }'
 
       - name: ⭐ Horizontal Pod Autoscaler To 1% to Trigger All Pods
         run: |
