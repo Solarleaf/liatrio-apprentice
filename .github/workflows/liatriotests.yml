@@ -443,21 +443,25 @@ jobs:
         run: |
           kubectl apply -f ArgoManifest/namespaces.yaml
 
-      - name: Ignore HPA drift temporarily
+      - name: Turn ArgoCD off for HPA
         run: |
-          kubectl patch application liatrio-argocd-api -n argocd --type merge -p '{
-            "spec": {
-              "ignoreDifferences": [
-                {
-                  "group": "autoscaling",
-                  "kind": "HorizontalPodAutoscaler",
-                  "name": "liatrio-hpa-api",
-                  "namespace": "dev",
-                  "jsonPointers": ["/spec/metrics"]
-                }
-              ]
-            }
-          }'
+          kubectl scale deployment argocd-server -n argocd --replicas=0
+          sleep 5
+      # - name: Ignore HPA drift temporarily
+      #   run: |
+      #     kubectl patch application liatrio-argocd-api -n argocd --type merge -p '{
+      #       "spec": {
+      #         "ignoreDifferences": [
+      #           {
+      #             "group": "autoscaling",
+      #             "kind": "HorizontalPodAutoscaler",
+      #             "name": "liatrio-hpa-api",
+      #             "namespace": "dev",
+      #             "jsonPointers": ["/spec/metrics"]
+      #           }
+      #         ]
+      #       }
+      #     }'
 
       - name: ⭐ Horizontal Pod Autoscaler To 1% to Trigger All Pods
         run: |
@@ -498,14 +502,17 @@ jobs:
         run: |
           kubectl patch hpa liatrio-hpa-api -n $DEPLOY_ENV --patch-file Tests/hpa_reset.yaml
 
-      - name: Re-enable ArgoCD management of HPA
+      - name: Turn ArgoCD On for HPA
         run: |
-          kubectl patch application liatrio-argocd-api -n argocd --type json -p='[
-            {
-              "op": "remove",
-              "path": "/spec/ignoreDifferences"
-            }
-          ]'
+          kubectl scale deployment argocd-server -n argocd --replicas=1
+      # - name: Re-enable ArgoCD management of HPA
+      #   run: |
+      #     kubectl patch application liatrio-argocd-api -n argocd --type json -p='[
+      #       {
+      #         "op": "remove",
+      #         "path": "/spec/ignoreDifferences"
+      #       }
+      #     ]'
 
       - name: ⭐ RBAC. Role Based Action Control. Create Service Account, Roles, & Binding
         run: |
