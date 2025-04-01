@@ -281,17 +281,16 @@ jobs:
 
       - name: ArgoCD CLI
         run: |
-          if ! which argocd >/dev/null 2>&1 || ! argocd version --client >/dev/null 2>&1; then
-            echo "🔧 Argo CD CLI not found or broken — installing..."
+          if ! command -v argocd >/dev/null 2>&1; then
+            echo "🔧 Argo CD CLI not found — installing..."
             curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
             sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
             rm argocd-linux-amd64
             echo "✅ Argo CD CLI installed successfully."
           else
-            echo "✅ Argo CD CLI is already installed and working:"
-            echo "$(argocd version --client --short)"
+            echo "✅ Argo CD CLI is already installed:"
+            argocd version --client || echo "Client version check failed (but CLI is present)"
           fi
-
       # Namespaces must be run before the container is deployed
       # WIP dev tag since no staging right now
       - name: ⭐ Deploy ArgoCD Appp
