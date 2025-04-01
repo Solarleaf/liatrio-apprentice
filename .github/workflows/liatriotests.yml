@@ -42,7 +42,7 @@ jobs:
       # Currently just Dev to save resources
       # DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
       DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'dev' || 'dev' }}
-      BRANCH_NAME: ${{ github.ref_name }}
+      # BRANCH_NAME: ${{ github.ref_name }}
     # Static Analsysis phase. Can't use DEPLOY_ENV from above since that happens after Static Analysis
     # Currently just Dev to save resources
     # environment: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
@@ -53,10 +53,22 @@ jobs:
     timeout-minutes: 5
     outputs:
       NEW_VERSION: ${{ steps.set-version.outputs.NEW_VERSION }}
+      BRANCH_NAME: ${{ steps.branch-name.outputs.BRANCH_NAME }}
     steps:
       # checkout@v4 using Sha 3-13-25
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Determine Branch Name
+        id: branch-name
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            BRANCH_NAME="${{ github.head_ref }}"
+          else
+            BRANCH_NAME="${{ github.ref_name }}"
+          fi
+          echo "BRANCH_NAME=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
+          echo "BRANCH_NAME=$BRANCH_NAME" >> "$GITHUB_ENV"
 
       - name: ⭐ Build Docker Image
         run: docker build -t $IMAGE_NAME .
@@ -176,7 +188,7 @@ jobs:
       # Currently just Dev to save resources
       DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'dev' || 'dev' }}
       # DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
-      BRANCH_NAME: ${{ github.ref_name }}
+      BRANCH_NAME: ${{ needs.liatriotests.outputs.BRANCH_NAME }}
     # Runner using version
     runs-on: ubuntu-24.04
     timeout-minutes: 15
