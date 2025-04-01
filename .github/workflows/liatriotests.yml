@@ -25,6 +25,7 @@ concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: false
 
+
 env:
   IMAGE_NAME: liatrio-api
   DOCKER_REPO: apptemp/liatrio
