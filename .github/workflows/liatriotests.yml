@@ -58,16 +58,28 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
+      # - name: Determine Branch Name
+      #   id: branch-name
+      #   run: |
+      #     if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+      #       BRANCH_NAME="${{ github.head_ref }}"
+      #     else
+      #       BRANCH_NAME="${{ github.ref_name }}"
+      #     fi
+      #     echo "BRANCH_NAME=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
+      #     echo "BRANCH_NAME=$BRANCH_NAME" >> "$GITHUB_ENV"
+
       - name: Determine Branch Name
         id: branch-name
         run: |
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            BRANCH_NAME="${{ github.head_ref }}"
+          if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
+            echo "BRANCH_NAME=${GITHUB_HEAD_REF}" >> "$GITHUB_ENV"
+            echo "BRANCH_NAME=${GITHUB_HEAD_REF}" >> "$GITHUB_OUTPUT"
           else
-            BRANCH_NAME="${{ github.ref_name }}"
+            REF_NAME=$(echo "${GITHUB_REF}" | sed 's|refs/heads/||')
+            echo "BRANCH_NAME=${REF_NAME}" >> "$GITHUB_ENV"
+            echo "BRANCH_NAME=${REF_NAME}" >> "$GITHUB_OUTPUT"
           fi
-          echo "BRANCH_NAME=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
-          echo "BRANCH_NAME=$BRANCH_NAME" >> "$GITHUB_ENV"
 
       - name: ⭐ Build Docker Image
         run: docker build -t $IMAGE_NAME .
