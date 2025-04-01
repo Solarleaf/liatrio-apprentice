@@ -18,20 +18,13 @@ on:
 #     types:
 #       - completed
 
+# Prevent Multiple Actions from happening at once on the same branch.
+# However, it will cancel newer items. So if you run multiple push it will cancel newer push
+# Pull Requests should use the latest though
 concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: false
 
-# concurrency:
-#   group: deploy-lock
-#   cancel-in-progress: false
-
-# concurrency:
-#   group: repo-wide-lock
-#   cancel-in-progress: false
-
-# Prevent Multiple Actions from happening at once on the same  branch.
-# This does not stop Pull Requests from running at the same time as push.
 # concurrency:
 #   group: ${{ github.workflow }}-${{ github.ref }}
 # group: ci-${{ github.ref }}
