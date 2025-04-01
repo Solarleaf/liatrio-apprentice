@@ -32,6 +32,7 @@ env:
 
 jobs:
   liatriotests: # Name Required for passing the pull  request checks
+    name: liatriotests
     # if: false
     # Security scan wanted these labelled
     permissions:
@@ -184,6 +185,7 @@ jobs:
           fi
 
   GCloud:
+    name: GCloud
     needs: liatriotests
     # if: false
 
@@ -405,6 +407,7 @@ jobs:
           kubectl label deployment liatrio-deployment-api version=${NEW_VERSION} branch=${BRANCH_NAME} commit=${GITHUB_SHA} --overwrite -n $DEPLOY_ENV
 
   KubernetesTests:
+    name: KubernetesTests
     # if: false
     needs: GCloud
     env:
