@@ -25,7 +25,6 @@ concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: false
 
-
 env:
   IMAGE_NAME: liatrio-api
   DOCKER_REPO: apptemp/liatrio
@@ -167,14 +166,14 @@ jobs:
         run: |
           git config user.name "Auto Deployer"
           git config user.email "1337@supa.com"
-          git checkout "${GITHUB_REF_NAME}"
+          git checkout "${BRANCH_NAME}"
           git add ArgoManifest/deployment.yaml
           if git diff --cached --quiet; then
             echo "✅ No changes to commit"
           else
             git commit -m "Automated update of deployment.yaml [skip ci]"
             git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
-            git push origin HEAD:${GITHUB_REF_NAME}
+            git push origin HEAD:${BRANCH_NAME}
           fi
 
   GCloud:
