@@ -486,6 +486,12 @@ jobs:
               sleep 5
             fi
           done
+          kubectl patch application liatrio-argocd-api -n argocd --type merge -p '{
+            "spec": {
+              "syncPolicy": null
+            }
+          }'
+          sleep 5
           # kubectl scale deployment argocd-server -n argocd --replicas=0
       # - name: Ignore HPA drift temporarily
       #   run: |
