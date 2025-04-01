@@ -50,6 +50,7 @@ k3d cluster delete cluster-1
 
 kubectl port-forward svc/argocd-server -n argocd 8080:443
 kubectl port-forward svc/liatrio-service-api -n default 8081:8081
+kubectl port-forward svc/liatrio-service-api -n dev 8083:80
 
 Jobs
 Kill %1
