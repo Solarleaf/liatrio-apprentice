@@ -57,6 +57,9 @@ jobs:
       # checkout@v4 using Sha 3-13-25
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref || github.ref_name }}
 
       # - name: Determine Branch Name
       #   id: branch-name
