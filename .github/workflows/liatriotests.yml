@@ -10,7 +10,7 @@ on:
       - "Version"
       - "ArgoCD"
   pull_request:
-    # branches:  [main]
+    branches: [main]
 
 # on:
 #   workflow_run:
@@ -172,6 +172,7 @@ jobs:
           cat ArgoManifest/deployment.yaml
 
       - name: ⭐ Commit and Push deployment.yaml change
+        if: github.event_name != 'pull_request'
         env:
           GH_TOKEN: ${{ secrets.ARGO_ADD }}
         run: |
