@@ -451,6 +451,21 @@ jobs:
         run: |
           kubectl apply -f ArgoManifest/namespaces.yaml
 
+      - name: 🔧 Ignore HPA drift temporarily
+        run: |
+          kubectl patch application liatrio-argocd-api -n argocd --type merge -p '{
+            "spec": {
+              "ignoreDifferences": [
+                {
+                  "group": "autoscaling",
+                  "kind": "HorizontalPodAutoscaler",
+                  "name": "liatrio-hpa-api",
+                  "namespace": "dev"
+                }
+              ]
+            }
+          }'
+
       - name: ⭐ Horizontal Pod Autoscaler To 1% to Trigger All Pods
         run: |
           echo "Patching HPA - This should not trigger a rollout"
@@ -489,6 +504,15 @@ jobs:
       - name: Setting HPA back to normal
         run: |
           kubectl patch hpa liatrio-hpa-api -n $DEPLOY_ENV --patch-file Tests/hpa_reset.yaml
+
+      - name: ✅ Re-enable ArgoCD management of HPA
+        run: |
+          kubectl patch application liatrio-argocd-api -n argocd --type json -p='[
+            {
+              "op": "remove",
+              "path": "/spec/ignoreDifferences"
+            }
+          ]'
 
       - name: ⭐ RBAC. Role Based Action Control. Create Service Account, Roles, & Binding
         run: |
