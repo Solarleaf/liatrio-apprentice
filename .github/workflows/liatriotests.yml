@@ -25,10 +25,6 @@ concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: false
 
-# concurrency:
-#   group: ${{ github.workflow }}-${{ github.ref }}
-# group: ci-${{ github.ref }}
-
 env:
   IMAGE_NAME: liatrio-api
   DOCKER_REPO: apptemp/liatrio
@@ -41,10 +37,12 @@ jobs:
       contents: write
       packages: read
     env:
+      # Currently just Dev to save resources
       # DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
       DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'dev' || 'dev' }}
       BRANCH_NAME: ${{ github.ref_name }}
     # Static Analsysis phase. Can't use DEPLOY_ENV from above since that happens after Static Analysis
+    # Currently just Dev to save resources
     # environment: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
     environment: ${{ github.event_name == 'pull_request' && 'dev' || 'dev' }}
     # build:
@@ -141,7 +139,7 @@ jobs:
           # sed -i -E "/name: NEW_VERSION/{n;s/value: \".*\"/value: \"$D_NEW_TAG\"/}" ArgoManifest/deployment.yaml
           sed -i "s|image: docker.io/${DOCKER_REPO}:.*|image: docker.io/${DOCKER_REPO}:${D_NEW_TAG}|" ArgoManifest/deployment.yaml
 
-      - name: Update NEW_VERSION in deployment.yaml
+      - name: ⭐ Update NEW_VERSION in deployment.yaml for Index.js
         run: |
           D_NEW_TAG="${BRANCH_NAME}${NEW_VERSION}"
           echo "$D_NEW_TAG"
@@ -154,7 +152,7 @@ jobs:
           GH_TOKEN: ${{ secrets.ARGO_ADD }}
         run: |
           git config user.name "Auto Deployer"
-          git config user.email "bot@liatrio.com"
+          git config user.email "1337@supa.com"
           git checkout "${GITHUB_REF_NAME}"
           git add ArgoManifest/deployment.yaml
           if git diff --cached --quiet; then
@@ -166,7 +164,6 @@ jobs:
           fi
 
   GCloud:
-    # build :
     needs: liatriotests
     # if: false
 
@@ -174,6 +171,7 @@ jobs:
       GKE_CLUSTER: cluster-1
       GKE_REGION: us-central1-a
       NEW_VERSION: ${{ needs.liatriotests.outputs.NEW_VERSION }}
+      # Currently just Dev to save resources
       DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'dev' || 'dev' }}
       # DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
       BRANCH_NAME: ${{ github.ref_name }}
@@ -264,7 +262,7 @@ jobs:
       - name: ArgoCD Install
         run: |
           if ! kubectl get ns argocd &> /dev/null; then
-            echo "ArgoCD not found — installing..."
+            echo "ArgoCD not found — installing"
             curl -L https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml -o argocd-install.yaml
             kubectl create namespace argocd
             kubectl apply -n argocd -f ArgoSetup/argocd-install.yaml
@@ -275,7 +273,7 @@ jobs:
       - name: ArgoCD CLI
         run: |
           if ! command -v argocd >/dev/null 2>&1; then
-            echo "🔧 Argo CD CLI not found — installing..."
+            echo "Argo CD CLI not found — installing"
             curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
             sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
             rm argocd-linux-amd64
@@ -304,15 +302,15 @@ jobs:
           argocd app wait liatrio-argocd-api --operation
           argocd app sync liatrio-argocd-api
 
-      - name: ⭐ Wait for ArgoCD App Sync
+      - name: Wait for ArgoCD App Sync
         run: |
-          echo "🔍 BRANCH_NAME: ${BRANCH_NAME}"
-          echo "🔍 NEW_VERSION: ${NEW_VERSION}"
-          echo "🔍 EXPECTED VERSION: ${BRANCH_NAME}${NEW_VERSION}"
+          echo "BRANCH_NAME: ${BRANCH_NAME}"
+          echo "NEW_VERSION: ${NEW_VERSION}"
+          echo "EXPECTED VERSION: ${BRANCH_NAME}${NEW_VERSION}"
           for i in {1..10}; do
             EXTERNAL_IP=$(kubectl get svc liatrio-service-api -n dev -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
             if [[ -z "$EXTERNAL_IP" ]]; then
-              echo "Waiting for external IP..."
+              echo "Waiting for external IP"
               sleep 10
             else
               echo "::add-mask::$EXTERNAL_IP"
@@ -325,29 +323,29 @@ jobs:
             exit 1
           fi
 
-          echo "🌐 Curling app at http://$EXTERNAL_IP"
+          echo "Curling app at http://$EXTERNAL_IP"
 
           RESPONSE=$(curl -s "http://$EXTERNAL_IP")
 
-          echo "📦 Full response: $RESPONSE"
+          echo "Full response: $RESPONSE"
 
           DEPLOYED_VERSION=""
             for attempt in {1..9}; do
-              echo "⏳ Attempt $attempt to verify deployed version..."
+              echo "Attempt $attempt to verify deployed version"
 
               RESPONSE=$(curl -s "http://$EXTERNAL_IP")
-              echo "📦 Full response: $RESPONSE"
+              echo "Full response: $RESPONSE"
 
               DEPLOYED_VERSION=$(echo "$RESPONSE" | jq -r '.version // .NEW_VERSION // empty')
 
-              echo "🔍 Comparing expected version ${BRANCH_NAME}${NEW_VERSION} to deployed version ${DEPLOYED_VERSION}"
+              echo "Comparing expected version ${BRANCH_NAME}${NEW_VERSION} to deployed version ${DEPLOYED_VERSION}"
 
               if [[ "$DEPLOYED_VERSION" == "${BRANCH_NAME}${NEW_VERSION}" ]]; then
                 echo "✅ Version match confirmed: $DEPLOYED_VERSION"
                 break
               fi
 
-              echo "❌ Version mismatch (Attempt $attempt). Retrying in 10 seconds..."
+              echo "❌ Version mismatch (Attempt $attempt). Retrying in 10 seconds"
               sleep 10
             done
 
@@ -390,6 +388,7 @@ jobs:
     env:
       GKE_CLUSTER: cluster-1
       GKE_REGION: us-central1-a
+      # Currently just Dev to save resources
       # DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
       DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'dev' || 'dev' }}
     # Runner using version
@@ -443,20 +442,20 @@ jobs:
         run: |
           kubectl apply -f ArgoManifest/namespaces.yaml
 
-      - name: 🔧 Ignore HPA drift temporarily
+      - name: Ignore HPA drift temporarily
         run: |
           kubectl patch application liatrio-argocd-api -n argocd --type merge -p '{
-            "spec": {
-              "ignoreDifferences": [
-                {
-                  "group": "autoscaling",
-                  "kind": "HorizontalPodAutoscaler",
-                  "name": "liatrio-hpa-api",
-                  "namespace": "dev"
-                }
-              ]
-            }
-          }'
+            "ignoreDifferences": [
+              {
+                "group": "autoscaling",
+                "kind": "HorizontalPodAutoscaler",
+                "name": "liatrio-hpa-api",
+                "namespace": "dev",
+                "jsonPointers": [
+                  "/spec/metrics"
+                ]
+              }
+            ]
 
       - name: ⭐ Horizontal Pod Autoscaler To 1% to Trigger All Pods
         run: |
@@ -473,7 +472,7 @@ jobs:
         run: |
           HPA_NAME=liatrio-hpa-api
           MAX_REPLICAS=$(kubectl get hpa $HPA_NAME -n $DEPLOY_ENV -o jsonpath='{.spec.maxReplicas}')
-          echo "Waiting for $HPA_NAME to scale to $MAX_REPLICAS replicas..."
+          echo "Waiting for $HPA_NAME to scale to $MAX_REPLICAS replicas"
 
           for i in {1..20}; do
             CURRENT_REPLICAS=$(kubectl get deployment liatrio-deployment-api -n $DEPLOY_ENV -o jsonpath='{.status.readyReplicas}')
@@ -484,7 +483,7 @@ jobs:
               break
             fi
 
-            echo "Waiting... ($i/20)"
+            echo "Waiting ($i/20)"
             sleep 15
           done
 
@@ -497,7 +496,7 @@ jobs:
         run: |
           kubectl patch hpa liatrio-hpa-api -n $DEPLOY_ENV --patch-file Tests/hpa_reset.yaml
 
-      - name: ✅ Re-enable ArgoCD management of HPA
+      - name: Re-enable ArgoCD management of HPA
         run: |
           kubectl patch application liatrio-argocd-api -n argocd --type json -p='[
             {
