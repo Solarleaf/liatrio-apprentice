@@ -445,7 +445,12 @@ jobs:
 
       - name: Turn ArgoCD off for HPA
         run: |
-          kubectl scale deployment argocd-server -n argocd --replicas=0
+          kubectl patch application liatrio-argocd-api -n argocd --type merge -p '{
+            "spec": {
+              "syncPolicy": null
+            }
+          }'
+          # kubectl scale deployment argocd-server -n argocd --replicas=0
           sleep 5
       # - name: Ignore HPA drift temporarily
       #   run: |
@@ -504,7 +509,21 @@ jobs:
 
       - name: Turn ArgoCD On for HPA
         run: |
-          kubectl scale deployment argocd-server -n argocd --replicas=1
+          kubectl patch application liatrio-argocd-api -n argocd --type merge -p '{
+            "spec": {
+              "syncPolicy": {
+                "automated": {
+                  "prune": true,
+                  "selfHeal": true
+                },
+                "syncOptions": [
+                  "CreateNamespace=true"
+                ]
+              }
+            }
+          }'
+
+          # kubectl scale deployment argocd-server -n argocd --replicas=1
       # - name: Re-enable ArgoCD management of HPA
       #   run: |
       #     kubectl patch application liatrio-argocd-api -n argocd --type json -p='[
