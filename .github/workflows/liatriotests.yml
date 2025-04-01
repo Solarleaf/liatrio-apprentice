@@ -32,7 +32,7 @@ env:
 
 jobs:
   liatriotests: # Name Required for passing the pull  request checks
-    if: false
+    # if: false
     # Security scan wanted these labelled
     permissions:
       contents: write
@@ -166,7 +166,7 @@ jobs:
 
   GCloud:
     needs: liatriotests
-    if: false
+    # if: false
 
     env:
       GKE_CLUSTER: cluster-1
@@ -385,7 +385,7 @@ jobs:
 
   KubernetesTests:
     # if: false
-    # needs: GCloud
+    needs: GCloud
     env:
       GKE_CLUSTER: cluster-1
       GKE_REGION: us-central1-a
