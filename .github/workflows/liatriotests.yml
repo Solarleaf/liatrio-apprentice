@@ -52,7 +52,7 @@ jobs:
     timeout-minutes: 5
     outputs:
       NEW_VERSION: ${{ steps.set-version.outputs.NEW_VERSION }}
-      # BRANCH_NAME: ${{ steps.branch-name.outputs.BRANCH_NAME }}
+      BRANCH_NAME: ${{ steps.set-version.outputs.BRANCH_NAME }}
     steps:
       # checkout@v4 using Sha 3-13-25
       - name: Checkout code
@@ -107,7 +107,14 @@ jobs:
         id: set-version
         run: |
           # Extract and normalize branch name (only letters)
-          BRANCH_NAME=$(echo "${GITHUB_REF#refs/heads/}" | tr -cd 'a-zA-Z')
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            RAW_BRANCH="${{ github.head_ref }}"
+          else
+            RAW_BRANCH="${{ github.ref_name }}"
+          fi
+          echo "Raw Branch: $RAW_BRANCH"
+
+          BRANCH_NAME=$(echo "$RAW_BRANCH" | tr -cd 'a-zA-Z')
           echo "Branch Name: $BRANCH_NAME"
 
           # Try to fetch the current version dynamically using gh CLI
@@ -135,6 +142,7 @@ jobs:
           echo "NEW_VERSION=${NEW_VERSION}" >> $GITHUB_OUTPUT
 
           echo "BRANCH_NAME=${BRANCH_NAME}" >> $GITHUB_ENV
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_OUTPUT
 
           # Print new version for debugging
           echo "New Version: $NEW_VERSION"
@@ -208,8 +216,9 @@ jobs:
       # Currently just Dev to save resources
       DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'dev' || 'dev' }}
       # DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
-      # BRANCH_NAME: ${{ needs.liatriotests.outputs.BRANCH_NAME }}
-      BRANCH_NAME: ${{ github.ref_name }}
+      # BRANCH_NAME: ${{ github.event.pull_request.head.ref || github.ref_name }}
+      BRANCH_NAME: ${{ needs.liatriotests.outputs.BRANCH_NAME }}
+      # BRANCH_NAME: ${{ github.ref_name }}
     # Runner using version
     runs-on: ubuntu-24.04
     timeout-minutes: 15
