@@ -471,8 +471,18 @@ jobs:
               "syncPolicy": null
             }
           }'
+          for i in {1..5}; do
+            echo "Checking if syncPolicy is null..."
+            POLICY=$(kubectl get application liatrio-argocd-api -n argocd -o jsonpath='{.spec.syncPolicy}')
+            if [ "$POLICY" = "" ]; then
+              echo "✅ syncPolicy is OFF"
+              break
+            else
+              echo "⏳ syncPolicy still exists. Retrying..."
+              sleep 5
+            fi
+          done
           # kubectl scale deployment argocd-server -n argocd --replicas=0
-          sleep 5
       # - name: Ignore HPA drift temporarily
       #   run: |
       #     kubectl patch application liatrio-argocd-api -n argocd --type merge -p '{
