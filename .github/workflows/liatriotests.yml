@@ -203,7 +203,7 @@ jobs:
     # Runner using version
     runs-on: ubuntu-24.04
     timeout-minutes: 15
-    # Checks out the Repo code
+    # Checks out the  Repo code
     permissions:
       contents: read
     steps:
