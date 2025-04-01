@@ -384,8 +384,8 @@ jobs:
           kubectl label deployment liatrio-deployment-api version=${NEW_VERSION} branch=${BRANCH_NAME} commit=${GITHUB_SHA} --overwrite -n $DEPLOY_ENV
 
   KubernetesTests:
-    # if:  false
-    needs: GCloud
+    # if: false
+    # needs: GCloud
     env:
       GKE_CLUSTER: cluster-1
       GKE_REGION: us-central1-a
