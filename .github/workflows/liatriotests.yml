@@ -8,7 +8,7 @@ on:
       - "Docker"
       - "Presentation"
       - "Version"
-      - "ArgoCD"
+      # - "ArgoCD"
   pull_request:
     branches: [main]
 
@@ -41,7 +41,7 @@ jobs:
       # Currently just Dev to save resources
       # DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
       DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'dev' || 'dev' }}
-      # BRANCH_NAME: ${{ github.ref_name }}
+      BRANCH_NAME: ${{ github.ref_name }}
     # Static Analsysis phase. Can't use DEPLOY_ENV from above since that happens after Static Analysis
     # Currently just Dev to save resources
     # environment: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
@@ -68,17 +68,17 @@ jobs:
       #     fi
       #     echo "BRANCH_NAME=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
       #     echo "BRANCH_NAME=$BRANCH_NAME" >> "$GITHUB_ENV"
-      - name: Determine Branch Name
-        id: branch-name
-        run: |
-          if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
-            BRANCH_NAME="${GITHUB_HEAD_REF}"
-          else
-            BRANCH_NAME="${GITHUB_REF#refs/heads/}"
-          fi
+      # - name: Determine Branch Name
+      #   id: branch-name
+      #   run: |
+      #     if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
+      #       BRANCH_NAME="${GITHUB_HEAD_REF}"
+      #     else
+      #       BRANCH_NAME="${GITHUB_REF#refs/heads/}"
+      #     fi
 
-          echo "BRANCH_NAME=$BRANCH_NAME" >> "$GITHUB_ENV"
-          echo "BRANCH_NAME=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
+      #     echo "BRANCH_NAME=$BRANCH_NAME" >> "$GITHUB_ENV"
+      #     echo "BRANCH_NAME=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
 
       - name: ⭐ Build Docker Image
         run: docker build -t $IMAGE_NAME .
@@ -177,14 +177,14 @@ jobs:
         run: |
           git config user.name "Auto Deployer"
           git config user.email "1337@supa.com"
-          git checkout "${BRANCH_NAME}"
+          git checkout "${BGITHUB_REF_NAME}"
           git add ArgoManifest/deployment.yaml
           if git diff --cached --quiet; then
             echo "✅ No changes to commit"
           else
             git commit -m "Automated update of deployment.yaml [skip ci]"
             git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
-            git push origin HEAD:${BRANCH_NAME}
+            git push origin HEAD:${GITHUB_REF_NAME}
           fi
 
   GCloud:
