@@ -8,7 +8,7 @@ on:
       - "Docker"
       - "Presentation"
       - "Version"
-      - "ArgoCD"
+      # - "ArgoCD"
   pull_request:
     branches: [main]
 
@@ -172,20 +172,26 @@ jobs:
           cat ArgoManifest/deployment.yaml
 
       - name: ⭐ Commit and Push deployment.yaml change
-        if: github.event_name != 'pull_request'
         env:
           GH_TOKEN: ${{ secrets.ARGO_ADD }}
         run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            TARGET_BRANCH="${{ github.head_ref }}"
+          else
+            TARGET_BRANCH="${GITHUB_REF_NAME}"
+            echo "${TARGET_BRANCH}"
+          fi
           git config user.name "Auto Deployer"
           git config user.email "1337@supa.com"
-          git checkout "${GITHUB_REF_NAME}"
+          git checkout "$TARGET_BRANCH"
           git add ArgoManifest/deployment.yaml
           if git diff --cached --quiet; then
             echo "✅ No changes to commit"
           else
             git commit -m "Automated update of deployment.yaml [skip ci]"
             git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
-            git push origin HEAD:${GITHUB_REF_NAME}
+            
+            git push origin HEAD:$TARGET_BRANCH
           fi
 
   GCloud:
