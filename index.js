@@ -39,12 +39,15 @@ app.get("/", (req, res) => {
         requests: req.method,
         funFact: funFacts[Math.floor(Math.random() * funFacts.length)],
         portUsed: port,
+        version: process.env.NEW_VERSION || "dev",
+        // version: "dev",
+        
     };
     // Express response helpers
     res.status(200).json(responseObject);
 });
 
-// Express
+// Express  
 app.use((req, res) => {
     res.status(404).json({
         error: "Route not found.",

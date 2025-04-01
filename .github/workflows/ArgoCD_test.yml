@@ -4,6 +4,10 @@ on:
   push:
     branches: ["ArgoCD"]
 
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
 jobs:
   k3d-ci:
     runs-on: ubuntu-latest
@@ -14,8 +18,8 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Set up Docker
-        uses: docker/setup-buildx-action@v2
+      # - name: Set up Docker
+      #   uses: docker/setup-buildx-action@v2
 
       - name: Install K3D
         run: |
@@ -34,19 +38,17 @@ jobs:
 
       - name: Deploy App to Cluster
         run: |
-          kubectl apply -f k8s/namespaces.yaml || true
-          kubectl apply -f ArgoManifest/test.yaml
+          kubectl create namespace argocd
+          kubectl apply -f Tests/argo_cd_test.yaml
           kubectl rollout status deployment/liatrio-deployment-api
 
       - name: Run Tests
         run: |
-          bash Tests/test.sh
+          bash Tests/argo_cd_test.sh
 
       - name: Install Argo
         run: |
-          kubectl create namespace argocd
           kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-
 
       - name: Cleanup K3D
         if: always()

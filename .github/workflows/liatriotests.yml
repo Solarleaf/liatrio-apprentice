@@ -12,15 +12,18 @@ on:
   pull_request:
     branches: [main]
 
+# on:
+#   workflow_run:
+#     workflows: ["Trigger Workflow"]
+#     types:
+#       - completed
+
+# Prevent Multiple Actions from happening at once on the same branch.
+# However, it will cancel newer items. So if you run multiple push it will cancel newer push
+# Pull Requests should use the latest though
 concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: false
-
-# Prevent Multiple Actions from happening at once on the same branch.
-# This does not stop Pull Requests from running at the same time as push.
-# concurrency:
-#   group: ${{ github.workflow }}-${{ github.ref }}
-# group: ci-${{ github.ref }}
 
 env:
   IMAGE_NAME: liatrio-api
@@ -28,26 +31,37 @@ env:
   PORT: 80
 
 jobs:
-  liatriotests: # Name Required for passing the pull request checks
+  liatriotests: # Name Required for passing the pull  request checks
+    name: liatriotests
+    # if: false
     # Security scan wanted these labelled
     permissions:
-      contents: read
+      contents: write
       packages: read
     env:
-      DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
+      # Currently just Dev to save resources
+      # DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
+      DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'dev' || 'dev' }}
+      BRANCH_NAME: ${{ github.ref_name }}
     # Static Analsysis phase. Can't use DEPLOY_ENV from above since that happens after Static Analysis
-    environment: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
+    # Currently just Dev to save resources
+    # environment: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
+    environment: ${{ github.event_name == 'pull_request' && 'dev' || 'dev' }}
     # build:
     # Runner using version
     runs-on: ubuntu-24.04
-
+    if: github.actor != 'github-actions[bot]'
     timeout-minutes: 5
     outputs:
-      IMAGE_TAG: ${{ steps.expose-image-tag.outputs.IMAGE_TAG }}
+      NEW_VERSION: ${{ steps.set-version.outputs.NEW_VERSION }}
+      BRANCH_NAME: ${{ steps.set-version.outputs.BRANCH_NAME }}
     steps:
       # checkout@v4 using Sha 3-13-25
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref || github.ref_name }}
 
       - name: ⭐ Build Docker Image
         run: docker build -t $IMAGE_NAME .
@@ -69,46 +83,127 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: ⭐ Set Image Tag as Commit Sha
-        id: expose-image-tag
+      - name: ⭐ Set Version Tag Based on Branch
+        id: set-version
         run: |
-          IMAGE_TAG=${GITHUB_SHA::7}
-          echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
-          echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_OUTPUT
-      # Creates a latest and a time stamped version making manual rollbacks easier if needed
+          # Extract and normalize branch name (only letters)
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            RAW_BRANCH="${{ github.head_ref }}"
+          else
+            RAW_BRANCH="${{ github.ref_name }}"
+          fi
+          echo "Raw Branch: $RAW_BRANCH"
+
+          BRANCH_NAME=$(echo "$RAW_BRANCH" | tr -cd 'a-zA-Z0-9')
+          echo "Branch Name: $BRANCH_NAME"
+
+          # Try to fetch the current version dynamically using gh CLI
+          CURRENT_VERSION=$(gh variable get "$BRANCH_NAME" --env "$DEPLOY_ENV" --repo $GITHUB_REPOSITORY --json name,value --jq '.value' || echo "")
+
+          if [[ -z "$CURRENT_VERSION" ]]; then
+            CURRENT_VERSION="0.0.0"
+          fi
+
+          echo "Current Version: $CURRENT_VERSION"
+
+          # Function to increment version (adds 0.0.1)
+          increment_version() {
+            local version=$1
+            IFS='.' read -r major minor patch <<< "$version"  # Extract version numbers
+            patch=$((patch + 1))  # Increment patch version
+            echo "${major}.${minor}.${patch}"
+          }
+
+          # Get new version (incremented)
+          NEW_VERSION=$(increment_version "$CURRENT_VERSION")
+
+          # Export version to GitHub Actions
+          echo "NEW_VERSION=${NEW_VERSION}" >> $GITHUB_ENV
+          echo "NEW_VERSION=${NEW_VERSION}" >> $GITHUB_OUTPUT
+
+          echo "BRANCH_NAME=${BRANCH_NAME}" >> $GITHUB_ENV
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_OUTPUT
+
+          # Print new version for debugging
+          echo "New Version: $NEW_VERSION"
+
+          # Update the GitHub Actions environment variable for the branch with the new version
+          gh variable set "$BRANCH_NAME" --body "$NEW_VERSION" --env "$DEPLOY_ENV" --repo $GITHUB_REPOSITORY
+        env:
+          GH_TOKEN: ${{ secrets.LIAPATS }}
+
+      # Creates a latest and a time stamped version making manual rollbacks easier if  needed
       - name: ⭐ Tag Docker Image
         if: success()
         run: |
           docker tag $IMAGE_NAME $DOCKER_REPO:latest
-          docker tag $IMAGE_NAME $DOCKER_REPO:${IMAGE_TAG}
+          docker tag $IMAGE_NAME $DOCKER_REPO:${BRANCH_NAME}${NEW_VERSION}
 
       - name: ⭐ Push Docker Image
         if: success()
         run: |
           docker push $DOCKER_REPO:latest
-          docker push $DOCKER_REPO:${IMAGE_TAG}
-  # Per Best Practices this would be a separate file. To avoid Screen swaps keeping it in same file
-  #  on:
-  #   workflow_run:
-  #     workflows: ["Apprentice GitHub Actions"]
-  #     types:
-  #       - completed
+          docker push $DOCKER_REPO:${BRANCH_NAME}${NEW_VERSION}
+
+      - name: ⭐ Rename Container
+        run: |
+          echo "${NEW_VERSION}"
+          D_OLD_IMAGE_LINE="image: docker.io/${DOCKER_REPO}:"
+          D_NEW_TAG="${BRANCH_NAME}${NEW_VERSION}"
+          echo "$D_NEW_TAG"
+          # sed -i -E "/name: NEW_VERSION/{n;s/value: \".*\"/value: \"$D_NEW_TAG\"/}" ArgoManifest/deployment.yaml
+          sed -i "s|image: docker.io/${DOCKER_REPO}:.*|image: docker.io/${DOCKER_REPO}:${D_NEW_TAG}|" ArgoManifest/deployment.yaml
+
+      - name: ⭐ Update NEW_VERSION in deployment.yaml for Index.js
+        run: |
+          D_NEW_TAG="${BRANCH_NAME}${NEW_VERSION}"
+          echo "$D_NEW_TAG"
+          # sed -i "/name: NEW_VERSION/{n;s/value:.*/value: \"$D_NEW_TAG\"/}" ArgoManifest/deployment.yaml
+          sed -i -E "/name: NEW_VERSION/{n;s/value: \".*\"/value: \"${D_NEW_TAG}\"/}" ArgoManifest/deployment.yaml
+          cat ArgoManifest/deployment.yaml
+
+      - name: ⭐ Commit and Push deployment.yaml change
+        env:
+          GH_TOKEN: ${{ secrets.ARGO_ADD }}
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            TARGET_BRANCH="${{ github.head_ref }}"
+          else
+            TARGET_BRANCH="${GITHUB_REF_NAME}"
+            echo "${TARGET_BRANCH}"
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "1337@supa.com"
+          git checkout "$TARGET_BRANCH"
+          git add ArgoManifest/deployment.yaml
+          if git diff --cached --quiet; then
+            echo "✅ No changes to commit"
+          else
+            git commit -m "Automated update of deployment.yaml" #[skip ci]"
+            git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+            
+            git push origin HEAD:$TARGET_BRANCH
+          fi
 
   GCloud:
-    # build:
+    name: GCloud
     needs: liatriotests
     # if: false
 
     env:
       GKE_CLUSTER: cluster-1
       GKE_REGION: us-central1-a
-      IMAGE_TAG: ${{ needs.liatriotests.outputs.IMAGE_TAG }}
-      DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
-      BRANCH_NAME: ${{ github.ref_name }}
+      NEW_VERSION: ${{ needs.liatriotests.outputs.NEW_VERSION }}
+      # Currently just Dev to save resources
+      DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'dev' || 'dev' }}
+      # DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
+      # BRANCH_NAME: ${{ github.event.pull_request.head.ref || github.ref_name }}
+      BRANCH_NAME: ${{ needs.liatriotests.outputs.BRANCH_NAME }}
+      # BRANCH_NAME: ${{ github.ref_name }}
     # Runner using version
     runs-on: ubuntu-24.04
     timeout-minutes: 15
-    # Checks out the Repo code
+    # Checks out the  Repo code
     permissions:
       contents: read
     steps:
@@ -189,61 +284,118 @@ jobs:
       - name: ⭐ Print Environment
         run: echo "Deploying to $DEPLOY_ENV"
 
-      # This needs to run before deployment to establish namespaces
-      - name: ⭐ Establish Namespaces & GitHub actions applies relevant namespace
+      - name: ArgoCD Install
         run: |
-          echo "Google Actions adds namespace. Branch is dev. Pull request is staging"
-          kubectl apply -f k8s/namespaces.yaml
-
-      - name: Set Kubernetes Context
-        run: |
-          kubectl config set-context --current --namespace=$DEPLOY_ENV
-
-      # Namespaces must be run before the container is deployed
-      - name: ⭐ Deploy Container
-        run: |
-          echo "${IMAGE_TAG}"
-          sed -i "s|\(image: docker.io/${DOCKER_REPO}:\)[^[:space:]]*|\1${IMAGE_TAG}|" k8s/deployment.yaml
-          cat k8s/deployment.yaml
-          kubectl apply -f k8s/deployment.yaml --namespace=$DEPLOY_ENV
-
-      - name: ⭐ Set Version Tag Based on Branch
-        run: |
-          # Extract and normalize branch name (only letters)
-          BRANCH_NAME=$(echo "${GITHUB_REF#refs/heads/}" | tr -cd 'a-zA-Z')
-          echo "Branch Name: $BRANCH_NAME"
-
-          # Try to fetch the current version dynamically using gh CLI
-          CURRENT_VERSION=$(gh variable get "$BRANCH_NAME" --env "$DEPLOY_ENV" --repo $GITHUB_REPOSITORY --json name,value --jq '.value' || echo "")
-
-          if [[ -z "$CURRENT_VERSION" ]]; then
-            CURRENT_VERSION="0.0.0"
+          if ! kubectl get ns argocd &> /dev/null; then
+            echo "ArgoCD not found — installing"
+            curl -L https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml -o argocd-install.yaml
+            kubectl create namespace argocd
+            kubectl apply -n argocd -f ArgoSetup/argocd-install.yaml
+          else
+            echo "✅ ArgoCD already installed — skipping setup."
           fi
 
-          echo "Current Version: $CURRENT_VERSION"
+      - name: ArgoCD CLI
+        run: |
+          if ! command -v argocd >/dev/null 2>&1; then
+            echo "Argo CD CLI not found — installing"
+            curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+            sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
+            rm argocd-linux-amd64
+            echo "✅ Argo CD CLI installed successfully."
+          else
+            echo "✅ Argo CD CLI is already installed:"
+            argocd version --client || echo "Client version check failed (but CLI is present)"
+          fi
+      # Namespaces must be run before the container is deployed
+      # WIP dev tag since no staging right now
+      - name: ⭐ Deploy ArgoCD App
+        run: |
+          kubectl apply -f ArgoSetup/argo-app.yaml
 
-          # Function to increment version (adds 0.0.1)
-          increment_version() {
-            local version=$1
-            IFS='.' read -r major minor patch <<< "$version"  # Extract version numbers
-            patch=$((patch + 1))  # Increment patch version
-            echo "${major}.${minor}.${patch}"
-          }
+      - name: Argo Login
+        run: |
+          kubectl rollout status deployment argocd-server -n argocd
+          if ! lsof -i :8080 >/dev/null; then
+            kubectl port-forward svc/argocd-server -n argocd 8080:443 &
+            sleep 5
+          fi
+          sleep 5  # Give it a moment to start up
+          ARGOCD_ADMIN_PASSWORD=$(kubectl -n argocd get secret argocd-initial-admin-secret \
+            -o jsonpath="{.data.password}" | base64 -d)
+          argocd login localhost:8080 --username admin --password "$ARGOCD_ADMIN_PASSWORD" --insecure
+          argocd app wait liatrio-argocd-api --operation
+          argocd app sync liatrio-argocd-api
 
-          # Get new version (incremented)
-          NEW_VERSION=$(increment_version "$CURRENT_VERSION")
+      - name: Wait for ArgoCD App Sync
+        run: |
+          echo "BRANCH_NAME: ${BRANCH_NAME}"
+          echo "NEW_VERSION: ${NEW_VERSION}"
+          echo "EXPECTED VERSION: ${BRANCH_NAME}${NEW_VERSION}"
+          for i in {1..10}; do
+            EXTERNAL_IP=$(kubectl get svc liatrio-service-api -n dev -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
+            if [[ -z "$EXTERNAL_IP" ]]; then
+              echo "Waiting for external IP"
+              sleep 10
+            else
+              echo "::add-mask::$EXTERNAL_IP"
+              break
+            fi
+          done
 
-          # Export version to GitHub Actions
-          echo "NEW_VERSION=${NEW_VERSION}" >> $GITHUB_ENV
-          echo "BRANCH_NAME=${BRANCH_NAME}" >> $GITHUB_ENV
+          if [[ -z "$EXTERNAL_IP" ]]; then
+            echo "❌ Failed to get external IP"
+            exit 1
+          fi
 
-          # Print new version for debugging
-          echo "New Version: $NEW_VERSION"
+          echo "Curling app at http://$EXTERNAL_IP"
 
-          # Update the GitHub Actions environment variable for the branch with the new version
-          gh variable set "$BRANCH_NAME" --body "$NEW_VERSION" --env "$DEPLOY_ENV" --repo $GITHUB_REPOSITORY
-        env:
-          GH_TOKEN: ${{ secrets.LIAPATS }}
+          RESPONSE=$(curl -s "http://$EXTERNAL_IP")
+
+          echo "Full response: $RESPONSE"
+
+          DEPLOYED_VERSION=""
+            for attempt in {1..9}; do
+              echo "Attempt $attempt to verify deployed version"
+
+              RESPONSE=$(curl -s "http://$EXTERNAL_IP")
+              echo "Full response: $RESPONSE"
+
+              DEPLOYED_VERSION=$(echo "$RESPONSE" | jq -r '.version // .NEW_VERSION // empty')
+
+              echo "Comparing expected version ${BRANCH_NAME}${NEW_VERSION} to deployed version ${DEPLOYED_VERSION}"
+
+              if [[ "$DEPLOYED_VERSION" == "${BRANCH_NAME}${NEW_VERSION}" ]]; then
+                echo "✅ Version match confirmed: $DEPLOYED_VERSION"
+                break
+              fi
+
+              echo "❌ Version mismatch (Attempt $attempt). Retrying in 10 seconds"
+              sleep 10
+            done
+
+            # Final check after retries
+            if [[ "$DEPLOYED_VERSION" != "${BRANCH_NAME}${NEW_VERSION}" ]]; then
+              echo "❌ Final mismatch after retries!"
+              echo "Expected: ${BRANCH_NAME}${NEW_VERSION}"
+              echo "Got:      $DEPLOYED_VERSION"
+              exit 1
+            fi
+
+      # # This needs to run before deployment to establish namespaces
+      # - name: ⭐ Establish Namespaces & GitHub actions applies relevant namespace
+      #   run: |
+      #     echo "Google Actions adds namespace. Branch is dev. Pull request is staging"
+      #     kubectl apply -f k8s/namespaces.yaml
+
+      # - name: Set Kubernetes Context
+      #   run: |
+      #     kubectl config set-context --current --namespace=$DEPLOY_ENV
+
+      # # Namespaces must be run before the container is deployed
+      # - name: ⭐ Deploy Container
+      #   run: |
+      #     kubectl apply -f k8s/deployment.yaml --namespace=$DEPLOY_ENV
 
       - name: Change-Cause for New Deployment (Shown in Tests)
         run: |
@@ -255,19 +407,16 @@ jobs:
         run: |
           kubectl label deployment liatrio-deployment-api version=${NEW_VERSION} branch=${BRANCH_NAME} commit=${GITHUB_SHA} --overwrite -n $DEPLOY_ENV
 
-  # Per Best Practices this would be a separate file. To avoid Screen swaps keeping it in same file
-  #  on:
-  #   workflow_run:
-  #     workflows: ["GCloud"]
-  #     types:
-  #       - completed
   KubernetesTests:
+    name: KubernetesTests
     # if: false
     needs: GCloud
     env:
       GKE_CLUSTER: cluster-1
       GKE_REGION: us-central1-a
-      DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
+      # Currently just Dev to save resources
+      # DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'staging' || 'dev' }}
+      DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'dev' || 'dev' }}
     # Runner using version
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -278,7 +427,7 @@ jobs:
       # checkout@v4 using Sha 3-13-25
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-        
+
       # - uses: "google-github-actions/auth@v2"
       - uses: "google-github-actions/auth@6fc4af4b145ae7821d527454aa9bd537d1f2dc5f"
         with:
@@ -317,12 +466,47 @@ jobs:
 
       - name: Establish Namespaces
         run: |
-          kubectl apply -f k8s/namespaces.yaml
+          kubectl apply -f ArgoManifest/namespaces.yaml
+
+      - name: Turn ArgoCD off for HPA
+        run: |
+          kubectl patch application liatrio-argocd-api -n argocd --type merge -p '{
+            "spec": {
+              "syncPolicy": null
+            }
+          }'
+          for i in {1..5}; do
+            echo "Checking if syncPolicy is null..."
+            POLICY=$(kubectl get application liatrio-argocd-api -n argocd -o jsonpath='{.spec.syncPolicy}')
+            if [ "$POLICY" = "" ]; then
+              echo "✅ syncPolicy is OFF"
+              break
+            else
+              echo "⏳ syncPolicy still exists. Retrying..."
+              sleep 5
+            fi
+          done
+          # kubectl scale deployment argocd-server -n argocd --replicas=0
+      # - name: Ignore HPA drift temporarily
+      #   run: |
+      #     kubectl patch application liatrio-argocd-api -n argocd --type merge -p '{
+      #       "spec": {
+      #         "ignoreDifferences": [
+      #           {
+      #             "group": "autoscaling",
+      #             "kind": "HorizontalPodAutoscaler",
+      #             "name": "liatrio-hpa-api",
+      #             "namespace": "dev",
+      #             "jsonPointers": ["/spec/metrics"]
+      #           }
+      #         ]
+      #       }
+      #     }'
 
       - name: ⭐ Horizontal Pod Autoscaler To 1% to Trigger All Pods
         run: |
           echo "Patching HPA - This should not trigger a rollout"
-          kubectl patch hpa liatrio-hpa-api -n $DEPLOY_ENV --patch-file k8s/hpa_test.yaml
+          kubectl patch hpa liatrio-hpa-api -n $DEPLOY_ENV --patch-file Tests/hpa_test.yaml
           echo ""
           echo "Horizontal Pod Autoscaler Status. Note: CPU may be unknown as that can take a bit to load after a patch. HPA:"
           kubectl get hpa -n $DEPLOY_ENV
@@ -334,7 +518,7 @@ jobs:
         run: |
           HPA_NAME=liatrio-hpa-api
           MAX_REPLICAS=$(kubectl get hpa $HPA_NAME -n $DEPLOY_ENV -o jsonpath='{.spec.maxReplicas}')
-          echo "Waiting for $HPA_NAME to scale to $MAX_REPLICAS replicas..."
+          echo "Waiting for $HPA_NAME to scale to $MAX_REPLICAS replicas"
 
           for i in {1..20}; do
             CURRENT_REPLICAS=$(kubectl get deployment liatrio-deployment-api -n $DEPLOY_ENV -o jsonpath='{.status.readyReplicas}')
@@ -345,7 +529,7 @@ jobs:
               break
             fi
 
-            echo "Waiting... ($i/20)"
+            echo "Waiting ($i/20)"
             sleep 15
           done
 
@@ -356,12 +540,38 @@ jobs:
 
       - name: Setting HPA back to normal
         run: |
-          kubectl patch hpa liatrio-hpa-api -n $DEPLOY_ENV --patch-file k8s/hpa_reset.yaml
+          kubectl patch hpa liatrio-hpa-api -n $DEPLOY_ENV --patch-file Tests/hpa_reset.yaml
+
+      - name: Turn ArgoCD On for HPA
+        run: |
+          kubectl patch application liatrio-argocd-api -n argocd --type merge -p '{
+            "spec": {
+              "syncPolicy": {
+                "automated": {
+                  "prune": true,
+                  "selfHeal": true
+                },
+                "syncOptions": [
+                  "CreateNamespace=true"
+                ]
+              }
+            }
+          }'
+
+          # kubectl scale deployment argocd-server -n argocd --replicas=1
+      # - name: Re-enable ArgoCD management of HPA
+      #   run: |
+      #     kubectl patch application liatrio-argocd-api -n argocd --type json -p='[
+      #       {
+      #         "op": "remove",
+      #         "path": "/spec/ignoreDifferences"
+      #       }
+      #     ]'
 
       - name: ⭐ RBAC. Role Based Action Control. Create Service Account, Roles, & Binding
         run: |
           echo "Setting up Service Account: github-actions-sa-user to have get & list for namespaces, pods, services, & deployments"      
-          kubectl apply -f k8s/rbac.yaml
+          kubectl apply -f ArgoManifest/rbac.yaml
       - name: ⭐ Generate Service Account Token & Test
         run: |
           TOKEN=$(kubectl create token github-actions-sa-user -n github-actions)

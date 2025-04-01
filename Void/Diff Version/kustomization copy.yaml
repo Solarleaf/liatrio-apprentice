@@ -1,0 +1,7 @@
+# ./ArgoManifest/
+resources:
+  - test.yaml
+
+images:
+  - name: apptemp/chief
+    newTag: ArgoCD0.0.12

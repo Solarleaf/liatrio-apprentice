@@ -1,0 +1,114 @@
+# deployment.yaml Main File
+
+# Namespaces are applied in GitHub Actions or manually as needed
+
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: liatrio-deployment-api
+spec:
+  replicas: 1
+  # Rolling replaces old pods with new ones allowing for zero downtime and availability
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      # Ensures that there will always be a pod available
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: liatrio-app-api
+  template:
+    metadata:
+      labels:
+        app: liatrio-app-api
+    spec:
+      containers:
+        - name: liatrio-container-api
+          # GitHub actions makes sure that this is always a versioned Deployment
+          image: docker.io/apptemp/liatrio:ArgoCD0.0.116
+          ports:
+            - containerPort: 80
+          # Environmental Variables
+          env:
+            - name: PORT
+              value: "80"
+            - name: NEW_VERSION
+              value: "ArgoCD0.0.116"
+          # Probes
+          # Extra time before liveness check. Good for slow startup apps
+          startupProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 10
+          # Health Check. If failed, kills and restarts. Deadlock, freeze, etc
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          # Ready for traffic
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          # Resources
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "150Mi" # More than 150Mb
+            limits:
+              cpu: "200m"
+              memory: "250Mi"
+---
+# Have this in same file for less screen changing
+# Namespaces in separate file for better pratices
+# Namespaces needs to exist before deployment from GitHub Actions
+apiVersion: v1
+kind: Service
+metadata:
+  name: liatrio-service-api
+spec:
+  selector:
+    app: liatrio-app-api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer
+---
+# Have this in same file for less screen changing
+# kubectl run -i --tty load-generator --image=busybox --restart=Never -n dev -- /bin/sh -c "while true; do wget -q -O- http://liatrio-service-api.dev.svc.cluster.local; done"
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: liatrio-hpa-api
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: liatrio-deployment-api
+  # This overides scaling in the deployment
+  minReplicas: 1
+  maxReplicas: 2
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 90
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 90
