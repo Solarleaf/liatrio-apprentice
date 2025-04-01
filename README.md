@@ -10,5 +10,6 @@ Tools Used:
 - GitHub
 - Kubernetes
 - Google Kubernetes Engine
+- Argo CD
 
 Deploys: [![.github/workflows/liatriotests.yml](https://github.com/Solarleaf/liatrio-apprentice/actions/workflows/liatriotests.yml/badge.svg)](https://github.com/Solarleaf/liatrio-apprentice/actions/workflows/liatriotests.yml)
