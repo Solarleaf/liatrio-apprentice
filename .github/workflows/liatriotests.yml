@@ -8,9 +8,9 @@ on:
       - "Docker"
       - "Presentation"
       - "Version"
-      # - "ArgoCD"
+      - "ArgoCD"
   pull_request:
-    branches: [main]
+    # branches: [main]
 
 # on:
 #   workflow_run:
