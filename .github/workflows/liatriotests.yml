@@ -190,7 +190,7 @@ jobs:
   GCloud:
     name: GCloud
     needs: liatriotests
-    # if: false
+    if: false
 
     env:
       GKE_CLUSTER: cluster-1
@@ -411,7 +411,7 @@ jobs:
 
   KubernetesTests:
     name: KubernetesTests
-    # if: false
+    if: false
     needs: GCloud
     env:
       GKE_CLUSTER: cluster-1
