@@ -2,7 +2,7 @@ name: K3D CI Pipeline
 
 on:
   push:
-    # branches: ["ArgoCD"]
+    branches: ["main"]
 
 concurrency:
   group: ${{ github.workflow }}
