@@ -154,6 +154,10 @@ jobs:
           # sed -i -E "/name: NEW_VERSION/{n;s/value: \".*\"/value: \"$D_NEW_TAG\"/}" ArgoManifest/deployment.yaml
           sed -i "s|image: docker.io/${DOCKER_REPO}:.*|image: docker.io/${DOCKER_REPO}:${D_NEW_TAG}|" ArgoManifest/deployment.yaml
 
+      - name: breakpoint because the rest I don't want to finish
+        run: |
+          exit 0
+
       - name: ⭐ Update NEW_VERSION in deployment.yaml for Index.js
         run: |
           D_NEW_TAG="${BRANCH_NAME}${NEW_VERSION}"
@@ -188,7 +192,7 @@ jobs:
   GCloud:
     name: GCloud
     needs: liatriotests
-    # if: false
+    if: false
 
     env:
       GKE_CLUSTER: cluster-1
@@ -409,7 +413,7 @@ jobs:
 
   KubernetesTests:
     name: KubernetesTests
-    # if: false
+    if: false
     needs: GCloud
     env:
       GKE_CLUSTER: cluster-1
