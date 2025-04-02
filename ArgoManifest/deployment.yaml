@@ -35,7 +35,7 @@ spec:
             - name: PORT
               value: "80"
             - name: NEW_VERSION
-              value: "ArgoCD0.0.145"
+              value: "ArgoCD0.0.146"
           # Probes
           # Extra time before liveness check. Good for slow startup apps
           startupProbe:
