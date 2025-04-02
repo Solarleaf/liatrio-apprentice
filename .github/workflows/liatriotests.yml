@@ -154,45 +154,43 @@ jobs:
           # sed -i -E "/name: NEW_VERSION/{n;s/value: \".*\"/value: \"$D_NEW_TAG\"/}" ArgoManifest/deployment.yaml
           sed -i "s|image: docker.io/${DOCKER_REPO}:.*|image: docker.io/${DOCKER_REPO}:${D_NEW_TAG}|" ArgoManifest/deployment.yaml
 
-      - name: breakpoint because the rest I don't want to finish
-        run: |
-          exit 0
+      # ArgoCD Image Updater Means these sections aren't needed.
 
-      - name: ⭐ Update NEW_VERSION in deployment.yaml for Index.js
-        run: |
-          D_NEW_TAG="${BRANCH_NAME}${NEW_VERSION}"
-          echo "$D_NEW_TAG"
-          # sed -i "/name: NEW_VERSION/{n;s/value:.*/value: \"$D_NEW_TAG\"/}" ArgoManifest/deployment.yaml
-          sed -i -E "/name: NEW_VERSION/{n;s/value: \".*\"/value: \"${D_NEW_TAG}\"/}" ArgoManifest/deployment.yaml
-          cat ArgoManifest/deployment.yaml
+      # - name: ⭐ Update NEW_VERSION in deployment.yaml for Index.js
+      #   run: |
+      #     D_NEW_TAG="${BRANCH_NAME}${NEW_VERSION}"
+      #     echo "$D_NEW_TAG"
+      #     # sed -i "/name: NEW_VERSION/{n;s/value:.*/value: \"$D_NEW_TAG\"/}" ArgoManifest/deployment.yaml
+      #     sed -i -E "/name: NEW_VERSION/{n;s/value: \".*\"/value: \"${D_NEW_TAG}\"/}" ArgoManifest/deployment.yaml
+      #     cat ArgoManifest/deployment.yaml
 
-      - name: ⭐ Commit and Push deployment.yaml change
-        env:
-          GH_TOKEN: ${{ secrets.ARGO_ADD }}
-        run: |
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            TARGET_BRANCH="${{ github.head_ref }}"
-          else
-            TARGET_BRANCH="${GITHUB_REF_NAME}"
-            echo "${TARGET_BRANCH}"
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "1337@supa.com"
-          git checkout "$TARGET_BRANCH"
-          git add ArgoManifest/deployment.yaml
-          if git diff --cached --quiet; then
-            echo "✅ No changes to commit"
-          else
-            git commit -m "Automated update of deployment.yaml" #[skip ci]"
-            git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
-            
-            git push origin HEAD:$TARGET_BRANCH
-          fi
+      # - name: ⭐ Commit and Push deployment.yaml change
+      #   env:
+      #     GH_TOKEN: ${{ secrets.ARGO_ADD }}
+      #   run: |
+      #     if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+      #       TARGET_BRANCH="${{ github.head_ref }}"
+      #     else
+      #       TARGET_BRANCH="${GITHUB_REF_NAME}"
+      #       echo "${TARGET_BRANCH}"
+      #     fi
+      #     git config user.name "github-actions[bot]"
+      #     git config user.email "1337@supa.com"
+      #     git checkout "$TARGET_BRANCH"
+      #     git add ArgoManifest/deployment.yaml
+      #     if git diff --cached --quiet; then
+      #       echo "✅ No changes to commit"
+      #     else
+      #       git commit -m "Automated update of deployment.yaml" #[skip ci]"
+      #       git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+
+      #       git push origin HEAD:$TARGET_BRANCH
+      #     fi
 
   GCloud:
     name: GCloud
     needs: liatriotests
-    if: false
+    # if: false
 
     env:
       GKE_CLUSTER: cluster-1
@@ -413,7 +411,7 @@ jobs:
 
   KubernetesTests:
     name: KubernetesTests
-    if: false
+    # if: false
     needs: GCloud
     env:
       GKE_CLUSTER: cluster-1
