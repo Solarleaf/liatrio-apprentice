@@ -37,7 +37,7 @@ app.get("/", (req, res) => {
         mini: mess_n.replace(/\s+/g, ''),
         request: req.hostname,
         requests: req.method,
-        funFact: funFacts[Math.floor(Math.random() * funFacts.length)],
+        // funFact: funFacts[Math.floor(Math.random() * funFacts.length)],
         // portUsed: port,
         version: process.env.NEW_VERSION || "dev",
         // version: "dev",

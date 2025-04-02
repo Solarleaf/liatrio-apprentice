@@ -4,10 +4,11 @@ metadata:
   name: liatrio-argocd-api
   namespace: argocd
   annotations:
-    argocd-image-updater.argoproj.io/image-list: apptemp/liatrio
+    argocd-image-updater.argoproj.io/image-list: apptemp_liatrio=docker.io/apptemp/liatrio
     argocd-image-updater.argoproj.io/apptemp_liatrio.update-strategy: newest-build
     argocd-image-updater.argoproj.io/write-back-method: git:secret:git-ssh-key
     argocd-image-updater.argoproj.io/apptemp_liatrio.ignore-tags: latest
+    # argocd-image-updater.argoproj.io/myalias.force-update: "true"
 spec:
   project: default
 
@@ -27,10 +28,3 @@ spec:
     automated:
       selfHeal: true
       prune: true
-  # retry:
-  #   limit: 2
-  #   backoff:
-  #     duration: 15s
-  #     factor: 3
-  #     maxDuration: 3m0s
-  #
