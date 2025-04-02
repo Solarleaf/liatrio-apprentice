@@ -314,7 +314,7 @@ jobs:
         run: |
           kubectl apply -f ArgoSetup/argo-app.yaml
 
-      - name: Argo Login
+      - name: Argo Login # this may be an area to test
         run: |
           kubectl rollout status deployment argocd-server -n argocd
           if ! lsof -i :8080 >/dev/null; then
