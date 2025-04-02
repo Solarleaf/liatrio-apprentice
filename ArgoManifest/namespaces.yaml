@@ -1,4 +1,4 @@
-# namespaces
+# ArgoManifest/namespaces
 apiVersion: v1
 kind: Namespace
 metadata:
