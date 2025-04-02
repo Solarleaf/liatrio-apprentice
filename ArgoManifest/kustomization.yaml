@@ -1,0 +1,5 @@
+# ArgoManifest/kustomization.yaml
+resources:
+  - deployment.yaml
+  - namespaces.yaml
+  - rbac.yaml

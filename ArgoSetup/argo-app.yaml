@@ -3,10 +3,19 @@ kind: Application
 metadata:
   name: liatrio-argocd-api
   namespace: argocd
+  annotations:
+    argocd-image-updater.argoproj.io/image-list: apptemp_liatrio=docker.io/apptemp/liatrio
+    # argocd-image-updater.argoproj.io/apptemp_liatrio.update-strategy: digest
+    argocd-image-updater.argoproj.io/apptemp_liatrio.update-strategy: newest-build
+    # argocd-image-updater.argoproj.io/write-back-method: git:secret:argocd/git-ssh-key
+    argocd-image-updater.argoproj.io/write-back-method: argocd
+    argocd-image-updater.argoproj.io/apptemp_liatrio.ignore-tags: latest
+    # argocd-image-updater.argoproj.io/myalias.force-update: "true"
 spec:
   project: default
 
   source:
+    # repoURL: git@github.com:Solarleaf/liatrio-apprentice
     repoURL: https://github.com/Solarleaf/liatrio-apprentice
     targetRevision: ArgoCD
     path: ArgoManifest
@@ -22,9 +31,3 @@ spec:
     automated:
       selfHeal: true
       prune: true
-  # retry:
-  #   limit: 2
-  #   backoff:
-  #     duration: 15s
-  #     factor: 3
-  #     maxDuration: 3m0s

@@ -1,4 +1,8 @@
-# Star t
+kubectl apply -f ArgoSetup/argo-app.yaml -n argocd
+kubectl rollout restart deployment/argocd-image-updater -n argocd
+kubectl logs -n argocd deployment/argocd-image-updater -f
+
+# Start
 
 k3d cluster create cluster-1
 
@@ -104,22 +108,17 @@ ArgoCD Application Manifest files.
 curl -L https://raw.githubusercontent.com/argoproj-labs/argocd-image-updater/stable/manifests/install.yaml -o ArgoSetup/argocd-image-install.yaml
 kubectl apply -n argocd -f ArgoSetup/argocd-image-install.yaml
 
-# Argo CD Image
-
-kubectl -n argocd create secret generic git-deploy-key \
- --from-file=sshPrivateKey=./argocd-image-updater
-
-argocd repo add git@github.com:Solarleaf/liatrio-apprentice.git \
- --ssh-private-key-path ./argocd-image-updater
+# Argo CD Image Updater Passwords
 
 kubectl create secret generic git-ssh-key \
- --from-file=sshPrivateKey=/path/to/your/private/key \
- -n argocd
+ --from-file=sshPrivateKey=<path-to-your-private-key> \
+ --namespace=argocd
 
-kubectl create secret generic argocd-repo-creds \
- --from-literal=username=$(echo -n "Solarleif" | base64) \
-  --from-literal=password=$(echo -n "your_personal_access_token" | base64) \
- -n argocd
+# Keep the ' '
+
+kubectl create secret generic git-ssh-key \
+ --from-literal=sshPrivateKey='<your-private-key>' \
+ --namespace=argocd
 
 # Helm
 
