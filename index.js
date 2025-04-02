@@ -38,8 +38,8 @@ app.get("/", (req, res) => {
         request: req.hostname,
         requests: req.method,
         funFact: funFacts[Math.floor(Math.random() * funFacts.length)],
-        portUsed: port,
-        version: process.env.NEW_VERSION || "dev",
+        // portUsed: port,
+        // version: process.env.NEW_VERSION || "dev",
         // version: "dev",
         
     };
