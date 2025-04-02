@@ -145,6 +145,8 @@ jobs:
           docker push $DOCKER_REPO:latest
           docker push $DOCKER_REPO:${BRANCH_NAME}${NEW_VERSION}
 
+      # ArgoCD Image Updater Means these sections aren't needed.
+
       - name: ⭐ Rename Container
         run: |
           echo "${NEW_VERSION}"
@@ -154,40 +156,40 @@ jobs:
           # sed -i -E "/name: NEW_VERSION/{n;s/value: \".*\"/value: \"$D_NEW_TAG\"/}" ArgoManifest/deployment.yaml
           sed -i "s|image: docker.io/${DOCKER_REPO}:.*|image: docker.io/${DOCKER_REPO}:${D_NEW_TAG}|" ArgoManifest/deployment.yaml
 
-      - name: breakpoint because the rest I don't want to finish
+      - name: Success
         run: |
           exit 0
 
-      - name: ⭐ Update NEW_VERSION in deployment.yaml for Index.js
-        run: |
-          D_NEW_TAG="${BRANCH_NAME}${NEW_VERSION}"
-          echo "$D_NEW_TAG"
-          # sed -i "/name: NEW_VERSION/{n;s/value:.*/value: \"$D_NEW_TAG\"/}" ArgoManifest/deployment.yaml
-          sed -i -E "/name: NEW_VERSION/{n;s/value: \".*\"/value: \"${D_NEW_TAG}\"/}" ArgoManifest/deployment.yaml
-          cat ArgoManifest/deployment.yaml
+      # - name: ⭐ Update NEW_VERSION in deployment.yaml for Index.js
+      #   run: |
+      #     D_NEW_TAG="${BRANCH_NAME}${NEW_VERSION}"
+      #     echo "$D_NEW_TAG"
+      #     # sed -i "/name: NEW_VERSION/{n;s/value:.*/value: \"$D_NEW_TAG\"/}" ArgoManifest/deployment.yaml
+      #     sed -i -E "/name: NEW_VERSION/{n;s/value: \".*\"/value: \"${D_NEW_TAG}\"/}" ArgoManifest/deployment.yaml
+      #     cat ArgoManifest/deployment.yaml
 
-      - name: ⭐ Commit and Push deployment.yaml change
-        env:
-          GH_TOKEN: ${{ secrets.ARGO_ADD }}
-        run: |
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            TARGET_BRANCH="${{ github.head_ref }}"
-          else
-            TARGET_BRANCH="${GITHUB_REF_NAME}"
-            echo "${TARGET_BRANCH}"
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "1337@supa.com"
-          git checkout "$TARGET_BRANCH"
-          git add ArgoManifest/deployment.yaml
-          if git diff --cached --quiet; then
-            echo "✅ No changes to commit"
-          else
-            git commit -m "Automated update of deployment.yaml" #[skip ci]"
-            git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
-            
-            git push origin HEAD:$TARGET_BRANCH
-          fi
+      # - name: ⭐ Commit and Push deployment.yaml change
+      #   env:
+      #     GH_TOKEN: ${{ secrets.ARGO_ADD }}
+      #   run: |
+      #     if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+      #       TARGET_BRANCH="${{ github.head_ref }}"
+      #     else
+      #       TARGET_BRANCH="${GITHUB_REF_NAME}"
+      #       echo "${TARGET_BRANCH}"
+      #     fi
+      #     git config user.name "github-actions[bot]"
+      #     git config user.email "1337@supa.com"
+      #     git checkout "$TARGET_BRANCH"
+      #     git add ArgoManifest/deployment.yaml
+      #     if git diff --cached --quiet; then
+      #       echo "✅ No changes to commit"
+      #     else
+      #       git commit -m "Automated update of deployment.yaml" #[skip ci]"
+      #       git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+
+      #       git push origin HEAD:$TARGET_BRANCH
+      #     fi
 
   GCloud:
     name: GCloud
@@ -386,21 +388,6 @@ jobs:
               exit 1
             fi
 
-      # # This needs to run before deployment to establish namespaces
-      # - name: ⭐ Establish Namespaces & GitHub actions applies relevant namespace
-      #   run: |
-      #     echo "Google Actions adds namespace. Branch is dev. Pull request is staging"
-      #     kubectl apply -f k8s/namespaces.yaml
-
-      # - name: Set Kubernetes Context
-      #   run: |
-      #     kubectl config set-context --current --namespace=$DEPLOY_ENV
-
-      # # Namespaces must be run before the container is deployed
-      # - name: ⭐ Deploy Container
-      #   run: |
-      #     kubectl apply -f k8s/deployment.yaml --namespace=$DEPLOY_ENV
-
       - name: Change-Cause for New Deployment (Shown in Tests)
         run: |
           kubectl annotate deployment liatrio-deployment-api \
@@ -496,22 +483,6 @@ jobs:
             }
           }'
           sleep 5
-          # kubectl scale deployment argocd-server -n argocd --replicas=0
-      # - name: Ignore HPA drift temporarily
-      #   run: |
-      #     kubectl patch application liatrio-argocd-api -n argocd --type merge -p '{
-      #       "spec": {
-      #         "ignoreDifferences": [
-      #           {
-      #             "group": "autoscaling",
-      #             "kind": "HorizontalPodAutoscaler",
-      #             "name": "liatrio-hpa-api",
-      #             "namespace": "dev",
-      #             "jsonPointers": ["/spec/metrics"]
-      #           }
-      #         ]
-      #       }
-      #     }'
 
       - name: ⭐ Horizontal Pod Autoscaler To 1% to Trigger All Pods
         run: |
@@ -567,16 +538,6 @@ jobs:
               }
             }
           }'
-
-          # kubectl scale deployment argocd-server -n argocd --replicas=1
-      # - name: Re-enable ArgoCD management of HPA
-      #   run: |
-      #     kubectl patch application liatrio-argocd-api -n argocd --type json -p='[
-      #       {
-      #         "op": "remove",
-      #         "path": "/spec/ignoreDifferences"
-      #       }
-      #     ]'
 
       - name: ⭐ RBAC. Role Based Action Control. Create Service Account, Roles, & Binding
         run: |
