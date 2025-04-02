@@ -39,8 +39,8 @@ app.get("/", (req, res) => {
         requests: req.method,
         funFact: funFacts[Math.floor(Math.random() * funFacts.length)],
         portUsed: port,
-        // version: process.env.NEW_VERSION || "dev",
-        // version: "dev",
+        version: process.env.NEW_VERSION || "dev",
+        version: "dev",
         
     };
     // Express response helpers
