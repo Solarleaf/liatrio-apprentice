@@ -297,6 +297,10 @@ jobs:
             echo "✅ ArgoCD already installed — skipping setup."
           fi
 
+      - name: ArgoCD Image Update
+        run: |
+          kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj-labs/argocd-image-updater/stable/manifests/install.yaml
+
       - name: ArgoCD CLI
         run: |
           if ! command -v argocd >/dev/null 2>&1; then
